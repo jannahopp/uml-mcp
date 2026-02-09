@@ -2,6 +2,23 @@
 
 UML-MCP can be configured using environment variables and MCP client config files.
 
+## Running with FastMCP CLI
+
+When a `fastmcp.json` file is present in the project root, you can run the server with the [FastMCP CLI](https://gofastmcp.com/):
+
+```bash
+# Use config from fastmcp.json (auto-detected in current directory)
+fastmcp run
+
+# Or specify the config file explicitly
+fastmcp run fastmcp.json
+
+# Or run a specific file; the CLI looks for a variable named mcp, server, or app
+fastmcp run server.py
+```
+
+Command-line options override values in `fastmcp.json` (e.g. `fastmcp run --port 8080`). For the full local CLI with options like `--list-tools`, use `python server.py` instead.
+
 ## Environment Variables
 
 | Variable | Description | Default |
@@ -11,6 +28,32 @@ UML-MCP can be configured using environment variables and MCP client config file
 | `PLANTUML_SERVER` | URL of the PlantUML server | `http://plantuml-server:8080` |
 | `USE_LOCAL_KROKI` | Use local Kroki server (true/false) | `false` |
 | `USE_LOCAL_PLANTUML` | Use local PlantUML server (true/false) | `false` |
+| `FASTMCP_STATELESS_HTTP` | Enable stateless HTTP for multi-worker/horizontal scaling (true/false) | `false` |
+
+## Health check (HTTP deployment)
+
+When running the FastAPI app (`app.py`) for HTTP deployment (e.g. Vercel, Docker, uvicorn), a **health endpoint** is available:
+
+- **Endpoint**: `GET /health` (no authentication required)
+- **Response**: `{"status": "healthy", "modules_available": true|false}`
+  - `status`: Always `"healthy"` when the server is up.
+  - `modules_available`: Whether diagram backends (Kroki, PlantUML, etc.) could be loaded.
+
+Use this endpoint for load balancers, readiness/liveness probes (e.g. Kubernetes, Docker, Vercel), and monitoring. For HTTP deployment, the FastAPI app’s `/health` is the canonical health endpoint for readiness checks.
+
+When running the MCP server via `fastmcp run` with HTTP transport only (no FastAPI app), the standalone server does not expose `/health` unless you add a custom route; use the FastAPI app if you need the health endpoint.
+
+## Stateless HTTP (multi-worker / horizontal scaling)
+
+When running **multiple workers or instances** (e.g. `uvicorn app:app --workers 4` or multiple pods behind a load balancer), FastMCP’s default server-side sessions can break because sessions are stored per process. Enable **stateless HTTP** so each request gets a fresh context:
+
+Set the environment variable:
+
+```bash
+FASTMCP_STATELESS_HTTP=true
+```
+
+This is recommended for multi-worker or horizontally scaled deployments. The MCP server is created with `stateless_http=True` when this variable is set to `1`, `true`, or `yes` (case-insensitive).
 
 ## MCP client configuration
 

@@ -23,5 +23,6 @@ RUN mkdir -p /app/output
 # Expose port for API
 EXPOSE 8000
 
-# Set entrypoint for stdio mode (canonical MCP server using mcp_core/Kroki)
+# Set entrypoint for stdio mode (canonical MCP server using mcp_core/Kroki).
+# For MCP over HTTP with REST API and /health, override to: uvicorn app:app --host 0.0.0.0 --port 8000
 ENTRYPOINT ["python", "server.py", "--transport", "stdio"]

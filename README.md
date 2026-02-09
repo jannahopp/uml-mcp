@@ -98,6 +98,8 @@ uv run python server.py
 # or: poetry run uml-mcp
 ```
 
+You can also use the [FastMCP CLI](https://gofastmcp.com/) when `fastmcp.json` is present: run `fastmcp run` or `fastmcp run fastmcp.json` to start the server using the config file (CLI options override the config). For the full local CLI with options like `--list-tools`, use `python server.py` instead.
+
 The server uses stdio by default. For HTTP:
 
 ```bash

@@ -79,7 +79,7 @@ if use_mock:
             self.data[key] = value
 
     class FastMCP:  # noqa: F811
-        def __init__(self, name: str):
+        def __init__(self, name: str, **kwargs):
             self.name = name
             self._tools = {}
             self._prompts = {}
