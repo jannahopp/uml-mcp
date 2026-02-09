@@ -1,24 +1,25 @@
 # MCP Tools Reference
 
-UML-MCP provides several MCP tools for diagram generation. These tools can be called by MCP clients like AI assistants.
+UML-MCP exposes a single MCP tool for diagram generation. Use the `uml://types` resource to see valid diagram types.
 
-## General Diagram Tool
+## `generate_uml`
 
-### `generate_uml`
-
-Generates a diagram of any supported type.
+Generates a diagram of any supported type. Pass `diagram_type` (e.g. class, sequence, activity, mermaid, d2, bpmn) and the corresponding `code` in that syntax.
 
 **Parameters:**
-- `diagram_type` (string): Type of diagram (class, sequence, activity, etc.)
-- `code` (string): The diagram code/description
-- `output_dir` (string): Directory where to save the generated image
+- `diagram_type` (string): Type of diagram (class, sequence, activity, use case, state, component, deployment, object, mermaid, d2, graphviz, erd, blockdiag, bpmn, c4plantuml). Use `uml://types` for the full list.
+- `code` (string): The diagram code in the syntax for the chosen type (e.g. PlantUML, Mermaid, D2).
+- `output_dir` (string, optional): Directory where to save the generated image.
+- `output_format` (string, optional): svg, png, or pdf (default: svg). See `uml://formats` for supported formats per type.
+- `theme` (string, optional): PlantUML theme for UML diagram types (e.g. cerulean).
 
 **Returns:**
-JSON string containing:
+JSON containing:
 - `code`: Original diagram code
 - `url`: URL to the generated diagram
 - `playground`: URL to an online playground (if available)
-- `local_path`: Path to the saved image file
+- `local_path`: Path to the saved image file (if `output_dir` was provided)
+- `error`: Present only if validation or generation failed
 
 **Example:**
 ```json
@@ -33,104 +34,4 @@ JSON string containing:
 }
 ```
 
-## UML Diagram Tools
-
-### `generate_class_diagram`
-
-Generates a class diagram.
-
-**Parameters:**
-- `code` (string): The PlantUML class diagram code
-- `output_dir` (string): Directory where to save the generated image (optional)
-- `output_format` (string): svg, png, or pdf (default: svg)
-- `theme` (string): PlantUML theme (optional, e.g. cerulean)
-
-**Returns:**
-Same as `generate_uml`
-
-### `generate_sequence_diagram`
-
-Generates a sequence diagram.
-
-**Parameters:**
-- `code` (string): The PlantUML sequence diagram code
-- `output_dir` (string): Directory where to save the generated image
-
-**Returns:**
-Same as `generate_uml`
-
-### `generate_activity_diagram`
-
-Generates an activity diagram.
-
-**Parameters:**
-- `code` (string): The PlantUML activity diagram code
-- `output_dir` (string): Directory where to save the generated image
-
-**Returns:**
-Same as `generate_uml`
-
-### `generate_usecase_diagram`
-
-Generates a use case diagram.
-
-**Parameters:**
-- `code` (string): The PlantUML use case diagram code
-- `output_dir` (string): Directory where to save the generated image
-
-**Returns:**
-Same as `generate_uml`
-
-### Other UML Diagrams
-
-Similar tools exist for other UML diagram types:
-- `generate_state_diagram`
-- `generate_component_diagram`
-- `generate_deployment_diagram`
-- `generate_object_diagram`
-
-## Other Diagram Tools
-
-### `generate_mermaid_diagram`
-
-Generates a Mermaid diagram.
-
-**Parameters:**
-- `code` (string): The Mermaid diagram code
-- `output_dir` (string): Directory where to save the generated image
-
-**Returns:**
-Same as `generate_uml`
-
-### `generate_d2_diagram`
-
-Generates a D2 diagram.
-
-**Parameters:**
-- `code` (string): The D2 diagram code
-- `output_dir` (string): Directory where to save the generated image
-
-**Returns:**
-Same as `generate_uml`
-
-### `generate_graphviz_diagram`
-
-Generates a Graphviz diagram.
-
-**Parameters:**
-- `code` (string): The Graphviz (DOT) diagram code
-- `output_dir` (string): Directory where to save the generated image
-
-**Returns:**
-Same as `generate_uml`
-
-### `generate_erd_diagram`
-
-Generates an Entity-Relationship diagram.
-
-**Parameters:**
-- `code` (string): The ERD diagram code
-- `output_dir` (string): Directory where to save the generated image
-
-**Returns:**
-Same as `generate_uml`
+For class diagrams use `diagram_type`: `"class"`; for sequence use `"sequence"`; for Mermaid use `"mermaid"`; for D2 use `"d2"`; and so on.

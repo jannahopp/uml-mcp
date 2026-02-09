@@ -8,10 +8,12 @@
     {"src": "app.py", "use": "@vercel/python", "config": {"maxLambdaSize": "50mb", "runtime": "python3.10"}},
     {"src": "favicon.ico", "use": "@vercel/static"},
     {"src": ".well-known/mcp/server-card.json", "use": "@vercel/static"},
-    {"src": "public/.well-known/mcp/server-card.json", "use": "@vercel/static"}
+    {"src": "public/.well-known/mcp/server-card.json", "use": "@vercel/static"},
+    {"src": "public/.well-known/mcp/config-schema.json", "use": "@vercel/static"}
   ],
   "rewrites": [
-    {"source": "/.well-known/mcp/server-card.json", "destination": "/public/.well-known/mcp/server-card.json"}
+    {"source": "/.well-known/mcp/server-card.json", "destination": "/public/.well-known/mcp/server-card.json"},
+    {"source": "/.well-known/mcp/config-schema.json", "destination": "/public/.well-known/mcp/config-schema.json"}
   ],
   "routes": [
     {"src": "/(.*)", "dest": "/app.py"}

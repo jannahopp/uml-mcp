@@ -38,8 +38,8 @@
     <answer>14</answer>
   </qa_pair>
   <qa_pair>
-    <question>Read the uml://workflow resource. What tool name does it recommend using first for complex diagrams?</question>
-    <answer>sequentialthinking</answer>
+    <question>Read the uml://workflow resource. What tool do you call after planning (diagram type, elements, relationships) to produce the diagram?</question>
+    <answer>generate_uml</answer>
   </qa_pair>
   <qa_pair>
     <question>Read the uml://formats resource. What output formats does the 'class' diagram type support? List them in alphabetical order separated by commas.</question>

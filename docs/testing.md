@@ -1,6 +1,6 @@
 # Testing
 
-This page explains how tests are organized, why integration tests are skipped by default, and how to run them. It also describes how the in-repo sequential thinking tool is covered by integration tests.
+This page explains how tests are organized, why integration tests are skipped by default, and how to run them.
 
 ## Why integration tests show as SKIPPED
 
@@ -41,19 +41,11 @@ This project does that by:
 
 So the skip behavior is **by design** and consistent with “keep tests fast; use mocks where appropriate; heavier tests opt-in.”
 
-## Sequential thinking and integration tests
+## Integration tests and tools
 
-There is **no separate sequential-thinking MCP server** in this repo. “Sequential thinking” is implemented as an **in-repo MCP tool** inside the UML-MCP server:
+The server exposes a single diagram tool, **generate_uml** (see [mcp_core/tools/diagram_tools.py](../mcp_core/tools/diagram_tools.py)). Planning (diagram type, elements, relationships) is built into the default prompts (**uml_diagram**, **uml_diagram_with_thinking**), so the model plans first then calls `generate_uml` with the final code.
 
-- **Implementation:** [mcp_core/tools/sequential_thinking.py](../mcp_core/tools/sequential_thinking.py) — a tool named `sequentialthinking` that mirrors the Node sequential-thinking server API (plan → revise → verify; used for diagram planning before calling `generate_uml`).
-- **Registration:** The tool is registered by importing the module in [mcp_core/tools/diagram_tools.py](../mcp_core/tools/diagram_tools.py) (line 15: `from . import sequential_thinking`), so the decorator registers it with the same server that exposes `generate_uml`, etc.
-
-The **integration tests** that are skipped by default:
-
-- **TestDiscoveryViaClient::test_list_tools_via_client** — Asserts that `sequentialthinking` is in the list of tools returned by the client (line 83: `assert "sequentialthinking" in names`).
-- **TestSequentialThinkingViaClient::test_sequentialthinking_via_client** — Calls the `sequentialthinking` tool with sample arguments and asserts the response shape (`thoughtNumber`, `totalThoughts`, `nextThoughtNeeded`, `branches`, `thoughtHistoryLength`).
-
-When you run integration tests with `USE_REAL_FASTMCP=1`, they verify that the in-repo sequential thinking tool is discoverable and callable via the real FastMCP client.
+When you run integration tests with `USE_REAL_FASTMCP=1`, they verify that `generate_uml` is discoverable and callable via the real FastMCP client (e.g. **TestDiscoveryViaClient::test_list_tools_via_client**, **TestDiagramToolsViaClient**).
 
 ## MCP Evaluation
 
@@ -77,6 +69,6 @@ For full evaluation with Claude (requires `anthropic`), use the evaluation harne
 | **Why skipped**           | `USE_REAL_FASTMCP` is not set; skip is intentional.                                       |
 | **Run integration tests** | `USE_REAL_FASTMCP=1 uv run pytest tests/integration -v` (or set env in PowerShell first). |
 | **Testing approach**      | Default suite stays fast; integration tests are opt-in and use conftest/fixtures.          |
-| **Sequential thinking**   | In-repo MCP tool `sequentialthinking`; integration tests check it is listed and callable. |
+| **Diagram tool**          | Single tool `generate_uml`; integration tests check it is listed and callable.           |
 
 No code changes are required to “fix” the skips; they are the intended behavior. To see the integration tests execute, run them with the environment variable above.

@@ -182,18 +182,15 @@ python server.py
 **Resources (e.g. `uml://types`, `uml://templates`, `uml://examples`, `uml://formats`, `uml://server-info`, `uml://workflow`)**
 Provide diagram types, templates, examples, formats, server info, and the recommended workflow for complex diagrams.
 
-**Tools** include:
+**Tools:**
 
-- `generate_uml` — any UML diagram (params: `diagram_type`, `code`, `output_dir`)
-- `generate_class_diagram`, `generate_sequence_diagram`, `generate_activity_diagram`, etc.
-- `generate_mermaid_diagram`, `generate_d2_diagram`, `generate_graphviz_diagram`, `generate_erd_diagram`
-- `sequentialthinking` — plan and verify diagram design step-by-step before generating (see below)
+- `generate_uml` — single tool for any diagram type (params: `diagram_type`, `code`, `output_dir`, `output_format`, `theme`). Use `diagram_type` for class, sequence, mermaid, d2, etc. See `uml://types` for valid types.
 
-See [docs/api/tools.md](docs/api/tools.md) for full tool list and parameters.
+See [docs/api/tools.md](docs/api/tools.md) for parameters.
 
 ### Better results for complex diagrams
 
-For complex or ambiguous diagram requests, use the **uml_diagram_with_thinking** prompt or the **sequentialthinking** tool to plan and verify the design (diagram type, elements, relationships) before calling `generate_uml` with the final code. The resource `uml://workflow` describes this recommended flow. To reduce log noise from thought steps, set `DISABLE_THOUGHT_LOGGING=true` (see [docs/configuration.md](docs/configuration.md)). The `sequentialthinking` tool mirrors the Node sequential-thinking server API for compatibility with clients that expect that workflow.
+The default prompts (**uml_diagram**, **uml_diagram_with_thinking**) instruct the model to plan first (decide diagram type, purpose, elements, relationships), then output the diagram code and call `generate_uml` with the chosen `diagram_type` and final code. The resource `uml://workflow` describes this flow.
 
 ## Tests
 

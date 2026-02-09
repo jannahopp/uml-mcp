@@ -9,7 +9,7 @@ Prompt hint
 [PURPOSE] — Communication, Planning, Design, Analysis, Modeling, Documentation, Implementation, Testing, Debugging.
 [DIAGRAMMING TOOL] — PlantUML, Mermaid, D2 (Kroki for rendering).
 
-Recommended: use sequential thinking for complex diagrams. Use the uml_diagram_with_thinking prompt to get step-by-step planning (decide diagram type, purpose, and elements), then generate code and call generate_uml.
+Recommended: use the uml_diagram or uml_diagram_with_thinking prompt so the model plans first (diagram type, purpose, elements), then generates code and calls generate_uml.
 
 ---
 
@@ -18,7 +18,7 @@ UML-MCP is a diagram generation server that implements the Model Context Protoco
 ## What it does
 
 - Generates diagrams from code/descriptions using PlantUML, Kroki, Mermaid, D2, Graphviz backends.
-- Exposes MCP tools (e.g. generate_uml, generate_class_diagram, generate_sequence_diagram) and resources (uml://types, uml://templates, uml://examples, uml://formats, uml://server-info, uml://workflow).
+- Exposes the MCP tool generate_uml (diagram_type, code, output_dir, …) and resources (uml://types, uml://templates, uml://examples, uml://formats, uml://server-info, uml://workflow).
 - Output formats: SVG, PNG, PDF (and others depending on diagram type).
 
 ## Diagram types
@@ -28,10 +28,7 @@ UML-MCP is a diagram generation server that implements the Model Context Protoco
 
 ## MCP tools (summary)
 
-- generate_uml — diagram_type, code, output_dir.
-- Type-specific: generate_class_diagram, generate_sequence_diagram, generate_activity_diagram, generate_usecase_diagram, etc.
-- generate_mermaid_diagram, generate_d2_diagram, generate_graphviz_diagram, generate_erd_diagram.
-- sequentialthinking — plan/verify diagram design step-by-step before generating.
+- generate_uml — single tool for all diagram types. Pass diagram_type (class, sequence, mermaid, d2, etc.), code, output_dir, output_format, theme. Use uml://types for valid types.
 
 Full tool list and parameters: docs/api/tools.md
 
@@ -42,15 +39,13 @@ Full tool list and parameters: docs/api/tools.md
 - uml://examples — examples.
 - uml://formats — output formats.
 - uml://server-info — server info.
-- uml://workflow — recommended workflow for complex diagrams (use uml_diagram_with_thinking or sequentialthinking before generate_uml).
+- uml://workflow — recommended workflow: plan first (type, elements, relationships), then call generate_uml.
 
 ## Configuration
 
 - MCP_OUTPUT_DIR / UML_MCP_OUTPUT_DIR — where to save diagrams (default: ./output).
 - KROKI_SERVER, PLANTUML_SERVER — backend URLs.
 - USE_LOCAL_KROKI, USE_LOCAL_PLANTUML — use local backends.
-- DISABLE_THOUGHT_LOGGING — set true to reduce sequentialthinking log noise.
-
 Details: docs/configuration.md
 
 ## Running

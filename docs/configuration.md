@@ -11,7 +11,6 @@ UML-MCP can be configured using environment variables and MCP client config file
 | `PLANTUML_SERVER` | URL of the PlantUML server | `http://plantuml-server:8080` |
 | `USE_LOCAL_KROKI` | Use local Kroki server (true/false) | `false` |
 | `USE_LOCAL_PLANTUML` | Use local PlantUML server (true/false) | `false` |
-| `DISABLE_THOUGHT_LOGGING` | If `true`, do not log sequentialthinking steps to stderr | `false` |
 
 ## MCP client configuration
 
@@ -41,3 +40,13 @@ Each diagram type supports specific output formats:
 | Graphviz     | png, svg, pdf, jpeg |
 
 You can specify the output format when generating diagrams through the MCP tools.
+
+## Server card and config schema (Smithery / quality score)
+
+For better **Configuration UX** and MCP quality scores:
+
+- The server card at `/.well-known/mcp/server-card.json` includes **tool annotations** (`readOnlyHint`, `destructiveHint`, `idempotentHint`, `openWorldHint`) and a **config schema URL** (`configSchemaUrl`: `config-schema.json`).
+- The session config schema is served at `/.well-known/mcp/config-schema.json` (same path as the card) so clients can resolve it when the card is loaded from that origin.
+- When publishing via Smithery CLI, pass the config schema:  
+  `npx @smithery/cli publish ... --config-schema smithery-config-schema.json`  
+  See [Vercel/Smithery integration](integrations/vercel_smithery.md).

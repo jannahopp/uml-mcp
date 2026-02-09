@@ -155,167 +155,28 @@ capabilities:
   # Server information
   serverName: "UML Diagram Generator"
 
-  # Tools from console output
+  # Tools from console output (single diagram tool)
   tools:
     - name: "generate_uml"
-      description: "Generate any UML diagram based on diagram type"
+      description: "Generate any UML or diagram by type (class, sequence, mermaid, d2, etc.)"
       parameters:
         - name: "diagram_type"
           type: "string"
-          description: "Type of diagram (class, sequence, activity, etc.)"
+          description: "Type of diagram (e.g. class, sequence, activity, mermaid, d2)"
           required: true
         - name: "code"
           type: "string"
-          description: "The diagram code/description"
+          description: "Diagram code in the format for the chosen type"
           required: true
         - name: "output_dir"
           type: "string"
           description: "Directory where to save the generated image"
-          required: true
-
-    - name: "generate_class_diagram"
-      description: "Generate UML class diagram from PlantUML code"
-      parameters:
-        - name: "code"
+        - name: "output_format"
           type: "string"
-          description: "The PlantUML diagram code"
-          required: true
-        - name: "output_dir"
+          description: "Output format: svg, png, or pdf"
+        - name: "theme"
           type: "string"
-          description: "Directory where to save the generated image"
-          required: true
-
-    - name: "generate_sequence_diagram"
-      description: "Generate UML sequence diagram from PlantUML code"
-      parameters:
-        - name: "code"
-          type: "string"
-          description: "The PlantUML diagram code"
-          required: true
-        - name: "output_dir"
-          type: "string"
-          description: "Directory where to save the generated image"
-          required: true
-
-    - name: "generate_activity_diagram"
-      description: "Generate UML activity diagram from PlantUML code"
-      parameters:
-        - name: "code"
-          type: "string"
-          description: "The PlantUML diagram code"
-          required: true
-        - name: "output_dir"
-          type: "string"
-          description: "Directory where to save the generated image"
-          required: true
-
-    - name: "generate_usecase_diagram"
-      description: "Generate UML use case diagram from PlantUML code"
-      parameters:
-        - name: "code"
-          type: "string"
-          description: "The PlantUML diagram code"
-          required: true
-        - name: "output_dir"
-          type: "string"
-          description: "Directory where to save the generated image"
-          required: true
-
-    - name: "generate_state_diagram"
-      description: "Generate UML state diagram from PlantUML code"
-      parameters:
-        - name: "code"
-          type: "string"
-          description: "The PlantUML diagram code"
-          required: true
-        - name: "output_dir"
-          type: "string"
-          description: "Directory where to save the generated image"
-          required: true
-
-    - name: "generate_component_diagram"
-      description: "Generate UML component diagram from PlantUML code"
-      parameters:
-        - name: "code"
-          type: "string"
-          description: "The PlantUML diagram code"
-          required: true
-        - name: "output_dir"
-          type: "string"
-          description: "Directory where to save the generated image"
-          required: true
-
-    - name: "generate_deployment_diagram"
-      description: "Generate UML deployment diagram from PlantUML code"
-      parameters:
-        - name: "code"
-          type: "string"
-          description: "The PlantUML diagram code"
-          required: true
-        - name: "output_dir"
-          type: "string"
-          description: "Directory where to save the generated image"
-          required: true
-
-    - name: "generate_object_diagram"
-      description: "Generate UML object diagram from PlantUML code"
-      parameters:
-        - name: "code"
-          type: "string"
-          description: "The PlantUML diagram code"
-          required: true
-        - name: "output_dir"
-          type: "string"
-          description: "Directory where to save the generated image"
-          required: true
-
-    - name: "generate_mermaid_diagram"
-      description: "Generate diagrams using Mermaid syntax"
-      parameters:
-        - name: "code"
-          type: "string"
-          description: "The Mermaid diagram code"
-          required: true
-        - name: "output_dir"
-          type: "string"
-          description: "Directory where to save the generated image"
-          required: true
-
-    - name: "generate_d2_diagram"
-      description: "Generate diagrams using D2 syntax"
-      parameters:
-        - name: "code"
-          type: "string"
-          description: "The D2 diagram code"
-          required: true
-        - name: "output_dir"
-          type: "string"
-          description: "Directory where to save the generated image"
-          required: true
-
-    - name: "generate_graphviz_diagram"
-      description: "Generate diagrams using Graphviz DOT syntax"
-      parameters:
-        - name: "code"
-          type: "string"
-          description: "The Graphviz DOT code"
-          required: true
-        - name: "output_dir"
-          type: "string"
-          description: "Directory where to save the generated image"
-          required: true
-
-    - name: "generate_erd_diagram"
-      description: "Generate Entity-Relationship diagrams"
-      parameters:
-        - name: "code"
-          type: "string"
-          description: "The ERD diagram code"
-          required: true
-        - name: "output_dir"
-          type: "string"
-          description: "Directory where to save the generated image"
-          required: true
+          description: "PlantUML theme (only for PlantUML diagram types)"
 
   # Prompts from console output
   prompts:

@@ -89,34 +89,10 @@ def _display_tools_fallback(mcp_settings, tools_table):
 
     if tool_names:
         tool_descriptions = {
-            "generate_uml": "Generate any UML diagram based on diagram type",
-            "generate_class_diagram": "Generate UML class diagram from PlantUML code",
-            "generate_sequence_diagram": "Generate UML sequence diagram from PlantUML code",
-            "generate_activity_diagram": "Generate UML activity diagram from PlantUML code",
-            "generate_usecase_diagram": "Generate UML use case diagram from PlantUML code",
-            "generate_state_diagram": "Generate UML state diagram from PlantUML code",
-            "generate_component_diagram": "Generate UML component diagram from PlantUML code",
-            "generate_deployment_diagram": "Generate UML deployment diagram from PlantUML code",
-            "generate_object_diagram": "Generate UML object diagram from PlantUML code",
-            "generate_mermaid_diagram": "Generate diagrams using Mermaid syntax",
-            "generate_d2_diagram": "Generate diagrams using D2 syntax",
-            "generate_graphviz_diagram": "Generate diagrams using Graphviz DOT syntax",
-            "generate_erd_diagram": "Generate Entity-Relationship diagrams",
+            "generate_uml": "Generate any UML or diagram by type (class, sequence, mermaid, d2, etc.)",
         }
         tool_parameters = {
-            "generate_uml": "diagram_type: str, code: str, output_dir: str",
-            "generate_class_diagram": "code: str, output_dir: str",
-            "generate_sequence_diagram": "code: str, output_dir: str",
-            "generate_activity_diagram": "code: str, output_dir: str",
-            "generate_usecase_diagram": "code: str, output_dir: str",
-            "generate_state_diagram": "code: str, output_dir: str",
-            "generate_component_diagram": "code: str, output_dir: str",
-            "generate_deployment_diagram": "code: str, output_dir: str",
-            "generate_object_diagram": "code: str, output_dir: str",
-            "generate_mermaid_diagram": "code: str, output_dir: str",
-            "generate_d2_diagram": "code: str, output_dir: str",
-            "generate_graphviz_diagram": "code: str, output_dir: str",
-            "generate_erd_diagram": "code: str, output_dir: str",
+            "generate_uml": "diagram_type: str, code: str, output_dir: str, output_format: str, theme: str",
         }
         for tool_name in tool_names:
             if tool_name == "tool_function":

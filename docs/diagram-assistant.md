@@ -15,7 +15,7 @@ The Diagram Assistant is the set of MCP tools, resources, and prompts that help 
 
 - **generate_uml** — Main entry point: pass `diagram_type` (e.g. `class`, `sequence`, `mermaid`, `bpmn`) and `code` to render via Kroki or PlantUML.
 - **generate_bpmn_diagram** — BPMN-specific generator for BPMN XML.
-- **generate_class_diagram**, **generate_sequence_diagram**, and other specific generators — Convenience wrappers that still use Kroki or PlantUML under the hood.
+- **generate_uml** — Single tool; pass `diagram_type` (class, sequence, mermaid, d2, etc.) and `code`. Uses Kroki or PlantUML under the hood.
 
 ## Resources
 
@@ -26,7 +26,7 @@ The Diagram Assistant is the set of MCP tools, resources, and prompts that help 
 - **uml://bpmn-guide** — Short BPMN 2.0.2-oriented guide: core elements (Start/End events, Task, Gateways, Sequence Flow, Lanes), flow rules, and pointer to BPMN template/tools.
 - **uml://formats** — Supported output formats per type.
 - **uml://server-info** — Server name, version, tools, prompts.
-- **uml://workflow** — Recommended workflow (e.g. sequential thinking then generate_uml).
+- **uml://workflow** — Recommended workflow: plan first (type, elements, relationships), then call generate_uml.
 
 ## Prompts
 

@@ -112,10 +112,8 @@ class TestGetRecommendedWorkflow:
         assert "prompt" in result
         assert isinstance(result["workflow"], str)
         assert isinstance(result["prompt"], str)
-        assert (
-            "sequentialthinking" in result["workflow"]
-            or "generate_uml" in result["workflow"]
-        )
+        assert "generate_uml" in result["workflow"]
+        assert "plan" in result["workflow"].lower()
 
 
 class TestRegisterDiagramResources:
@@ -134,6 +132,8 @@ class TestRegisterDiagramResources:
             "uml://examples",
             "uml://formats",
             "uml://server-info",
+            "uml://mermaid-examples",
+            "uml://bpmn-guide",
             "uml://workflow",
         ]
         for uri in expected_uris:

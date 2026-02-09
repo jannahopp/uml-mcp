@@ -21,23 +21,8 @@ pytestmark = pytest.mark.skipif(
     reason="Requires mock FastMCP (unset USE_REAL_FASTMCP for unit tests)",
 )
 
-# Expected tool names from register_diagram_tools
-EXPECTED_TOOLS = [
-    "generate_uml",
-    "generate_class_diagram",
-    "generate_sequence_diagram",
-    "generate_activity_diagram",
-    "generate_usecase_diagram",
-    "generate_state_diagram",
-    "generate_component_diagram",
-    "generate_deployment_diagram",
-    "generate_object_diagram",
-    "generate_mermaid_diagram",
-    "generate_d2_diagram",
-    "generate_graphviz_diagram",
-    "generate_erd_diagram",
-    "sequentialthinking",
-]
+# Expected tool names from register_diagram_tools (single diagram tool)
+EXPECTED_TOOLS = ["generate_uml"]
 
 # Expected resource URIs from register_diagram_resources
 EXPECTED_RESOURCES = [
@@ -73,7 +58,7 @@ class TestServerBootstrap:
         assert server.name == "uml_mcp"
 
     def test_server_has_tools_registered(self, reset_mcp_server_singleton):
-        """Server _tools dict contains all expected diagram and thinking tools."""
+        """Server _tools dict contains the single diagram tool generate_uml."""
         server = create_mcp_server()
         assert hasattr(server, "_tools")
         tools = server._tools

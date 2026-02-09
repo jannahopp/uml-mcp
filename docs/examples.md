@@ -96,11 +96,12 @@ def generate_class_diagram(code):
         text=True
     )
 
-    # Prepare MCP request
+    # Prepare MCP request (use generate_uml with diagram_type for any diagram)
     request = {
         "type": "tool",
-        "name": "generate_class_diagram",
+        "name": "generate_uml",
         "args": {
+            "diagram_type": "class",
             "code": code,
             "output_dir": "./output"
         }
@@ -118,14 +119,16 @@ def generate_class_diagram(code):
 
     return json.loads(response["result"])
 
-# Example usage
+# Example usage (PlantUML class diagram)
 diagram = generate_class_diagram("""
+@startuml
 class User {
   -name: String
   -email: String
   +register(): void
   +login(): boolean
 }
+@enduml
 """)
 
 print(f"Diagram URL: {diagram['url']}")
@@ -160,8 +163,9 @@ async function generateDiagram(diagramType, code) {
 ```bash
 echo '{
   "type": "tool",
-  "name": "generate_sequence_diagram",
+  "name": "generate_uml",
   "args": {
+    "diagram_type": "sequence",
     "code": "@startuml\nAlice -> Bob: Hello\nBob --> Alice: Hi\n@enduml",
     "output_dir": "./diagrams"
   }

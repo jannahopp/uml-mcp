@@ -30,7 +30,6 @@ class TestCreateMcpServer:
         assert hasattr(server, "_tools")
         assert len(server._tools) >= 1
         assert "generate_uml" in server._tools
-        assert "generate_class_diagram" in server._tools
 
     @pytest.mark.skipif(
         not USING_MOCK_FASTMCP,

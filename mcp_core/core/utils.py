@@ -101,9 +101,7 @@ def generate_diagram(
         Dict containing code, url, playground, local_path, and optional error
     """
     if _diagram_generator is not None:
-        return _diagram_generator(
-            diagram_type, code, output_format, output_dir, theme
-        )
+        return _diagram_generator(diagram_type, code, output_format, output_dir, theme)
 
     logger.info(f"Generating {diagram_type} diagram")
 
@@ -124,7 +122,13 @@ def generate_diagram(
             "for valid types."
         )
         logger.error(error_msg)
-        return {"code": code, "url": None, "playground": None, "local_path": None, "error": error_msg}
+        return {
+            "code": code,
+            "url": None,
+            "playground": None,
+            "local_path": None,
+            "error": error_msg,
+        }
 
     # Determine which backend service to use
     backend_type = diagram_config.backend
@@ -147,7 +151,9 @@ def generate_diagram(
             f"{diagram_type}_{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}"
         )
 
-        result = kroki_client.generate_diagram(backend_type, prepared_code, output_format)
+        result = kroki_client.generate_diagram(
+            backend_type, prepared_code, output_format
+        )
 
         local_path = None
         if output_dir:

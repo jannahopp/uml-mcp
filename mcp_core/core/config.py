@@ -29,6 +29,7 @@ class MCPSettings(BaseModel):
     display_name: str = "UML Diagram Generator"  # Human-readable for UI
     version: str = "1.2.0"
     description: str = "Generate UML and other diagrams through MCP"
+    config_schema_url: str = ""  # Optional URL for session config schema (improves Configuration UX score)
     output_dir: str = (
         os.environ.get("MCP_OUTPUT_DIR")
         or os.environ.get("UML_MCP_OUTPUT_DIR")

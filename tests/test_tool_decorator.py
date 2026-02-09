@@ -19,11 +19,10 @@ class TestGetToolRegistry:
     """Tests for get_tool_registry after diagram_tools is loaded."""
 
     def test_registry_contains_expected_tools(self):
-        """Registry includes generate_uml, generate_class_diagram, sequentialthinking."""
+        """Registry includes only generate_uml (single diagram tool)."""
         registry = get_tool_registry()
         assert "generate_uml" in registry
-        assert "generate_class_diagram" in registry
-        assert "sequentialthinking" in registry
+        assert len(registry) == 1
 
     def test_registry_tool_has_metadata(self):
         """Each registry entry has function, name, description, category, parameters."""
@@ -42,23 +41,16 @@ class TestGetToolCategories:
     """Tests for get_tool_categories."""
 
     def test_categories_contain_expected_groups(self):
-        """Categories include uml, other, database."""
+        """Categories include uml (single diagram tool)."""
         categories = get_tool_categories()
         assert "uml" in categories
-        assert "other" in categories
-        assert "database" in categories
 
-    def test_uml_category_contains_diagram_tools(self):
-        """UML category contains generate_class_diagram and generate_uml."""
+    def test_uml_category_contains_generate_uml(self):
+        """UML category contains generate_uml."""
         categories = get_tool_categories()
         uml_tools = categories.get("uml", [])
-        assert "generate_class_diagram" in uml_tools
         assert "generate_uml" in uml_tools
-
-    def test_database_category_contains_erd(self):
-        """Database category contains generate_erd_diagram."""
-        categories = get_tool_categories()
-        assert "generate_erd_diagram" in categories.get("database", [])
+        assert len(uml_tools) == 1
 
 
 class TestMcpToolParameterExtraction:
@@ -131,8 +123,7 @@ class TestRegisterToolsWithServer:
         result = register_tools_with_server(server)
 
         assert isinstance(result, list)
-        assert "generate_uml" in result
-        assert "generate_class_diagram" in result
+        assert result == ["generate_uml"]
 
 
 class TestClearToolRegistry:

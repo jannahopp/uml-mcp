@@ -75,6 +75,7 @@ def uml_diagram_prompt(context: Dict[str, Any] = None) -> str:
     context = context or {}
 
     # Generate base prompt (AIPRM-style: role, hint lists, diagram instruction)
+    # Workflow: plan first (type, elements, relationships), then output code and call generate_uml.
     prompt = """You are a software engineer. Output the diagram code in a code block.
 
 [DIAGRAM TYPE] — Sequence, Use Case, Class, Activity, Component, State, Object, Deployment, Mermaid, D2, Graphviz, ERD, BPMN, C4.
@@ -82,7 +83,9 @@ def uml_diagram_prompt(context: Dict[str, Any] = None) -> str:
 [PURPOSE] — Communication, Planning, Design, Analysis, Modeling, Documentation, Implementation, Testing, Debugging.
 [DIAGRAMMING TOOL] — PlantUML, Mermaid, D2 (Kroki for rendering).
 
-Write a [DIAGRAM TYPE] diagram for [PURPOSE] with [DIAGRAMMING TOOL] script. Your diagram should be optimized for easy understanding.
+Workflow (plan then generate):
+1. Plan first: Decide [DIAGRAM TYPE], [PURPOSE], and [DIAGRAMMING TOOL]. Identify key [ELEMENT TYPE], relationships, and constraints. For complex or ambiguous requests, briefly state your choices before writing code.
+2. Then output the full PlantUML (or Mermaid/D2) code and call generate_uml with the chosen diagram_type and the final code.
 
 You are an expert in UML diagrams. Create a UML diagram based on the description.
 
@@ -92,7 +95,7 @@ Follow these guidelines:
 3. Organize the diagram to be readable and clear
 4. Add appropriate relationships between elements
 
-Provide the diagram code that can be directly used to generate the UML diagram:
+Provide the diagram code that can be directly used to generate the UML diagram, then call generate_uml.
 """
 
     # Add diagram type specific instructions if provided in context
@@ -103,44 +106,18 @@ Provide the diagram code that can be directly used to generate the UML diagram:
     return prompt
 
 
-# UML diagram with sequential thinking (plan → verify → generate)
+# UML diagram with explicit planning step (alias for plan-then-generate workflow)
 @mcp_prompt(
     "uml_diagram_with_thinking",
-    description="Generate UML diagram using sequential thinking to plan and verify first. Instructs the model to use the sequentialthinking tool for complex or ambiguous requests before generating diagram code and calling generate_uml.",
+    description="Generate UML diagram with an explicit plan-then-generate workflow. Plan diagram type, elements, and relationships first, then output code and call generate_uml.",
     category="uml",
 )
 def uml_diagram_with_thinking_prompt(context: Dict[str, Any] = None) -> str:
     """
-    Prompt for generating UML diagrams with a think-then-generate workflow.
-
-    Instructs the model to use the sequentialthinking tool first for complex or
-    ambiguous requests, then generate PlantUML (or other) code and call generate_uml.
+    Prompt for generating UML diagrams with plan-then-generate. Same workflow as
+    uml_diagram (plan first, then generate code and call generate_uml).
     """
-    context = context or {}
-    base = uml_diagram_prompt(context)
-    prompt = (
-        base
-        + """
-
-Write a [DIAGRAM TYPE] diagram for [PURPOSE] with [DIAGRAMMING TOOL] script. Your diagram should be optimized for easy understanding.
-
-Workflow for this diagram:
-1. Use the sequentialthinking tool first. For complex or ambiguous diagram requests:
-   - Thought 1: Decide [DIAGRAM TYPE], [PURPOSE], and [DIAGRAMMING TOOL].
-   - Further thoughts: Identify [ELEMENT TYPE] (e.g. Actors, Messages, Classes, States, …), relationships, and constraints.
-   - Optionally revise earlier thoughts if you change approach.
-   - Final thought: Verify the design (completeness, clarity, correct notation);
-     set nextThoughtNeeded to false when finalized.
-2. After sequential thinking is complete, generate the full PlantUML (or Mermaid/D2) code based on your plan.
-3. Call generate_uml (or the specific generate_* tool) with the diagram type and the final code.
-
-Use the same UML guidelines above (proper notation, clarity, relationships).
-If the user asked for a specific diagram type (e.g. class or sequence), follow
-the conventions for that type. Then provide the diagram code and call the
-generation tool.
-"""
-    )
-    return prompt
+    return uml_diagram_prompt(context)
 
 
 # Class diagram prompt

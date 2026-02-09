@@ -80,8 +80,7 @@ class TestDiscoveryViaClient:
             else [t.get("name") for t in tools]
         )
         assert "generate_uml" in names
-        assert "generate_class_diagram" in names
-        assert "sequentialthinking" in names
+        assert len(names) == 1
 
     async def test_list_resources_via_client(self, mcp_client):
         resources = await mcp_client.list_resources()
@@ -159,42 +158,6 @@ class TestDiagramToolsViaClient:
         assert "error" in data or (
             isinstance(content, str) and "unsupported" in content.lower()
         )
-
-
-class TestSequentialThinkingViaClient:
-    """Call sequentialthinking tool via MCP Client."""
-
-    async def test_sequentialthinking_via_client(self, mcp_client):
-        result = await mcp_client.call_tool(
-            "sequentialthinking",
-            arguments={
-                "thought": "Use a class diagram for the domain model.",
-                "nextThoughtNeeded": True,
-                "thoughtNumber": 1,
-                "totalThoughts": 3,
-            },
-        )
-        if hasattr(result, "content"):
-            content = result.content
-        else:
-            content = result
-        if isinstance(content, list) and len(content) > 0:
-            part = content[0]
-            if hasattr(part, "text"):
-                import json
-
-                data = json.loads(part.text) if part.text else {}
-            else:
-                data = part if isinstance(part, dict) else {}
-        else:
-            data = content if isinstance(content, dict) else {}
-        assert "thoughtNumber" in data
-        assert "totalThoughts" in data
-        assert "nextThoughtNeeded" in data
-        assert "branches" in data
-        assert "thoughtHistoryLength" in data
-        assert data["thoughtNumber"] == 1
-        assert data["totalThoughts"] == 3
 
 
 class TestGoalStyleSession:

@@ -3,49 +3,23 @@ Build MCP server card (tools, resources, prompts) for Smithery and static JSON.
 Used by scripts/generate_server_card.py and app.py.
 """
 
-# Parameter descriptions and types for sequentialthinking (not from Pydantic)
-SEQUENTIAL_THINKING_PARAM_DESCRIPTIONS = {
-    "thought": "Your current thinking step (analytical step, revision, hypothesis, etc.)",
-    "nextThoughtNeeded": "True if you need more thinking steps",
-    "thoughtNumber": "Current thought number in the sequence",
-    "totalThoughts": "Current estimate of total thoughts needed (can be adjusted)",
-    "isRevision": "True if this thought revises previous thinking",
-    "revisesThought": "If isRevision is true, the thought number being reconsidered",
-    "branchFromThought": "If branching, the thought number this branch started from",
-    "branchId": "Identifier for the current branch (if any)",
-    "needsMoreThoughts": "True if you reached the end but need more thoughts",
-}
-SEQUENTIAL_THINKING_PARAM_TYPES = {
-    "thought": "string",
-    "nextThoughtNeeded": "boolean",
-    "thoughtNumber": "integer",
-    "totalThoughts": "integer",
-    "isRevision": "boolean",
-    "revisesThought": "integer",
-    "branchFromThought": "integer",
-    "branchId": "string",
-    "needsMoreThoughts": "boolean",
-}
-
 
 def _param_descriptions_for_tool(tool_name: str):
     """Return a dict of param name -> description for the given tool."""
-    from mcp_core.tools.schemas import GenerateDiagramInput, GenerateUMLInput
+    from mcp_core.tools.schemas import GenerateUMLInput
 
     if tool_name == "generate_uml":
         schema = GenerateUMLInput.model_json_schema()
-    elif tool_name == "sequentialthinking":
-        return SEQUENTIAL_THINKING_PARAM_DESCRIPTIONS
     else:
-        schema = GenerateDiagramInput.model_json_schema()
+        return {}
     props = schema.get("properties", {})
-    return {k: v.get("description", k.replace("_", " ").title()) for k, v in props.items()}
+    return {
+        k: v.get("description", k.replace("_", " ").title()) for k, v in props.items()
+    }
 
 
 def _param_types_for_tool(tool_name: str):
     """Return a dict of param name -> JSON schema type for the given tool (for server card)."""
-    if tool_name == "sequentialthinking":
-        return SEQUENTIAL_THINKING_PARAM_TYPES
     return {}
 
 
@@ -80,13 +54,13 @@ def build_server_card():
                 else:
                     py_type = pinfo.get("type", "str")
                     js_type = (
-                    "string"
-                    if py_type in ("str", "Optional[str]")
-                    else "boolean"
-                    if py_type == "bool"
-                    else "integer"
-                    if py_type == "int"
-                    else "string"
+                        "string"
+                        if py_type in ("str", "Optional[str]")
+                        else "boolean"
+                        if py_type == "bool"
+                        else "integer"
+                        if py_type == "int"
+                        else "string"
                     )
                 properties[pname] = {
                     "type": js_type,
@@ -126,7 +100,7 @@ def build_server_card():
             for pname, pinfo in prompt_registry.items()
         ]
 
-        return {
+        card = {
             "serverInfo": {
                 "name": MCP_SETTINGS.display_name,
                 "version": MCP_SETTINGS.version,
@@ -135,8 +109,16 @@ def build_server_card():
             "resources": resources,
             "prompts": prompts,
         }
+        schema_url = getattr(MCP_SETTINGS, "config_schema_url", None) or ""
+        if schema_url:
+            card["configSchemaUrl"] = schema_url
+        else:
+            # Relative URL: when card is at /.well-known/mcp/server-card.json, schema at config-schema.json
+            card["configSchemaUrl"] = "config-schema.json"
+        return card
     except Exception as e:
         import logging
+
         logging.getLogger(__name__).warning("Could not build server card: %s", e)
         return {
             "serverInfo": {"name": "UML Diagram Generator", "version": "1.2.0"},

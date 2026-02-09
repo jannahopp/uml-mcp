@@ -141,7 +141,7 @@ def get_mermaid_examples():
 
 @mcp_resource(
     "uml://bpmn-guide",
-    description="Structured reference for BPMN 2.0.2: start/end events, tasks, gateways, sequence flow, lanes, pools. Use with generate_bpmn_diagram or bpmn_process_guide prompt.",
+    description="Structured reference for BPMN 2.0.2: start/end events, tasks, gateways, sequence flow, lanes, pools. Use with generate_uml (diagram_type 'bpmn') or bpmn_process_guide prompt.",
 )
 def get_bpmn_guide():
     """Return a short guide to BPMN process modeling aligned with BPMN 2.0.2."""
@@ -163,26 +163,24 @@ def get_bpmn_guide():
             "Gateways split or merge flows; use the correct type (exclusive, parallel, inclusive).",
             "Lanes group tasks by role or system within a pool.",
         ],
-        "tool": "Use generate_bpmn_diagram for BPMN XML, or generate_uml with diagram_type 'bpmn'.",
+        "tool": "Use generate_uml with diagram_type 'bpmn' for BPMN XML.",
         "template_uri": "uml://templates (key: bpmn) for a minimal BPMN XML starter.",
     }
 
 
 @mcp_resource(
     "uml://workflow",
-    description="Recommended workflow for complex diagrams: use sequentialthinking to plan and verify, then call generate_uml. Points to uml_diagram_with_thinking prompt.",
+    description="Recommended workflow: plan first (diagram type, elements, relationships), then call generate_uml with the final code. Use uml_diagram or uml_diagram_with_thinking prompt.",
 )
 def get_recommended_workflow():
-    """Return the recommended workflow: use sequentialthinking to plan and verify, then generate_uml."""
+    """Return the recommended workflow: plan first, then call generate_uml."""
     return {
         "workflow": (
-            "For complex diagrams, use the sequentialthinking tool to plan and "
-            "verify the design (diagram type, elements, relationships), then "
-            "call generate_uml (or a specific generate_* tool) with the final code. "
-            "Decide diagram type, purpose (communication, design, documentation, etc.), "
-            "and include the right elements (actors, messages, classes, states, etc.) for that type."
+            "Plan first: decide diagram type, purpose (communication, design, documentation, etc.), "
+            "and key elements (actors, messages, classes, states, etc.) and relationships. "
+            "Then output the diagram code and call generate_uml with the chosen diagram_type and the final code."
         ),
-        "prompt": "Use the uml_diagram_with_thinking prompt to get step-by-step instructions for this workflow.",
+        "prompt": "Use the uml_diagram or uml_diagram_with_thinking prompt for plan-then-generate instructions.",
     }
 
 
