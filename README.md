@@ -115,7 +115,7 @@ python server.py --list-tools
 To expose the server over HTTP so anyone can connect without installing (e.g. via [Smithery](https://smithery.ai)):
 
 1. **Deploy to [Vercel](https://vercel.com)** (connect this repo; `vercel.json` is already configured).
-2. Your **MCP URL** will be: `https://<your-project>.vercel.app/mcp`.
+2. Your **MCP URL** will be: `https://<your-project>.vercel.app/mcp`. Use the `/mcp` path—**not** the root URL (e.g. `https://...vercel.app/mcp`, not `https://...vercel.app`).
 3. **Publish on Smithery**: go to [smithery.ai/new](https://smithery.ai/new), choose **URL** (bring your own hosting), enter your MCP Server URL `https://<your-project>.vercel.app/mcp`, and complete the flow (Namespace: e.g. `antoinebou12`, Server ID: `uml`).
 
 See **[docs/integrations/vercel_smithery.md](docs/integrations/vercel_smithery.md)** for step-by-step instructions. If Smithery shows a 401 or "Invalid OAuth" error, your Vercel project likely has Deployment Protection on; see the [Troubleshooting section](docs/integrations/vercel_smithery.md#troubleshooting) there (disable protection or use a bypass token).

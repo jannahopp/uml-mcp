@@ -77,8 +77,8 @@ jobs:
           uv run ruff check .
           uv run ruff format --check .
 
-      - name: Check typing with mypy
-        run: uv run mypy mcp_core/
+      - name: Check typing
+        run: uv run ty check
 
       - name: Run tests
         run: uv run pytest
