@@ -105,11 +105,11 @@ If Smithery shows a connection error like `HTTP 401: Invalid OAuth error respons
    ```
    Replace `YOUR_BYPASS_TOKEN` with the token from Vercel.
 
-### Connection error: Initialization failed with status 405 / “advertise server-card”
+### Connection error: Initialization failed with status 404 / “advertise server-card”
 
-Smithery discovers your server by requesting `/.well-known/mcp/server-card.json` on the **root** of your deployment (e.g. `https://<your-project>.vercel.app/.well-known/mcp/server-card.json`). If that request fails (e.g. 404 or 405), you get “Your server could not be automatically scanned” and “Please advertise a /.well-known/mcp/server-card.json”.
+Smithery discovers your server by requesting `/.well-known/mcp/server-card.json` on the **root** of your deployment. Vercel reserves the `/.well-known` path and does not allow rewrites to serverless functions, so the FastAPI app never receives that URL (you get 404).
 
-**Fix:** This repo serves the server card from the FastAPI app. Ensure `vercel.json` does **not** serve `/.well-known/*` as static files so that the request reaches the app. The repo’s `vercel.json` is set up so that `/.well-known/mcp/server-card.json` is handled by the Python app. After redeploying, open `https://<your-project>.vercel.app/.well-known/mcp/server-card.json` in a browser; you should see JSON with `serverInfo` and `tools`. If you see 404/405, check Vercel routes and that the latest `vercel.json` is deployed.
+**Fix:** This repo serves the server card as a **static file** at `public/.well-known/mcp/server-card.json`. Vercel serves the `public/` folder at the root, and `vercel.json` includes an explicit build and route for this file. Before publishing to Smithery, verify: open `https://<your-project>.vercel.app/.well-known/mcp/server-card.json` in a browser; you should see valid JSON with `serverInfo`, `tools`, and `resources`. If you see 404/405, redeploy and ensure the latest `vercel.json` is deployed (check that `public/.well-known/mcp/server-card.json` exists). To regenerate when tools change, run `python scripts/generate_server_card.py`. “Wrote .well-known/mcp/server-card.json”).
 
 ### Other issues
 

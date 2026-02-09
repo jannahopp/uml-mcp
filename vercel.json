@@ -11,7 +11,7 @@
     {"src": "public/.well-known/mcp/server-card.json", "use": "@vercel/static"}
   ],
   "routes": [
-    {"src": "/.well-known/mcp/server-card.json", "dest": "/public/.well-known/mcp/server-card.json"},
+    {"src": "/.well-known/mcp/server-card.json", "dest": "/.well-known/mcp/server-card.json"},
     {"src": "/logo.png", "dest": "/favicon.ico"},
     {"src": "/.well-known/mcp/server-card.json", "dest": "/.well-known/mcp/server-card.json"},
     {"src": "/(.*)", "dest": "/app.py"}
