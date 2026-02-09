@@ -4,10 +4,12 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![smithery badge](https://smithery.ai/badge/@antoinebou12/uml)](https://smithery.ai/server/@antoinebou12/uml)
+[![smithery badge](https://smithery.ai/badge/antoinebou12/uml)](https://smithery.ai/server/antoinebou12/uml)
 [![MseeP.ai Security Assessment](https://img.shields.io/badge/MseeP.ai-Security%20Assessment-green)](https://mseep.ai/app/antoinebou12-uml-mcp)
 
 UML-MCP is a diagram generation server that implements the Model Context Protocol (MCP), so you can create diagrams from AI assistants and other MCP clients. Improve your diagramming skills with PlantUML, Mermaid, and D2 by creating optimized diagrams for various purposes (communication, design, documentation, etc.) using Class, Sequence, Activity, Use Case, State, Component, Deployment, Object, and more.
+
+**Live:** [MCP endpoint](https://umlmcp.vercel.app/mcp) · [Add via Smithery](https://smithery.ai/server/antoinebou12/uml)
 
 ## Features
 
@@ -34,10 +36,10 @@ UML-MCP is a diagram generation server that implements the Model Context Protoco
 
 #### Installing via Smithery
 
-To install UML Model Context Protocol for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@antoinebou12/uml):
+To install UML Model Context Protocol for Claude Desktop automatically via [Smithery](https://smithery.ai/server/antoinebou12/uml):
 
 ```bash
-npx -y @smithery/cli install @antoinebou12/uml --client claude
+npx -y @smithery/cli install antoinebou12/uml --client claude
 ```
 
 #### Manual installation
@@ -117,6 +119,8 @@ To expose the server over HTTP so anyone can connect without installing (e.g. vi
 3. **Publish on Smithery**: go to [smithery.ai/new](https://smithery.ai/new), choose **URL** (bring your own hosting), enter your MCP Server URL `https://<your-project>.vercel.app/mcp`, and complete the flow (Namespace: e.g. `antoinebou12`, Server ID: `uml`).
 
 See **[docs/integrations/vercel_smithery.md](docs/integrations/vercel_smithery.md)** for step-by-step instructions. If Smithery shows a 401 or "Invalid OAuth" error, your Vercel project likely has Deployment Protection on; see the [Troubleshooting section](docs/integrations/vercel_smithery.md#troubleshooting) there (disable protection or use a bypass token).
+
+**Improve your Smithery listing:** After publishing, open **Settings → General** on your server’s Smithery page. Set **Display name**, **Description**, **Homepage** (e.g. this repo or `https://umlmcp.vercel.app`), and **Server icon** to improve discoverability and the Server Metadata score. For better Configuration UX, publish with a config schema: `npx @smithery/cli publish ... --config-schema smithery-config-schema.json` (see [vercel_smithery.md](docs/integrations/vercel_smithery.md)).
 
 ## Configuration
 
@@ -248,6 +252,7 @@ act push
 
 ## Documentation
 
+- **[User Manual](docs/user-manual.md)** — Install, configure, and use (quick start, client setup, troubleshooting)
 - [Installation](docs/installation.md)
 - [Configuration](docs/configuration.md)
 - [API / tools](docs/api/tools.md)

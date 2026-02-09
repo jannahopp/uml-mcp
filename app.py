@@ -173,7 +173,15 @@ async def generate_diagram_endpoint(request: DiagramRequest):
         )
 
 
-@app.get("/logo.png")
+@app.get(
+    "/logo.png",
+    responses={
+        200: {
+            "content": {"image/x-icon": {"schema": {"type": "string", "format": "binary"}}},
+            "description": "Plugin logo (ICO format, used by Smithery and AI plugin manifests).",
+        }
+    },
+)
 async def get_logo():
     """Return the logo for the plugin (used by Smithery and AI plugin manifests)."""
     logo_path = os.path.join(os.path.dirname(__file__), "favicon.ico")
@@ -200,49 +208,11 @@ async def get_plugin_manifest(request: Request):
 
 
 def _build_server_card():
-    """Build MCP server card from live tool and resource registries."""
+    """Build MCP server card from live tool and resource registries (shared with scripts/generate_server_card.py)."""
     try:
-        from mcp_core.core.config import MCP_SETTINGS
-        from mcp_core.resources.diagram_resources import get_resource_registry
-        from mcp_core.tools.tool_decorator import get_tool_registry
+        from mcp_core.core.server_card import build_server_card
 
-        tool_registry = get_tool_registry()
-        resource_registry = get_resource_registry()
-
-        tools = []
-        for name, info in tool_registry.items():
-            params = info.get("parameters", {})
-            properties = {}
-            required = []
-            for pname, pinfo in params.items():
-                py_type = pinfo.get("type", "str")
-                js_type = "string" if py_type in ("str", "Optional[str]") else "boolean" if py_type == "bool" else "integer" if py_type == "int" else "string"
-                properties[pname] = {"type": js_type, "description": pname.replace("_", " ").title()}
-                if pinfo.get("required", True):
-                    required.append(pname)
-            tools.append({
-                "name": name,
-                "description": info.get("description", ""),
-                "inputSchema": {"type": "object", "properties": properties, "required": required},
-            })
-
-        resources = []
-        for uri, info in resource_registry.items():
-            resources.append({
-                "uri": uri,
-                "name": uri,
-                "description": info.get("description", ""),
-            })
-
-        return {
-            "serverInfo": {
-                "name": MCP_SETTINGS.display_name,
-                "version": MCP_SETTINGS.version,
-            },
-            "tools": tools,
-            "resources": resources,
-            "prompts": [],
-        }
+        return build_server_card()
     except Exception as e:
         logger.warning("Could not build dynamic server card: %s", e)
         return {
@@ -292,19 +262,21 @@ async def get_openapi_spec():
 
 @app.get("/openapi.yaml")
 async def get_openapi_yaml():
-    """Return the OpenAPI specification in YAML format"""
+    """Return the OpenAPI specification in YAML format (for AI tools and ReDoc)."""
     try:
         import yaml
 
         openapi_spec = app.openapi()
-        yaml_content = yaml.dump(openapi_spec)
-        return Response(content=yaml_content, media_type="text/yaml")
+        yaml_content = yaml.dump(
+            openapi_spec, default_flow_style=False, allow_unicode=True, sort_keys=False
+        )
+        return Response(content=yaml_content, media_type="application/x-yaml")
     except ImportError:
-        # If PyYAML is not available, return JSON spec instead
         return JSONResponse(
             content={
                 "error": "YAML conversion not available, use /openapi.json instead"
-            }
+            },
+            status_code=501,
         )
 
 

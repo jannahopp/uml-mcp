@@ -14,7 +14,7 @@ This guide walks you through deploying the UML-MCP server to Vercel and publishi
 1. **Connect the repo** in the [Vercel dashboard](https://vercel.com/new): Import your `uml-mcp` repository.
 2. **Build settings** (usually auto-detected from `vercel.json`):
    - Framework: Other
-   - Build Command: `pip install -r requirements.txt -r requirements-dev.txt`
+   - Build Command: `pip install -r requirements.txt -r requirements-dev.txt && python scripts/generate_server_card.py`
    - Output: handled by `vercel.json`
 3. **Deploy** and wait for the build to finish.
 
@@ -58,6 +58,10 @@ After publishing, your server will appear at:
 `https://smithery.ai/server/@<namespace>/<server-id>`
 
 Example: `https://smithery.ai/server/@antoinebou12/uml`
+
+**Improve your Smithery listing:** Open **Settings → General** on your server’s Smithery page. Set **Display name**, **Description**, **Homepage** (e.g. your repo URL or `https://umlmcp.vercel.app`), and **Server icon** to improve discoverability and the Server Metadata score. Publishing with `--config-schema smithery-config-schema.json` (see above) improves the Configuration UX score.
+
+**AI and plugin compatibility:** The app serves `/.well-known/ai-plugin.json` with a dynamic base URL (so OpenAI-style plugins work on any deployment), `/openapi.json` and `/openapi.yaml` for API docs and AI consumers, and `/logo.png` (ICO) for manifests. The server card at `/.well-known/mcp/server-card.json` uses correct JSON schema types for all tools (including `sequentialthinking` booleans/integers) so AI models and Smithery get accurate tool schemas.
 
 ### Option B: Hosted (Smithery hosts it)
 
@@ -109,10 +113,12 @@ If Smithery shows a connection error like `HTTP 401: Invalid OAuth error respons
 
 Smithery discovers your server by requesting `/.well-known/mcp/server-card.json` on the **root** of your deployment. Vercel reserves the `/.well-known` path and does not allow rewrites to serverless functions, so the FastAPI app may never receive that URL (404). If the path is served but only for certain HTTP methods, you can get **405 Method Not Allowed**; serving the server card as a static asset fixes both (GET/HEAD return 200).
 
-**Fix:** This repo serves the server card as a **static file** at `public/.well-known/mcp/server-card.json`. In `vercel.json`, a **rewrite** maps `/.well-known/mcp/server-card.json` to `/public/.well-known/mcp/server-card.json`, and a static **build** entry includes that file in the deployment. Ensure both the rewrite and the `public/.well-known/mcp/server-card.json` build are present in `vercel.json`. Before publishing to Smithery, verify: open `https://<your-project>.vercel.app/.well-known/mcp/server-card.json` in a browser; you should see valid JSON with `serverInfo`, `tools`, and `resources`. If you see 404/405, redeploy and ensure the latest `vercel.json` is deployed (and that `public/.well-known/mcp/server-card.json` exists after the build). To regenerate the file when tools change, run `python scripts/generate_server_card.py`.”.
+**Fix:** This repo serves the server card as a **static file** at `public/.well-known/mcp/server-card.json`. In `vercel.json`, a **rewrite** maps `/.well-known/mcp/server-card.json` to `/public/.well-known/mcp/server-card.json`, and a static **build** entry includes that file in the deployment. Ensure both the rewrite and the `public/.well-known/mcp/server-card.json` build are present in `vercel.json`. Before publishing to Smithery, verify: open `https://<your-project>.vercel.app/.well-known/mcp/server-card.json` in a browser; you should see valid JSON with `serverInfo`, `tools`, and `resources`. If you see 404/405, redeploy and ensure the latest `vercel.json` is deployed (and that `public/.well-known/mcp/server-card.json` exists after the build). To regenerate the file when tools change, run `python scripts/generate_server_card.py`. Then ensure `public/.well-known/mcp/server-card.json` is committed and deployed.
 
 ### Other issues
 
+- **405 Method Not Allowed** on the server card URL: usually fixed by ensuring the server card is served as a static asset at `/.well-known/mcp/server-card.json` so GET/HEAD return 200 (see the 404/405 section above).
 - **502 / timeout**: Vercel serverless functions have a max duration (e.g. 60s on Hobby). Long-running tool calls may hit this; consider optimizing or using Smithery-hosted Docker for heavy use.
 - **MCP at /mcp**: Ensure you use the path `/mcp` (e.g. `https://...vercel.app/mcp`), not the root URL.
 - **CORS**: The app allows all origins for API and MCP; restrict in production if needed.
+- **Logo or OpenAPI YAML**: `/logo.png` is served by the app (image/x-icon). `/openapi.yaml` returns the spec in YAML when PyYAML is installed (required in `requirements.txt`); if not, it returns 501 and clients should use `/openapi.json`.

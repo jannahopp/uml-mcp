@@ -6,6 +6,10 @@ Welcome to the documentation for UML-MCP, a diagram generation server with MCP i
 
 UML-MCP enables you to generate various types of diagrams through the Model Context Protocol (MCP), making it easy to integrate with AI assistants and other applications.
 
+## User Manual (start here)
+
+**[User Manual](user-manual.md)** — Install, configure, and use UML-MCP in one place: quick start (including Smithery), local installation, client setup (Cursor / Claude Desktop), environment variables, example prompts, tools overview, diagram types, troubleshooting, and links to deeper docs.
+
 ## Getting Started
 
 - [Installation](installation.md)

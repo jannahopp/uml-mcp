@@ -14,7 +14,6 @@
     {"source": "/.well-known/mcp/server-card.json", "destination": "/public/.well-known/mcp/server-card.json"}
   ],
   "routes": [
-    {"src": "/logo.png", "dest": "/favicon.ico"},
     {"src": "/(.*)", "dest": "/app.py"}
   ],
   "env": {

@@ -93,6 +93,9 @@ DIAGRAM_TYPES = {
     "blockdiag": DiagramType(
         backend="blockdiag", description="Simple block diagram images"
     ),
+    "packetdiag": DiagramType(
+        backend="packetdiag", description="Network packet layout diagrams"
+    ),
     "bpmn": DiagramType(
         backend="bpmn", description="Business Process Model and Notation"
     ),

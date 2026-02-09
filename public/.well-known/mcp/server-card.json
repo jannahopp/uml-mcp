@@ -53,6 +53,12 @@
           "thoughtNumber",
           "totalThoughts"
         ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
       }
     },
     {
@@ -86,6 +92,12 @@
           "diagram_type",
           "code"
         ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
       }
     },
     {
@@ -114,6 +126,12 @@
         "required": [
           "code"
         ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
       }
     },
     {
@@ -142,6 +160,12 @@
         "required": [
           "code"
         ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
       }
     },
     {
@@ -170,6 +194,12 @@
         "required": [
           "code"
         ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
       }
     },
     {
@@ -198,6 +228,12 @@
         "required": [
           "code"
         ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
       }
     },
     {
@@ -226,6 +262,12 @@
         "required": [
           "code"
         ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
       }
     },
     {
@@ -254,6 +296,12 @@
         "required": [
           "code"
         ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
       }
     },
     {
@@ -282,6 +330,12 @@
         "required": [
           "code"
         ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
       }
     },
     {
@@ -310,6 +364,12 @@
         "required": [
           "code"
         ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
       }
     },
     {
@@ -338,6 +398,12 @@
         "required": [
           "code"
         ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
       }
     },
     {
@@ -366,6 +432,12 @@
         "required": [
           "code"
         ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
       }
     },
     {
@@ -394,6 +466,12 @@
         "required": [
           "code"
         ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
       }
     },
     {
@@ -422,6 +500,12 @@
         "required": [
           "code"
         ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
       }
     },
     {
@@ -450,6 +534,12 @@
         "required": [
           "code"
         ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
       }
     },
     {
@@ -478,6 +568,12 @@
         "required": [
           "code"
         ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
       }
     },
     {
@@ -506,6 +602,12 @@
         "required": [
           "code"
         ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
       }
     }
   ],
@@ -541,5 +643,12 @@
       "description": "Recommended workflow for complex diagram generation"
     }
   ],
-  "prompts": []
+  "prompts": [
+    {"name": "uml_diagram", "description": "Base prompt for UML diagram generation"},
+    {"name": "uml_diagram_with_thinking", "description": "Generate UML diagram using sequential thinking to plan and verify first"},
+    {"name": "class_diagram", "description": "Generate UML class diagram from description"},
+    {"name": "sequence_diagram", "description": "Generate UML sequence diagram from description"},
+    {"name": "activity_diagram", "description": "Generate UML activity diagram from description"},
+    {"name": "usecase_diagram", "description": "Generate UML use case diagram from description"}
+  ]
 }

@@ -1,0 +1,38 @@
+# Reusable: test Vercel deployment, then publish to Smithery (URL-based).
+# Called from cd.yml when deploy_to_smithery is true or on push to main.
+# Order: test Vercel (health + server-card) -> publish Smithery.
+
+name: Deploy (Vercel test + Smithery publish)
+
+on:
+  workflow_call:
+    inputs:
+      vercel_url:
+        description: "Vercel deployment root URL (no trailing slash)"
+        required: false
+        type: string
+        default: "https://umlmcp.vercel.app"
+    secrets:
+      SMITHERY_API_KEY:
+        description: "Smithery API key for publish (--key)"
+        required: true
+
+jobs:
+  test-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test Vercel – health
+        run: |
+          curl -sf "${{ inputs.vercel_url }}/health" | jq -e '.status == "healthy"' || (echo "Health check failed" && exit 1)
+
+      - name: Test Vercel – server card
+        run: |
+          curl -sf "${{ inputs.vercel_url }}/.well-known/mcp/server-card.json" | jq -e '.serverInfo and .tools' || (echo "Server card check failed" && exit 1)
+
+      - name: Publish to Smithery
+        run: |
+          npx -y @smithery/cli publish \
+            --name @antoinebou12/uml \
+            --url "${{ inputs.vercel_url }}/mcp" \
+            --config-schema smithery-config-schema.json \
+            --key "${{ secrets.SMITHERY_API_KEY }}"

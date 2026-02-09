@@ -119,6 +119,47 @@ def get_server_info():
 
 
 @mcp_resource(
+    "uml://mermaid-examples",
+    description="Mermaid examples: API sequence diagram and Gantt chart",
+)
+def get_mermaid_examples():
+    """Return named Mermaid examples (sequence_api, gantt) for API-call and Gantt prompts."""
+    return {
+        "sequence_api": DiagramExamples.get_example("mermaid_api"),
+        "gantt": DiagramExamples.get_example("mermaid_gantt"),
+    }
+
+
+@mcp_resource(
+    "uml://bpmn-guide",
+    description="How to draw BPMN process models (BPMN 2.0.2 elements and flow)",
+)
+def get_bpmn_guide():
+    """Return a short guide to BPMN process modeling aligned with BPMN 2.0.2."""
+    return {
+        "title": "BPMN process model guide (BPMN 2.0.2)",
+        "core_elements": {
+            "start_event": "Start Event (circle, single border): process trigger.",
+            "end_event": "End Event (circle, thick border): process end.",
+            "task": "Task (rounded rectangle): work performed in the process.",
+            "gateway": "Exclusive (X), Parallel (+), Inclusive (O): control flow branching/merge.",
+            "sequence_flow": "Solid arrow: order of flow between elements.",
+            "message_flow": "Dashed arrow: message between pools.",
+            "lane": "Lane: sub-partition of a pool (e.g. role or system).",
+            "pool": "Pool: process or participant boundary.",
+        },
+        "flow_rules": [
+            "Each process has at least one Start and one End Event.",
+            "Sequence flows connect activities, events, and gateways.",
+            "Gateways split or merge flows; use the correct type (exclusive, parallel, inclusive).",
+            "Lanes group tasks by role or system within a pool.",
+        ],
+        "tool": "Use generate_bpmn_diagram for BPMN XML, or generate_uml with diagram_type 'bpmn'.",
+        "template_uri": "uml://templates (key: bpmn) for a minimal BPMN XML starter.",
+    }
+
+
+@mcp_resource(
     "uml://workflow",
     description="Recommended workflow for complex diagram generation",
 )

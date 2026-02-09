@@ -54,6 +54,36 @@ main_ts ==> (main.view)
 
     note over Browser,Webserver: HTTP Request
     note over Webserver,Processor: Internal Processing""",
+            # Mermaid API call sequence example
+            "mermaid_api": """sequenceDiagram
+    participant Client
+    participant API
+    participant Auth
+    participant DB
+
+    Client->>+API: GET /resource
+    API->>+Auth: Validate token
+    Auth-->>-API: OK
+    API->>+DB: Query data
+    DB-->>-API: Result set
+    API-->>-Client: 200 JSON
+
+    alt Invalid token
+        Auth-->>API: 401
+        API-->>Client: Unauthorized
+    end""",
+            # Mermaid Gantt chart example
+            "mermaid_gantt": """gantt
+    title Project timeline
+    dateFormat  YYYY-MM-DD
+    section Design
+    Requirements    :req, 2024-01-01, 7d
+    UI mockups      :mock, after req, 5d
+    section Development
+    Backend API     :api, after mock, 14d
+    Frontend        :fe, after mock, 14d
+    section QA
+    Testing         :crit, after api, 7d""",
             # BlockDiag example
             "blockdiag": """blockdiag {
   Kroki -> generates -> "Block diagrams";
@@ -210,13 +240,22 @@ participant System
 User -> System: Request
 System --> User: Response
 @enduml""",
-            # Basic sequence diagram for Mermaid
+            # Basic sequence diagram for Mermaid (default)
             "mermaid": """sequenceDiagram
     participant User
     participant System
 
     User->>System: Request
     System-->>User: Response""",
+            # Mermaid Gantt starter template
+            "mermaid_gantt": """gantt
+    title My project
+    dateFormat  YYYY-MM-DD
+    section Section A
+    Task A1    :a1, 2024-01-01, 7d
+    Task A2    :a2, after a1, 5d
+    section Section B
+    Task B1    :b1, 2024-01-01, 14d""",
             # Basic diagram for D2
             "d2": """User -> System: Request
 System -> User: Response""",
@@ -229,6 +268,13 @@ System -> User: Response""",
             "blockdiag": """blockdiag {
   User -> System -> Database;
   System -> User;
+}""",
+            # Basic diagram for PacketDiag
+            "packetdiag": """packetdiag {
+  0-15: Source Port;
+  16-31: Destination Port;
+  32-63: Sequence Number;
+  64-95: Acknowledgment Number;
 }""",
             # Basic diagram for BPMN
             "bpmn": """<?xml version="1.0" encoding="UTF-8"?>

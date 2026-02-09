@@ -3,7 +3,7 @@
     "name_for_human": "UML Diagram Generator",
     "name_for_model": "uml_diagram_generator",
     "description_for_human": "Generate UML and other types of diagrams directly from text descriptions.",
-    "description_for_model": "This plugin helps you generate various types of diagrams from textual descriptions. It supports UML diagrams (Class, Sequence, Activity, etc.), Mermaid, D2, and more. You can generate diagrams by providing the diagram language and the code/description.",
+    "description_for_model": "This plugin helps you generate various types of diagrams from textual descriptions. It supports UML diagrams (Class, Sequence, Activity, etc.), Mermaid, D2, and more. Use POST /generate_diagram with lang, type, code (required), output_format (default svg), optional theme. Returns url, message, playground, local_path. Use GET /supported_formats for types and formats.",
     "auth": {
         "type": "none"
     },
