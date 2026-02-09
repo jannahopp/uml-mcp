@@ -1,10 +1,11 @@
 import svgwrite
 
+
 class Block:
     def __init__(self, label, x, y, width, height, angle=0):
         """
         Base block class.
-        
+
         Parameters:
           label: Text label to display.
           x, y: Top-left coordinates.
@@ -32,12 +33,12 @@ class Block:
             text_anchor="middle",
             font_size="14px",
             font_family="Arial",
-            fill="black"
+            fill="black",
         )
         if self.text_direction == "vertical_up":
-            text['transform'] = f"rotate(-90, {cx}, {cy})"
+            text["transform"] = f"rotate(-90, {cx}, {cy})"
         elif self.text_direction == "vertical_down":
-            text['transform'] = f"rotate(90, {cx}, {cy})"
+            text["transform"] = f"rotate(90, {cx}, {cy})"
         container.add(text)
 
     def rotate(self, angle):
@@ -45,4 +46,3 @@ class Block:
 
     def draw(self, dwg):
         raise NotImplementedError("Subclasses must implement draw()")
-

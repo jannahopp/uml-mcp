@@ -4,13 +4,15 @@ on:
   push:
     branches: [main]
     paths:
-      - "mcp/**"
+      - "mcp_core/**"
       - "kroki/**"
       - "mermaid/**"
       - "plantuml/**"
       - "D2/**"
       - "ai_uml/**"
-      - "mcp_server.py"
+      - "app.py"
+      - "server.py"
+      - "tests/**"
       - "smithery.yaml"
       - "Dockerfile"
       - "pyproject.toml"
@@ -21,8 +23,86 @@ on:
 
 jobs:
   test:
-    uses: ./.github/workflows/test.yml
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+          python-version: "3.10"
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --all-groups
+
+      - name: Lint
+        run: |
+          uv run ruff check .
+          uv run ruff format --check .
+
+      - name: Run tests
+        run: |
+          uv run pytest --cov=mcp_core --cov=kroki --cov-report=term --cov-report=html
+
+      - name: Health check (FastAPI UML API)
+        run: |
+          uv run python -c "
+          import subprocess, time
+          import httpx
+          p = subprocess.Popen(['uv', 'run', 'uvicorn', 'app:app', '--host', '127.0.0.1', '--port', '8765'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+          try:
+            time.sleep(3)
+            r = httpx.get('http://127.0.0.1:8765/health', timeout=5)
+            assert r.status_code == 200, r.status_code
+            print('Health check OK')
+          finally:
+            p.terminate()
+            p.wait(timeout=5)
+          "
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: htmlcov/
+          retention-days: 14
 
   build:
     needs: test
-    uses: ./.github/workflows/build.yml
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --all-groups
+
+      - name: Build package
+        run: |
+          uv build
+          ls -la dist/
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: uml-mcp-dist-${{ matrix.python-version }}
+          path: dist/
+          retention-days: 5

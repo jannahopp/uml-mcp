@@ -1,0 +1,36 @@
+---
+name: Bug report
+about: Report a bug or unexpected behavior
+title: ''
+labels: bug
+assignees: ''
+---
+
+## Description
+
+A clear description of the bug.
+
+## Steps to reproduce
+
+1. ...
+2. ...
+3. ...
+
+## Expected behavior
+
+What you expected to happen.
+
+## Actual behavior
+
+What actually happened.
+
+## Environment
+
+- OS:
+- Python version:
+- UML-MCP version / commit:
+- How you run the server (stdio/http, `server.py` / `uv run uml-mcp` / etc.):
+
+## Additional context
+
+Logs, screenshots, or diagram code if relevant.

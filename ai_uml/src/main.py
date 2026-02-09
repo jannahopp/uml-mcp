@@ -1,9 +1,11 @@
 import io
+from os import path
+
 import matplotlib.pyplot as plt
+from diagram import VaeDiagram, load_diagram_from_json
 from PIL import Image
 from wand.image import Image as WandImage
-from diagram import VaeDiagram, load_diagram_from_json
-from os import path
+
 
 def plot_svg(filename):
     with WandImage(filename=filename, resolution=300) as img:
@@ -11,9 +13,10 @@ def plot_svg(filename):
     image = Image.open(io.BytesIO(png_blob))
     plt.figure(figsize=(12, 4))
     plt.imshow(image)
-    plt.axis('off')
+    plt.axis("off")
     plt.title("Diagram from JSON")
     plt.show()
+
 
 def main():
     filename = "vae_diagram.svg"
@@ -23,6 +26,7 @@ def main():
     diagram.setup_blocks(blocks)
     diagram.draw()
     plot_svg(filename)
+
 
 if __name__ == "__main__":
     main()

@@ -4,13 +4,13 @@ on:
   push:
     branches: [main]
     paths:
-      - "mcp/**"
+      - "mcp_core/**"
       - "kroki/**"
       - "mermaid/**"
       - "plantuml/**"
       - "D2/**"
       - "ai_uml/**"
-      - "mcp_server.py"
+      - "server.py"
       - "smithery.yaml"
       - "Dockerfile"
       - "pyproject.toml"
@@ -42,10 +42,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.9', '3.10', '3.11']
+        python-version: ['3.10', '3.11', '3.12']
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -69,7 +69,7 @@ jobs:
       - name: Validate Python package structure
         run: |
           # Ensure every Python package has an __init__.py file
-          for dir in mcp kroki mermaid plantuml D2 ai_uml; do
+          for dir in mcp_core kroki mermaid plantuml D2 ai_uml; do
             if [ -d "$dir" ] && [ ! -f "$dir/__init__.py" ]; then
               echo "Creating missing __init__.py in $dir"
               touch "$dir/__init__.py"
@@ -85,15 +85,15 @@ jobs:
       - name: List installed packages
         run: |
           poetry run pip list
-          
+
       - name: Lint with flake8
         run: |
           poetry run flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-          poetry run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+          poetry run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=88 --statistics
 
       - name: Check typing with mypy
         run: |
-          poetry run mypy mcp/
+          poetry run mypy mcp_core/
 
       - name: Run tests
         run: |
@@ -120,7 +120,7 @@ jobs:
       new_version: ${{ env.NEW_VERSION }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -128,7 +128,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: '3.10'
 
       - name: Install Poetry
         uses: snok/install-poetry@v1
@@ -142,15 +142,15 @@ jobs:
           # Get current version before bumping
           CURRENT_VERSION=$(poetry version -s)
           echo "Current version: $CURRENT_VERSION"
-          
+
           # Bump version using Poetry
           poetry version ${{ github.event.inputs.version_increment }}
           NEW_VERSION=$(poetry version -s)
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
           echo "Version bumped to $NEW_VERSION"
-          
+
           # Update version in config file if it exists
-          VERSION_FILE="mcp/core/config.py"
+          VERSION_FILE="mcp_core/core/config.py"
           if [ -f "$VERSION_FILE" ]; then
             if grep -q "version = " "$VERSION_FILE"; then
               sed -i "s/version = \".*\"/version = \"$NEW_VERSION\"/" $VERSION_FILE
@@ -161,7 +161,7 @@ jobs:
           else
             echo "Warning: Config file $VERSION_FILE not found"
           fi
-          
+
           # Commit and push changes
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "actions@github.com"
@@ -180,7 +180,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ github.event_name == 'workflow_dispatch' && 'main' || github.ref }}
@@ -188,7 +188,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: '3.10'
 
       - name: Install Poetry
         uses: snok/install-poetry@v1
@@ -238,7 +238,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -257,7 +257,7 @@ jobs:
 
       - name: Verify setup
         run: |
-          python -c "import fastapi, httpx, rich, pydantic, mcp_server"
+          python -c "import fastapi, httpx, rich, pydantic; from mcp_core.core.server import main"
           echo "Basic imports successful"
 
       - name: Install Smithery CLI
@@ -269,36 +269,36 @@ jobs:
         run: |
           docker build -t uml-mcp:latest .
           echo "Docker build successful"
-          
+
       - name: Test Docker image
         run: |
           docker run --rm -i uml-mcp:latest < /dev/null &
           sleep 5
           echo "Docker image test completed"
-          
+
       - name: Log in to Smithery Registry
         uses: docker/login-action@v2
         with:
           registry: ${{ secrets.SMITHERY_REGISTRY }}
           username: ${{ secrets.SMITHERY_USERNAME }}
           password: ${{ secrets.SMITHERY_TOKEN }}
-          
+
       - name: Tag and push Docker image
         run: |
           # Tag with both latest and a version derived from the commit SHA
           SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
           docker tag uml-mcp:latest ${{ secrets.SMITHERY_REGISTRY }}/uml-mcp:latest
           docker tag uml-mcp:latest ${{ secrets.SMITHERY_REGISTRY }}/uml-mcp:$SHORT_SHA
-          
+
           # Push both tags
           docker push ${{ secrets.SMITHERY_REGISTRY }}/uml-mcp:latest
           docker push ${{ secrets.SMITHERY_REGISTRY }}/uml-mcp:$SHORT_SHA
-          
+
       - name: Deploy to Smithery
         run: |
           # Deploy using smithery CLI
           smithery deploy --file smithery.yaml --environment production --token ${{ secrets.SMITHERY_TOKEN }}
-          
+
       - name: Verify deployment
         run: |
           # Wait for deployment to complete and verify it's running

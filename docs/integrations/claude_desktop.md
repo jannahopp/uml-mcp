@@ -21,19 +21,19 @@ Claude Desktop requires specific configuration to connect to the UML-MCP server:
 3. Add a new MCP server with the following details:
    - **Name**: UML-MCP-Server
    - **Command**: python (or the full path to your Python executable)
-   - **Arguments**: `/path/to/uml-mcp/mcp_server.py` (replace with actual path)
+   - **Arguments**: `/path/to/uml-mcp/server.py` (replace with actual path)
    - **Working Directory**: `/path/to/uml-mcp` (replace with actual path)
    - **Output Directory**: Directory where you want diagrams to be saved
 
-Example configuration:
+Example configuration (see also **`config/claude_desktop_config.json`** and **`config/README.md`** in the repo):
+
 ```json
 {
   "mcpServers": {
     "UML-MCP-Server": {
       "command": "python",
-      "args": ["/path/to/uml-mcp/mcp_server.py"],
-      "cwd": "/path/to/uml-mcp",
-      "output_dir": "/path/to/output"
+      "args": ["/path/to/uml-mcp/server.py"],
+      "cwd": "/path/to/uml-mcp"
     }
   }
 }

@@ -1,8 +1,14 @@
 import svgwrite
-from ..utils.geometry import get_right_connection, get_left_connection, draw_connection_line
+
+from ..utils.geometry import (
+    draw_connection_line,
+    get_left_connection,
+    get_right_connection,
+)
+
 
 class VaeDiagram:
-    def __init__(self, filename='vae_diagram.svg'):
+    def __init__(self, filename="vae_diagram.svg"):
         self.filename = filename
         self.gap = 50
         self.start_x = 50
@@ -17,12 +23,14 @@ class VaeDiagram:
 
     def draw(self):
         total_width = self.start_x + (self.block_width + self.gap) * len(self.blocks)
-        dwg = svgwrite.Drawing(self.filename, profile='full', size=(f'{total_width}px', '300px'))
+        dwg = svgwrite.Drawing(
+            self.filename, profile="full", size=(f"{total_width}px", "300px")
+        )
         for block in self.blocks:
             block.draw(dwg)
         for i in range(len(self.blocks) - 1):
             start = get_right_connection(self.blocks[i])
-            end = get_left_connection(self.blocks[i+1])
+            end = get_left_connection(self.blocks[i + 1])
             draw_connection_line(dwg, start, end)
         dwg.save()
         print(f"SVG diagram saved as {self.filename}")

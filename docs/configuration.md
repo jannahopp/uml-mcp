@@ -1,58 +1,27 @@
 # Configuration
 
-UML-MCP can be configured using environment variables and configuration files.
+UML-MCP can be configured using environment variables and MCP client config files.
 
 ## Environment Variables
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `MCP_OUTPUT_DIR` | Directory to save generated diagrams | `./output` |
+| `MCP_OUTPUT_DIR` / `UML_MCP_OUTPUT_DIR` | Directory to save generated diagrams | `./output` |
 | `KROKI_SERVER` | URL of the Kroki server | `https://kroki.io` |
 | `PLANTUML_SERVER` | URL of the PlantUML server | `http://plantuml-server:8080` |
 | `USE_LOCAL_KROKI` | Use local Kroki server (true/false) | `false` |
 | `USE_LOCAL_PLANTUML` | Use local PlantUML server (true/false) | `false` |
+| `DISABLE_THOUGHT_LOGGING` | If `true`, do not log sequentialthinking steps to stderr | `false` |
 
-## IDE Configuration
+## MCP client configuration
 
-### Cursor
+Example MCP server config snippets for **Cursor** and **Claude Desktop** are in the **[`config/`](../config/)** folder in this repo:
 
-Cursor configuration is stored in:
+- **`config/cursor_config.json`** — Cursor
+- **`config/claude_desktop_config.json`** — Claude Desktop
+- **`config/README.md`** — Where each app stores its config and how to copy the examples
 
-- Windows: `%APPDATA%\Cursor\config.json`
-- macOS: `~/Library/Application Support/Cursor/config.json`
-- Linux: `~/.config/Cursor/config.json`
-
-Example configuration:
-
-```json
-{
-  "mcpServers": {
-    "UML-MCP-Server": {
-      "command": "python",
-      "args": ["/path/to/uml-mcp/mcp_server.py"],
-      "output_dir": "/path/to/output"
-    }
-  }
-}
-```
-
-### Claude Desktop
-
-Claude Desktop configuration is stored in the app settings:
-
-Example configuration:
-
-```json
-{
-  "mcpServers": {
-    "UML-MCP-Server": {
-      "command": "python",
-      "args": ["/path/to/uml-mcp/mcp_server.py"],
-      "output_dir": "/path/to/output"
-    }
-  }
-}
-```
+Copy the relevant `mcpServers` block into your client’s config file and replace the placeholder path with your actual `uml-mcp` project path. The main server entry point is **`server.py`**.
 
 ## Advanced Configuration
 

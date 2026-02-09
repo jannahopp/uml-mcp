@@ -11,6 +11,7 @@ nav:
   - Configuration: configuration.md
   - Examples: examples.md
   - Installation: installation.md
+  - Testing: testing.md
 
 markdown_extensions:
   - toc

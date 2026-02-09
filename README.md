@@ -1,116 +1,130 @@
-# UML-MCP: A Diagram Generation Server with MCP Interface
+# UML-MCP: Diagram Generation Server with MCP Interface
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![smithery badge](https://smithery.ai/badge/@antoinebou12/uml)](https://smithery.ai/server/@antoinebou12/uml)
+[![MseeP.ai Security Assessment](https://img.shields.io/badge/MseeP.ai-Security%20Assessment-green)](https://mseep.ai/app/antoinebou12-uml-mcp)
 
-UML-MCP is a powerful diagram generation server that implements the Model Context Protocol (MCP), enabling seamless diagram creation directly from AI assistants and other applications. 
+UML-MCP is a diagram generation server that implements the Model Context Protocol (MCP), so you can create diagrams from AI assistants and other MCP clients.
 
-## 🌟 Features
+## Features
 
-- **Multiple Diagram Types**: Support for UML diagrams (Class, Sequence, Activity, etc.), Mermaid, D2, and more
-- **MCP Integration**: Seamless integration with LLM assistants supporting the Model Context Protocol
-- **Playground Links**: Direct links to online editors for each diagram type
-- **Multiple Output Formats**: SVG, PNG, PDF, and other format options
-- **Easy Configuration**: Works with local and remote diagram rendering services
+- **Multiple diagram types**: UML (Class, Sequence, Activity, Use Case, State, Component, Deployment, Object), Mermaid, D2, Graphviz, ERD, BlockDiag, BPMN, C4 with PlantUML
+- **MCP integration**: Works with any client that supports MCP (Cursor, Claude Desktop, etc.)
+- **Output formats**: SVG, PNG, PDF, and others depending on diagram type
+- **Configurable backends**: Local or remote PlantUML and Kroki
 
-## 📋 Supported Diagram Types
+## Supported diagram types
 
-UML-MCP supports a wide variety of diagram types:
+| Category | Diagram types |
+|----------|----------------|
+| UML      | Class, Sequence, Activity, Use Case, State, Component, Deployment, Object |
+| Other    | Mermaid, D2, Graphviz, ERD, BlockDiag, BPMN, C4 (PlantUML) |
 
-| Category | Diagram Types |
-|----------|---------------|
-| UML | Class, Sequence, Activity, Use Case, State, Component, Deployment, Object |
-| Other | Mermaid, D2, Graphviz, ERD, BlockDiag, BPMN, C4 with PlantUML |
-
-## 🚀 Getting Started
+## Getting started
 
 ### Prerequisites
 
-- Python 3.10 or higher
-- pip (Python package installer)
+- Python 3.10+
+- [uv](https://docs.astral.sh/uv/), [Poetry](https://python-poetry.org/), or pip
 
 ### Installation
 
-1. Clone the repository:
+**With uv (recommended, modern Python):**
 
 ```bash
 git clone https://github.com/yourusername/uml-mcp.git
 cd uml-mcp
+uv sync
 ```
 
-2. Install the dependencies:
+**With Poetry:**
 
 ```bash
-pip install -r requirements.txt
+git clone https://github.com/yourusername/uml-mcp.git
+cd uml-mcp
+poetry install
 ```
 
-3. For development environments:
+**With pip:**
 
 ```bash
-pip install -r requirements-dev.txt
+git clone https://github.com/yourusername/uml-mcp.git
+cd uml-mcp
+pip install -e .
 ```
 
-### Running the Server
-
-Start the MCP server:
+For development (tests, linting, type checking) you must install dev dependencies:
 
 ```bash
-python mcp_server.py
+uv sync --all-groups
+# or: poetry install --with dev
+# or: pip install -e ".[dev]"
 ```
 
-This will start the server using stdio for communication with MCP clients.
+Without `--all-groups`, tools like black, flake8, isort are not installed and `uv run python -m black` will fail with "No module named black". Dev tools: ruff (lint + format), ty (type check), pytest, pytest-cov, black, flake8, isort, pre-commit.
 
-## 🔧 Configuration
+### Running the server
 
-### Editor Integration
+**MCP server (single CLI entrypoint):** `server.py` is the official MCP server; the FastAPI app in `app.py` is the separate REST API (e.g. for Vercel).
 
-#### Cursor
+**Canonical entry point** (MCP server using mcp_core and Kroki):
 
-To integrate with Cursor:
+From the project root:
 
 ```bash
-python mcp/install_to_cursor.py
+python server.py
 ```
 
-Or manually configure in Cursor settings:
+Or with uv / Poetry:
 
-```json
-"mcpServers": {
-  "UML-MCP-Server": {
-    "command": "python",
-    "args": ["/path/to/uml-mcp/mcp_server.py"],
-    "output_dir": "/path/to/output"
-  }
-}
+```bash
+uv run python server.py
+# or: poetry run python server.py
+# or: poetry run uml-mcp
 ```
 
-### Environment Variables
+The server uses stdio by default. For HTTP:
 
-- `MCP_OUTPUT_DIR` - Directory to save generated diagrams (default: `./output`)
-- `KROKI_SERVER` - URL of the Kroki server (default: `https://kroki.io`)
-- `PLANTUML_SERVER` - URL of the PlantUML server (default: `http://plantuml-server:8080`)
-- `USE_LOCAL_KROKI` - Use local Kroki server (true/false)
-- `USE_LOCAL_PLANTUML` - Use local PlantUML server (true/false)
+```bash
+python server.py --transport http --host 127.0.0.1 --port 8000
+```
 
-## 📚 Documentation
+List available tools and exit:
 
-For detailed documentation, visit the [docs](./docs) directory or our [documentation site](https://uml-mcp.readthedocs.io/).
+```bash
+python server.py --list-tools
+```
 
-## 🧩 Architecture
+## Configuration
 
-UML-MCP is built with a modular architecture:
+### MCP client setup
 
-- **MCP Server Core**: Handles MCP protocol communication
-- **Diagram Generators**: Supporting different diagram types
-- **Tools**: Expose diagram generation functionality through MCP
-- **Resources**: Provide templates and examples for various diagram types
+Example MCP server configs are in the **`config/`** folder:
 
-## 🛠️ Local Development
+- **`config/cursor_config.json`** — snippet for Cursor
+- **`config/claude_desktop_config.json`** — snippet for Claude Desktop
 
-For local development:
+Copy the relevant block into your client’s config and replace `/path/to/uml-mcp` with the real path to this repo. See **`config/README.md`** for where each app stores its config.
 
-1. Set up local PlantUML and/or Kroki servers:
+### Environment variables
+
+| Variable            | Description                          | Default                    |
+|---------------------|--------------------------------------|----------------------------|
+| `MCP_OUTPUT_DIR`    | Directory for generated diagrams     | `./output`                 |
+| `UML_MCP_OUTPUT_DIR`| Same as above (alternative name)     | —                          |
+| `KROKI_SERVER`      | Kroki server URL                      | `https://kroki.io`         |
+| `PLANTUML_SERVER`   | PlantUML server URL                  | `http://plantuml-server:8080` |
+| `USE_LOCAL_KROKI`   | Use local Kroki (`true`/`false`)      | `false`                    |
+| `USE_LOCAL_PLANTUML`| Use local PlantUML (`true`/`false`)   | `false`                    |
+| `LOG_LEVEL`         | Logging level                         | —                          |
+| `LIST_TOOLS`        | Set to `true` to list tools and exit | —                          |
+
+Full options are documented in [docs/configuration.md](docs/configuration.md) and [docs/installation.md](docs/installation.md).
+
+## Local development
+
+Run PlantUML and/or Kroki locally (e.g. with Docker):
 
 ```bash
 # PlantUML
@@ -120,219 +134,117 @@ docker run -d -p 8080:8080 plantuml/plantuml-server
 docker run -d -p 8000:8000 yuzutech/kroki
 ```
 
-2. Configure environment variables:
+Then:
 
 ```bash
 export USE_LOCAL_PLANTUML=true
 export PLANTUML_SERVER=http://localhost:8080
-export USE_LOCAL_KROKI=true  
+export USE_LOCAL_KROKI=true
 export KROKI_SERVER=http://localhost:8000
+python server.py
 ```
 
-## 🤝 Contributing
+## Architecture
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+- **MCP server**: `server.py` (entry point), `mcp_core/` (server, config, tools, resources, prompts)
+- **Diagram backends**: `plantuml/`, `kroki/`, `mermaid/`, `D2/`
+- **Tools**: Diagram generation tools are registered in `mcp_core/tools/` and exposed via MCP
+- **Resources**: Templates and examples under the `uml://` URI scheme
 
-## 📄 License
+## MCP resources and tools
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+**Resources (e.g. `uml://types`, `uml://templates`, `uml://examples`, `uml://formats`, `uml://server-info`, `uml://workflow`)**
+Provide diagram types, templates, examples, formats, server info, and the recommended workflow for complex diagrams.
 
-## 👏 Acknowledgements
+**Tools** include:
 
-- [PlantUML](https://plantuml.com/) - UML diagram generation
-- [Kroki](https://kroki.io/) - Unified diagram generation service
-- [Mermaid](https://mermaid.js.org/) - Generation of diagrams from text
-- [D2](https://d2lang.com/) - Modern diagram scripting language
+- `generate_uml` — any UML diagram (params: `diagram_type`, `code`, `output_dir`)
+- `generate_class_diagram`, `generate_sequence_diagram`, `generate_activity_diagram`, etc.
+- `generate_mermaid_diagram`, `generate_d2_diagram`, `generate_graphviz_diagram`, `generate_erd_diagram`
+- `sequentialthinking` — plan and verify diagram design step-by-step before generating (see below)
 
-# UML-MCP Server
+See [docs/api/tools.md](docs/api/tools.md) for full tool list and parameters.
 
-An MCP Server that provides UML diagram generation capabilities through various diagram rendering engines.
+### Better results for complex diagrams
 
-## Components
+For complex or ambiguous diagram requests, use the **uml_diagram_with_thinking** prompt or the **sequentialthinking** tool to plan and verify the design (diagram type, elements, relationships) before calling `generate_uml` with the final code. The resource `uml://workflow` describes this recommended flow. To reduce log noise from thought steps, set `DISABLE_THOUGHT_LOGGING=true` (see [docs/configuration.md](docs/configuration.md)). The `sequentialthinking` tool mirrors the Node sequential-thinking server API for compatibility with clients that expect that workflow.
 
-### Resources
+## Tests
 
-The server provides several resources via the `uml://` URI scheme:
-
-- `uml://types`: List of available UML diagram types
-- `uml://templates`: Templates for creating UML diagrams
-- `uml://examples`: Example UML diagrams for reference
-- `uml://formats`: Supported output formats for diagrams
-- `uml://server-info`: Information about the UML-MCP server
-
-### Tools
-
-The server implements multiple diagram generation tools:
-
-#### Universal UML Generator
-- `generate_uml`: Generate any UML diagram
-  - Parameters: `diagram_type`, `code`, `output_dir`
-
-#### Specific UML Diagram Tools
-- `generate_class_diagram`: Generate UML class diagrams
-  - Parameters: `code`, `output_dir`
-- `generate_sequence_diagram`: Generate UML sequence diagrams
-  - Parameters: `code`, `output_dir`
-- `generate_activity_diagram`: Generate UML activity diagrams
-  - Parameters: `code`, `output_dir`
-- `generate_usecase_diagram`: Generate UML use case diagrams
-  - Parameters: `code`, `output_dir`
-- `generate_state_diagram`: Generate UML state diagrams
-  - Parameters: `code`, `output_dir`
-- `generate_component_diagram`: Generate UML component diagrams
-  - Parameters: `code`, `output_dir`
-- `generate_deployment_diagram`: Generate UML deployment diagrams
-  - Parameters: `code`, `output_dir`
-- `generate_object_diagram`: Generate UML object diagrams
-  - Parameters: `code`, `output_dir`
-
-#### Other Diagram Formats
-- `generate_mermaid_diagram`: Generate diagrams using Mermaid syntax
-  - Parameters: `code`, `output_dir`
-- `generate_d2_diagram`: Generate diagrams using D2 syntax
-  - Parameters: `code`, `output_dir`
-- `generate_graphviz_diagram`: Generate diagrams using Graphviz DOT syntax
-  - Parameters: `code`, `output_dir`
-- `generate_erd_diagram`: Generate Entity-Relationship diagrams
-  - Parameters: `code`, `output_dir`
-
-### Prompts
-
-The server provides prompts to help create UML diagrams:
-
-- `class_diagram`: Create a UML class diagram showing classes, attributes, methods, and relationships
-- `sequence_diagram`: Create a UML sequence diagram showing interactions between objects over time
-- `activity_diagram`: Create a UML activity diagram showing workflows and business processes
-
-## Configuration
-
-### Install
-
-#### Claude Desktop
-
-On MacOS: `~/Library/Application\ Support/Claude/claude_desktop_config.json`  
-On Windows: `%APPDATA%/Claude/claude_desktop_config.json`
-
-<details>
-  <summary>Claude Desktop Configuration</summary>
-  
-  ```json
-  {
-    "mcpServers": {
-      "uml_diagram_generator": {
-        "command": "python",
-        "args": [
-          "/path/to/uml-mcp/mcp_server.py"
-        ]
-      }
-    }
-  }
-  ```
-</details>
-
-#### Cursor Integration
-
-The UML-MCP Server can also be integrated with Cursor:
-
-<details>
-  <summary>Cursor Configuration</summary>
-  
-  ```json
-  {
-    "mcpServers": {
-      "uml_diagram_generator": {
-        "command": "python",
-        "args": [
-          "/path/to/uml-mcp/mcp_server.py"
-        ]
-      }
-    }
-  }
-  ```
-</details>
-
-## Usage
-
-### Command Line Arguments
-
-```
-usage: mcp_server.py [-h] [--debug] [--host HOST] [--port PORT] [--transport {stdio,http}] [--list-tools]
-
-UML-MCP Diagram Generation Server
-
-options:
-  -h, --help            show this help message and exit
-  --debug               Enable debug logging
-  --host HOST           Server host (default: 127.0.0.1)
-  --port PORT           Server port (default: 8000)
-  --transport {stdio,http}
-                        Transport protocol (default: stdio)
-  --list-tools          List available tools and exit
-```
-
-### Environment Variables
-
-- `LOG_LEVEL`: Set logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-- `UML_MCP_OUTPUT_DIR`: Directory to store generated diagram files
-- `KROKI_SERVER`: Kroki server URL for diagram rendering
-- `PLANTUML_SERVER`: PlantUML server URL for diagram rendering
-- `LIST_TOOLS`: Set to "true" to display tools and exit
-
-### Example: Generating a Class Diagram
-
-```python
-result = tool.call("generate_class_diagram", {
-    "code": """
-        @startuml
-        class User {
-          -id: int
-          -name: string
-          +login(): boolean
-        }
-        class Order {
-          -id: int
-          +addItem(item: string): void
-        }
-        User "1" -- "many" Order
-        @enduml
-    """,
-    "output_dir": "/path/to/output"
-})
-```
-
-## Development
-
-### Building and Running
+See [Testing](docs/testing.md) for why integration tests are skipped by default and how to run them. Use the project’s venv so pytest-cov and options from `pyproject.toml` apply:
 
 ```bash
-# Clone the repository
-git clone https://github.com/your-username/uml-mcp.git
-cd uml-mcp
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Run the server
-python mcp_server.py
+uv run pytest tests/ -v
+# or: poetry run pytest tests/ -v
 ```
 
-### Debugging
+Do not run bare `pytest` (system Python); it may not have pytest-cov and will not see the project’s addopts.
 
-For debugging, you can run the server with:
+**Integration tests (MCP Client)** use the real FastMCP package and an in-process client to test discovery and tools. They are skipped unless `USE_REAL_FASTMCP=1` is set. Run them with:
 
 ```bash
-python mcp_server.py --debug
+USE_REAL_FASTMCP=1 uv run pytest tests/integration -v
 ```
 
-Debug logs will be stored in the `logs/` directory.
+These tests require a fastmcp version that provides `fastmcp.client.Client` (e.g. FastMCP 2.x / 3.x). Diagram generation is mocked so no network call to Kroki is made.
 
-### Running Tests
+### Lint and type check
 
 ```bash
-# Run all tests
-pytest
+uv run ruff check .
+uv run ruff format --check .
+# or: make lint
 
-# Run specific tests
-pytest tests/test_diagram_tools.py
+# Optional type checking (gradual adoption):
+uv run ty check
+# or: make typecheck
 ```
 
+- If you see **No module named black** (or flake8/isort), run `uv sync --all-groups` so dev tools are installed.
+- If you get **Permission denied** when running `uv run black` / `flake8` / `isort` (e.g. on WSL with project on `/mnt/c/`), use the module form: `uv run python -m black ...`, `uv run python -m flake8 ...`, `uv run python -m isort ...`, or fix execute bits: `chmod +x .venv/bin/black .venv/bin/flake8 .venv/bin/isort`.
+
+### Testing the CI pipeline locally
+
+**Option 1: Same steps as CI, no Docker**
+
+```bash
+make ci
+```
+
+Runs lint (ruff) and tests with coverage, matching the test job in `.github/workflows/ci.yml`.
+
+**Option 2: act (GitHub Actions in Docker)**
+
+You can run the full workflow locally with [act](https://github.com/nektos/act). Requires Docker. The main pipeline is in a single file (`.github/workflows/ci.yml`) so `act push` runs test and build jobs without reusable-workflow issues.
+
+**Install act (Windows):** Chocolatey `choco install act-cli -y`, Scoop `scoop install act`, or download from [act releases](https://github.com/nektos/act/releases).
+
+```bash
+act -l
+act push
+```
+
+## Documentation
+
+- [Installation](docs/installation.md)
+- [Configuration](docs/configuration.md)
+- [API / tools](docs/api/tools.md)
+- [Cursor integration](docs/integrations/cursor.md)
+- [Claude Desktop integration](docs/integrations/claude_desktop.md)
+
+## Contributing and community
+
+- [Contributing guide](CONTRIBUTING.md) — setup, tests, and how to send pull requests
+- [Code of conduct](CODE_OF_CONDUCT.md)
+- [Security policy](SECURITY.md) — how to report vulnerabilities
+
+## License
+
+MIT — see [LICENSE](LICENSE).
+
+## Acknowledgements
+
+- [PlantUML](https://plantuml.com/)
+- [Kroki](https://kroki.io/)
+- [Mermaid](https://mermaid.js.org/)
+- [D2](https://d2lang.com/)

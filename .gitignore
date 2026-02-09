@@ -19,28 +19,86 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+*.manifest
+pip-log.txt
+pip-delete-this-directory.txt
 
-# Virtual Environment
+# Virtual environments
 venv/
 env/
 ENV/
+.venv/
+.uv/
 
-# IDE specific files
+# Testing & coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+*.lcov
+
+# Type checkers & linters
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.ruff_cache/
+.pytype/
+pyrightconfig.json
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Documentation builds
+site/
+docs/_build/
+.cache
+
+# IDE and editors
 .idea/
 .vscode/
 *.swp
 *.swo
+*~
+.project
+.pydevproject
+.settings/
 
-# Output directories
+# Output and logs
 output/
 logs/
+*.log
+*.tmp
 
-# OS specific
+# OS
 .DS_Store
 Thumbs.db
+ehthumbs.db
+Desktop.ini
 
-# MCP specific
+# MCP and local config
 .mcp/
-
-# Environment variables
 .env
+.env.local
+.env.*.local
+!.env.example
+.claude
+.gemini
+.cursor
+
+# MkDocs
+/site
+
+# Distribution / packaging
+*.whl
+*.tar.gz
+
+# Local development
+local/
+tmp/
+temp/
+.cache/

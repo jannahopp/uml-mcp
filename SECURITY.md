@@ -1,5 +1,7 @@
 # Security Policy
 
+We take security seriously. Please report vulnerabilities as described below; do not open public issues for security flaws.
+
 ## Supported Versions
 
 | Version | Supported          |
@@ -13,7 +15,7 @@
 If you discover a security vulnerability in this project, please follow these steps to report it:
 
 1. **Do not disclose the vulnerability publicly** until it has been addressed by the maintainers.
-2. Send an email to security@example.com with a detailed description of the vulnerability, including:
+2. **Report via GitHub:** Open a [Security Advisory](https://github.com/yourusername/uml-mcp/security/advisories/new) (preferred), or email the maintainers if you cannot use GitHub. Include:
    - The steps to reproduce the issue
    - The potential impact of the vulnerability
    - Any potential solutions or workarounds you're aware of

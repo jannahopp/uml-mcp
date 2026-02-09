@@ -23,14 +23,15 @@ Cursor requires specific configuration to connect to the UML-MCP server:
 
 2. Add the UML-MCP server configuration to the `mcpServers` section:
 
-Example configuration:
+Example configuration (see also the **`config/cursor_config.json`** and **`config/README.md`** in the repo):
+
 ```json
 {
   "mcpServers": {
     "UML-MCP-Server": {
       "command": "python",
-      "args": ["/path/to/uml-mcp/mcp_server.py"],
-      "output_dir": "/path/to/output"
+      "args": ["/path/to/uml-mcp/server.py"],
+      "cwd": "/path/to/uml-mcp"
     }
   }
 }

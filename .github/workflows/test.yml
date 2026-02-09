@@ -5,6 +5,7 @@ on:
     branches:
       - main
   pull_request:
+  workflow_call:
 
 jobs:
   test:
@@ -12,31 +13,46 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
         with:
-          python-version: '3.9'
-
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: 2.1.2
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-
-      - name: Configure Poetry
-        run: |
-          poetry config virtualenvs.in-project true
+          version: "latest"
+          python-version: "3.10"
+          enable-cache: true
 
       - name: Install dependencies
+        run: uv sync --all-groups
+
+      - name: Lint
         run: |
-          poetry install --with dev
+          uv run ruff check .
+          uv run ruff format --check .
 
       - name: Run tests
         run: |
-          poetry run pytest --cov=mcp --cov-report=term --cov-report=html
+          uv run pytest --cov=mcp_core --cov=kroki --cov-report=term --cov-report=html
+
+      - name: Integration tests (MCP Client)
+        run: USE_REAL_FASTMCP=1 uv run pytest tests/integration -v --no-cov
+        continue-on-error: true
+
+      - name: Health check (FastAPI UML API)
+        run: |
+          uv run python -c "
+          import subprocess, time
+          import httpx
+          p = subprocess.Popen(['uv', 'run', 'uvicorn', 'app:app', '--host', '127.0.0.1', '--port', '8765'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+          try:
+            time.sleep(3)
+            r = httpx.get('http://127.0.0.1:8765/health', timeout=5)
+            assert r.status_code == 200, r.status_code
+            print('Health check OK')
+          finally:
+            p.terminate()
+            p.wait(timeout=5)
+          "
 
       - name: Upload coverage reports
         uses: actions/upload-artifact@v4

@@ -5,7 +5,7 @@ This guide explains how to install and set up the UML-MCP server.
 ## System Requirements
 
 - Python 3.10 or higher
-- pip (Python package installer)
+- [uv](https://docs.astral.sh/uv/), [Poetry](https://python-poetry.org/), or pip
 - Optional: Docker for running local PlantUML or Kroki servers
 
 ## Installation Steps
@@ -19,14 +19,30 @@ cd uml-mcp
 
 2. Install the dependencies:
 
+**With uv (recommended):**
+
+```bash
+uv sync
+```
+
+**With Poetry:**
+
+```bash
+poetry install
+```
+
+**With pip:**
+
 ```bash
 pip install -r requirements.txt
 ```
 
-3. For development environments:
+3. For development (tests, linting):
 
 ```bash
-pip install -r requirements-dev.txt
+uv sync --all-groups
+# or: poetry install --with dev
+# or: pip install -r requirements-dev.txt
 ```
 
 ## Verifying Installation
@@ -34,7 +50,7 @@ pip install -r requirements-dev.txt
 To verify your installation:
 
 ```bash
-python mcp_server.py
+python server.py --list-tools
 ```
 
 You should see output similar to:
@@ -48,23 +64,16 @@ Available Prompts: 3
 
 ## IDE Integration
 
-### Cursor
+### Cursor and other MCP clients
 
-To integrate with Cursor IDE:
+Configure your IDE to run the UML-MCP server. Use **manual configuration**:
 
-```bash
-python mcp/install_to_cursor.py
-```
+- **Command**: `python` (or full path to your venv Python if using uv/Poetry)
+- **Arguments**: `["/path/to/uml-mcp/server.py"]` — use the **full path** to `server.py`
+- **Working directory**: `/path/to/uml-mcp` (project root)
+- **Output directory**: Optional; set `MCP_OUTPUT_DIR` in env or use default `./output`
 
-This will automatically configure your Cursor IDE to use UML-MCP for diagram generation.
-
-### Manual Configuration
-
-For manual configuration in IDEs, you'll need to add UML-MCP as an MCP server with:
-
-- Command: `python`
-- Arguments: `["/path/to/uml-mcp/mcp_server.py"]`
-- Output directory: `/path/to/store/diagrams`
+See [config/README.md](../config/README.md) for where each app stores its config, and [Cursor integration](integrations/cursor.md) or [Claude Desktop integration](integrations/claude_desktop.md) for step-by-step setup.
 
 ## Optional Components
 

@@ -1,7 +1,6 @@
-import zlib
 import base64
+import zlib
 from enum import Enum
-from collections import defaultdict
 
 # Define the reserved keywords
 simple_reserved_keywords = {
@@ -26,8 +25,7 @@ simple_reserved_keywords = {
     "vertical-gap",
     "horizontal-gap",
     "class",
-    "line"
-    "vars",
+    "linevars",
 }
 
 reserved_keyword_holders = {
@@ -81,48 +79,57 @@ compression_dict = "-><--<->"
 for keyword in sorted(reserved_keywords):
     compression_dict += keyword
 
-#-><--<->3danimatedboldborder-radiusbottomclassclassesconstraintdescdirectiondouble-borderfillfill-patternfilledfontfont-colorfont-sizegrid-columnsgrid-gapgrid-rowsheighthorizontal-gapiconitaliclabellayersleftlinevarslinkmultiplenearopacityrightscenariosshadowshapesource-arrowheadstepsstrokestroke-dashstroke-widthstyletarget-arrowheadtext-transformtooltiptopunderlinevertical-gapwidth
+# -><--<->3danimatedboldborder-radiusbottomclassclassesconstraintdescdirectiondouble-borderfillfill-patternfilledfontfont-colorfont-sizegrid-columnsgrid-gapgrid-rowsheighthorizontal-gapiconitaliclabellayersleftlinevarslinkmultiplenearopacityrightscenariosshadowshapesource-arrowheadstepsstrokestroke-dashstroke-widthstyletarget-arrowheadtext-transformtooltiptopunderlinevertical-gapwidth
 
 print("Compression dictionary:", compression_dict)
 
 compression_dict = "-><---<->3danimatedboldborder-radiusclassclassesconstraintdescdirectiondouble-borderfillfill-patternfilledfontfont-colorfont-sizegrid-columnsgrid-gapgrid-rowsheighthorizontal-gapiconitaliclabellayersleftlinkmultiplenearopacityscenariosshadowshapesource-arrowheadstepsstrokestroke-dashstroke-widthstyletarget-arrowheadtext-transformtooltiptopunderlinevarsvertical-gapwidth"
 
+
 class Layout(Enum):
-    DAGRE = 'dagre'
-    ELK = 'elk'
-    TALA = 'tala'
+    DAGRE = "dagre"
+    ELK = "elk"
+    TALA = "tala"
+
 
 class Theme(Enum):
-    DEFAULT = '0'
-    DARK = '103'
+    DEFAULT = "0"
+    DARK = "103"
 
 
 def encode(raw: str) -> str:
     # Convert the raw string to bytes
-    raw_bytes = raw.encode('utf-8')
+    raw_bytes = raw.encode("utf-8")
 
     # Compress the bytes using the compression dictionary
-    compressor = zlib.compressobj(wbits=-zlib.MAX_WBITS, zdict=compression_dict.encode('utf-8'))
+    compressor = zlib.compressobj(
+        wbits=-zlib.MAX_WBITS, zdict=compression_dict.encode("utf-8")
+    )
     compressed_bytes = compressor.compress(raw_bytes) + compressor.flush()
 
     # Encode the compressed bytes as base64
     encoded_bytes = base64.b64encode(compressed_bytes)
 
-    return encoded_bytes.decode('utf-8')
+    return encoded_bytes.decode("utf-8")
+
 
 def decode(encoded: str) -> str:
     # Decode the base64 string to bytes
     encoded_bytes = base64.urlsafe_b64decode(encoded)
 
     # Decompress the bytes using the compression dictionary
-    decompressor = zlib.decompressobj(wbits=-zlib.MAX_WBITS, zdict=compression_dict.encode('utf-8'))
+    decompressor = zlib.decompressobj(
+        wbits=-zlib.MAX_WBITS, zdict=compression_dict.encode("utf-8")
+    )
     decompressed_bytes = decompressor.decompress(encoded_bytes) + decompressor.flush()
 
-    return decompressed_bytes.decode('utf-8')
+    return decompressed_bytes.decode("utf-8")
+
 
 def generate_d2graphviz_url(edge_def, layout=Layout.DAGRE, theme=Theme.DEFAULT):
     encoded_edge_def = encode(edge_def)
     return f"https://play.d2lang.com/?script={encoded_edge_def}&layout={layout.value}&theme={theme.value}"
+
 
 if __name__ == "__main__":
     edge_def = """

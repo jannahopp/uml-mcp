@@ -1,12 +1,7 @@
-# Development dependencies with updated versions to fix conflicts
-fastapi>=0.95.0
-uvicorn>=0.15.0
-httpx>=0.26.0   # Required by fastmcp>=0.4.0
+# Development dependencies (sync with pyproject.toml dev group)
 pytest>=7.0.0
-pre-commit>=2.20.0
-sphinx>=5.0.0
-pytest-asyncio>=0.20.0
-aiofiles>=0.8.0
-fastmcp>=0.4.0
-typer[all]>=0.9.0
-rich>=13.4.0
+pytest-cov>=7.0.0
+pytest-asyncio>=0.21.0
+pre-commit>=4.0.0
+ruff>=0.8.0
+ty>=0.0.14

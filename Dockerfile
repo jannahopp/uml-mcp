@@ -23,5 +23,5 @@ RUN mkdir -p /app/output
 # Expose port for API
 EXPOSE 8000
 
-# Set entrypoint for stdio mode
-ENTRYPOINT ["python", "mcp_server.py", "--transport", "stdio"]
+# Set entrypoint for stdio mode (canonical MCP server using mcp_core/Kroki)
+ENTRYPOINT ["python", "server.py", "--transport", "stdio"]

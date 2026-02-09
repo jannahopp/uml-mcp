@@ -22,10 +22,10 @@ numpy
 # For visualization
 matplotlib
 
-torchvision 
-tqdm 
+torchvision
+tqdm
 accelerate
-umap-learn 
-matplotlib 
+umap-learn
+matplotlib
 plotly
 seaborn

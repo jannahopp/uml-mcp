@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "UML-MCP-Server": {
+      "command": "python",
+      "args": ["C:\\path\\to\\uml-mcp\\server.py"],
+      "cwd": "C:\\path\\to\\uml-mcp",
+      "env": {}
+    }
+  }
+}

@@ -1,4 +1,4 @@
-.PHONY: help install install-dev clean test lint coverage docker-build docker-run docker-test docker-stop
+.PHONY: help install install-dev clean test lint typecheck coverage ci docker-build docker-run docker-test docker-stop
 
 # Default target
 help:
@@ -9,8 +9,10 @@ help:
 	@echo "  make install-dev    Install development dependencies"
 	@echo "  make clean          Clean temporary files and caches"
 	@echo "  make test           Run tests"
-	@echo "  make lint           Run linting checks"
+	@echo "  make lint           Run linting checks (ruff + pre-commit)"
+	@echo "  make typecheck      Run type checker (ty)"
 	@echo "  make coverage       Run tests with coverage report"
+	@echo "  make ci             Run same steps as CI (lint + tests + coverage; use with 'act' or locally)"
 	@echo "  make docker-build   Build Docker images"
 	@echo "  make docker-run     Run services using Docker Compose"
 	@echo "  make docker-test    Run tests in Docker container"
@@ -18,10 +20,10 @@ help:
 
 # Installation targets
 install:
-	pip install -r requirements.txt
+	uv sync
 
 install-dev: install
-	pip install -r requirements-dev.txt
+	uv sync --all-groups
 
 # Cleaning
 clean:
@@ -29,21 +31,29 @@ clean:
 	rm -rf .pytest_cache
 	rm -rf .coverage
 	rm -rf htmlcov
-	rm -rf .mypy_cache
+	rm -rf .ty_cache
 	find . -name "*.pyc" -delete
 
 # Testing and linting
 test:
-	pytest -xvs mcp/
-	pytest -xvs kroki/
-	pytest -xvs mermaid/
-	pytest -xvs D2/
+	uv run pytest -xvs tests/
 
 lint:
+	uv run ruff check .
+	uv run ruff format --check .
 	pre-commit run --all-files
 
+typecheck:
+	uv run ty check
+
 coverage:
-	pytest --cov=mcp --cov=kroki --cov=mermaid --cov=D2 --cov-report=html
+	uv run pytest --cov=mcp_core --cov=kroki --cov-report=term --cov-report=html
+
+# Same steps as .github/workflows/ci.yml (test job) for local/act runs
+ci: install-dev
+	uv run ruff check .
+	uv run ruff format --check .
+	uv run pytest --cov=mcp_core --cov=kroki --cov-report=term --cov-report=html
 
 # Docker commands
 docker-build:

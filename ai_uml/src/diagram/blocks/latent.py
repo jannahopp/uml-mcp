@@ -1,5 +1,6 @@
 from .base import Block
 
+
 class LatentCubeBlock(Block):
     def draw(self, dwg):
         fill_color = "#AED6F1"

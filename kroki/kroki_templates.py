@@ -2,19 +2,20 @@
 Templates and examples for various diagram formats supported by Kroki.
 """
 
+
 class DiagramExamples:
     """
     Provides complete examples for different diagram formats supported by Kroki.
     """
-    
+
     @staticmethod
     def get_example(diagram_type: str) -> str:
         """
         Get a comprehensive example for the specified diagram type.
-        
+
         Args:
             diagram_type: The type of diagram (plantuml, mermaid, etc.)
-            
+
         Returns:
             A comprehensive example for the diagram type
         """
@@ -40,21 +41,19 @@ main_ts ==> (main.view)
 (main.view) ...> (singleton)
 (singleton) ---> (model)
 @enduml""",
-            
             # Mermaid example with sequence diagram
             "mermaid": """sequenceDiagram
     participant Browser
     participant Webserver
     participant Processor
-    
+
     Browser->>Webserver: GET /diagram/svg/base64
     Webserver->>Processor: Convert text to image
     Processor-->>Webserver: Return image
     Webserver-->>Browser: Deliver SVG image
-    
+
     note over Browser,Webserver: HTTP Request
     note over Webserver,Processor: Internal Processing""",
-            
             # BlockDiag example
             "blockdiag": """blockdiag {
   Kroki -> generates -> "Block diagrams";
@@ -63,7 +62,6 @@ main_ts ==> (main.view)
   "Block diagrams" [color = "pink"];
   "very easy!" [color = "orange"];
 }""",
-            
             # SeqDiag example
             "seqdiag": """seqdiag {
   browser  -> webserver [label = "GET /seqdiag/svg/base64"];
@@ -71,7 +69,6 @@ main_ts ==> (main.view)
   webserver <-- processor;
   browser <-- webserver;
 }""",
-            
             # ActDiag example
             "actdiag": """actdiag {
   write -> convert -> image
@@ -84,7 +81,6 @@ main_ts ==> (main.view)
     convert [label = "Convert text to image"];
   }
 }""",
-            
             # NwDiag example
             "nwdiag": """nwdiag {
   network dmz {
@@ -100,7 +96,6 @@ main_ts ==> (main.view)
     db02;
   }
 }""",
-            
             # PacketDiag example
             "packetdiag": """packetdiag {
   colwidth = 32;
@@ -123,7 +118,6 @@ main_ts ==> (main.view)
   160-191: (Options and Padding);
   192-223: data [colheight = 3];
 }""",
-            
             # RackDiag example
             "rackdiag": """rackdiag {
   16U;
@@ -135,7 +129,6 @@ main_ts ==> (main.view)
   7: Load Balancer;
   8: L3 Switch;
 }""",
-            
             # C4 diagram (PlantUML extension) example
             "c4plantuml": """!include <C4/C4_Context>
 title System Context diagram for Internet Banking System
@@ -147,7 +140,6 @@ Rel(customer, banking_system, "Uses")
 Rel_Back(customer, mail_system, "Sends e-mails to")
 Rel_Neighbor(banking_system, mail_system, "Sends e-mails", "SMTP")
 Rel(banking_system, mainframe, "Uses")""",
-            
             # Bytefield example
             "bytefield": """(defattrs :bg-green {:fill "#a0ffa0"})
 (defattrs :bg-yellow {:fill "#ffffa0"})
@@ -182,27 +174,30 @@ Rel(banking_system, mainframe, "Uses")""",
   (doseq [val [0 0]]
     (draw-box val [:box-related :bg-purple]))
   (draw-box 0 [:box-last :bg-purple]))
-(draw-remotedb-header 0x4702 9)"""
+(draw-remotedb-header 0x4702 9)""",
         }
-        
+
         # Get the example or return a message if not found
-        return examples.get(diagram_type.lower(), 
-                          "# No specific example available for this diagram type.\n"
-                          "# Please refer to the documentation for " + diagram_type)
+        return examples.get(
+            diagram_type.lower(),
+            "# No specific example available for this diagram type.\n"
+            "# Please refer to the documentation for " + diagram_type,
+        )
+
 
 class DiagramTemplates:
     """
     Provides starter templates for different diagram formats.
     """
-    
+
     @staticmethod
     def get_template(diagram_type: str) -> str:
         """
         Get a starter template for the specified diagram type.
-        
+
         Args:
             diagram_type: The type of diagram (plantuml, mermaid, etc.)
-            
+
         Returns:
             A starter template for the diagram type
         """
@@ -215,31 +210,26 @@ participant System
 User -> System: Request
 System --> User: Response
 @enduml""",
-            
             # Basic sequence diagram for Mermaid
             "mermaid": """sequenceDiagram
     participant User
     participant System
-    
+
     User->>System: Request
     System-->>User: Response""",
-            
             # Basic diagram for D2
             "d2": """User -> System: Request
 System -> User: Response""",
-            
             # Basic diagram for Graphviz
             "graphviz": """digraph G {
     User -> System [label="Request"];
     System -> User [label="Response"];
 }""",
-            
             # Basic diagram for BlockDiag
             "blockdiag": """blockdiag {
   User -> System -> Database;
   System -> User;
 }""",
-            
             # Basic diagram for BPMN
             "bpmn": """<?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
@@ -259,13 +249,11 @@ System -> User: Response""",
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>""",
-            
             # Basic diagram for ERD
             "erd": """[Person]
 *name
 height
 weight""",
-            
             # Basic diagram for Bytefield
             "bytefield": """(defattrs :bg-green {:fill "#a0ffa0"})
 (defattrs :bg-yellow {:fill "#ffffa0"})
@@ -287,11 +275,14 @@ weight""",
 
 (draw-packet-header)""",
         }
-        
+
         # Try to get a specific template, fall back to a generic one
-        return templates.get(diagram_type.lower(), 
-                           "# No specific template available for this diagram type.\n"
-                           "# Please refer to the documentation for this diagram type.")
+        return templates.get(
+            diagram_type.lower(),
+            "# No specific template available for this diagram type.\n"
+            "# Please refer to the documentation for this diagram type.",
+        )
+
 
 # Example usage:
 def demo():
@@ -300,11 +291,12 @@ def demo():
     print("MERMAID TEMPLATE:")
     print(mermaid_template)
     print("\n")
-    
+
     # Get and print a comprehensive example for Mermaid
     mermaid_example = DiagramExamples.get_example("mermaid")
     print("MERMAID EXAMPLE:")
     print(mermaid_example)
+
 
 if __name__ == "__main__":
     demo()

@@ -2,23 +2,30 @@
 Wrapper for FastMCP server to ensure compatibility
 """
 
-import logging
-import sys
 import json
+import logging
 import os
-from typing import Any, Callable, Dict, List, Optional, Union
+import sys
+from typing import Any, Callable, Dict
 
 logger = logging.getLogger(__name__)
 
 # Determine if we should use the mock implementation
 use_mock = False
 
-# Check if we're in a development or test environment
-is_dev_or_test = (
-    os.environ.get("TESTING", "false").lower() in ("true", "1", "yes") or
-    os.environ.get("DEVELOPMENT", "false").lower() in ("true", "1", "yes") or
-    "pytest" in sys.modules or
-    os.environ.get("MOCK_FASTMCP", "false").lower() in ("true", "1", "yes")
+# Integration tests can request real FastMCP (for FastMCP Client testing); must be set before import
+use_real_for_tests = os.environ.get("USE_REAL_FASTMCP", "").lower() in (
+    "1",
+    "true",
+    "yes",
+)
+
+# Check if we're in a development or test environment (unless USE_REAL_FASTMCP is set)
+is_dev_or_test = not use_real_for_tests and (
+    os.environ.get("TESTING", "false").lower() in ("true", "1", "yes")
+    or os.environ.get("DEVELOPMENT", "false").lower() in ("true", "1", "yes")
+    or "pytest" in sys.modules
+    or os.environ.get("MOCK_FASTMCP", "false").lower() in ("true", "1", "yes")
 )
 
 if is_dev_or_test:
@@ -27,27 +34,31 @@ if is_dev_or_test:
 else:
     try:
         import fastmcp
-        if not hasattr(fastmcp, 'FastMCP'):
+
+        if not hasattr(fastmcp, "FastMCP"):
             raise ImportError("FastMCP class not found in fastmcp package")
         logger.info("Using production FastMCP implementation")
-        from fastmcp import FastMCP, Context
+        from fastmcp import Context, FastMCP
     except ImportError as e:
         logger.error(f"FastMCP package error: {str(e)}")
-        raise ImportError("FastMCP package is required but not installed. Set MOCK_FASTMCP=true to use mock implementation.")
+        raise ImportError(
+            "FastMCP package is required but not installed. Set MOCK_FASTMCP=true to use mock implementation."
+        )
 
 # Define mock classes if needed
 if use_mock:
-    class Context:
+
+    class Context:  # noqa: F811
         def __init__(self):
             self.data = {}
-            
+
         def get(self, key: str, default: Any = None) -> Any:
             return self.data.get(key, default)
-            
+
         def set(self, key: str, value: Any):
             self.data[key] = value
 
-    class FastMCP:
+    class FastMCP:  # noqa: F811
         def __init__(self, name: str):
             self.name = name
             self._tools = {}
@@ -57,9 +68,10 @@ if use_mock:
 
         def tool(self, *args, **kwargs):
             def decorator(func: Callable) -> Callable:
-                tool_name = kwargs.get('name', func.__name__)
+                tool_name = kwargs.get("name", func.__name__)
                 self._tools[tool_name] = func
                 return func
+
             return decorator
 
         def prompt(self, prompt_name: str = None):
@@ -67,18 +79,20 @@ if use_mock:
                 name = prompt_name or func.__name__
                 self._prompts[name] = func
                 return func
+
             return decorator
 
         def resource(self, path: str):
             def decorator(func: Callable) -> Callable:
                 self._resources[path] = func
                 return func
+
             return decorator
 
-        def run(self, transport: str = 'stdio', host: str = None, port: int = None):
-            if transport == 'stdio':
+        def run(self, transport: str = "stdio", host: str = None, port: int = None):
+            if transport == "stdio":
                 self._run_stdio()
-            elif transport == 'http':
+            elif transport == "http":
                 self._run_http(host, port)
             else:
                 raise ValueError(f"Unsupported transport: {transport}")
@@ -109,40 +123,41 @@ if use_mock:
         def _handle_request(self, request: Dict[str, Any]) -> Dict[str, Any]:
             """Handle an MCP request and return the response."""
             try:
-                if 'type' not in request:
+                if "type" not in request:
                     raise ValueError("Missing request type")
 
-                if request['type'] == 'tool':
-                    tool_name = request.get('tool')
+                if request["type"] == "tool":
+                    tool_name = request.get("tool")
                     if tool_name not in self._tools:
                         raise ValueError(f"Unknown tool: {tool_name}")
                     tool = self._tools[tool_name]
-                    args = request.get('args', {})
+                    args = request.get("args", {})
                     result = tool(**args)
                     return {"result": result}
-                    
-                elif request['type'] == 'prompt':
-                    prompt_name = request.get('prompt')
+
+                elif request["type"] == "prompt":
+                    prompt_name = request.get("prompt")
                     if prompt_name not in self._prompts:
                         raise ValueError(f"Unknown prompt: {prompt_name}")
                     prompt = self._prompts[prompt_name]
-                    args = request.get('args', {})
+                    args = request.get("args", {})
                     result = prompt(**args)
                     return {"result": result}
-                    
-                elif request['type'] == 'resource':
-                    path = request.get('path')
+
+                elif request["type"] == "resource":
+                    path = request.get("path")
                     if path not in self._resources:
                         raise ValueError(f"Unknown resource: {path}")
                     resource = self._resources[path]
                     result = resource()
                     return {"result": result}
-                    
+
                 else:
                     raise ValueError(f"Unknown request type: {request['type']}")
-                    
+
             except Exception as e:
                 return {"error": str(e)}
+
 
 # Export the required classes
 __all__ = ["FastMCP", "Context"]

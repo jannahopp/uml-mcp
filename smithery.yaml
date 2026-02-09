@@ -17,7 +17,7 @@ startCommand:
         description: "Directory to store generated diagram files"
         default: "/app/output"
       transport:
-        type: "string" 
+        type: "string"
         description: "Transport protocol to use (stdio or http)"
         enum: ["stdio", "http"]
         default: "stdio"
@@ -56,18 +56,18 @@ startCommand:
   commandFunction: |-
     (config) => {
       // Build command arguments
-      const args = ["mcp_server.py"];
-      
+      const args = ["server.py"];
+
       // Add transport option
       if (config.transport) {
         args.push("--transport", config.transport);
       }
-      
+
       // Add debug flag if enabled
       if (config.debug) {
         args.push("--debug");
       }
-      
+
       // Add host and port if using http transport
       if (config.transport === "http") {
         if (config.host) {
@@ -77,37 +77,37 @@ startCommand:
           args.push("--port", config.port.toString());
         }
       }
-      
+
       // Build environment variables
       const env = {
         "PYTHONUNBUFFERED": "1"  // Ensure unbuffered Python output
       };
-      
+
       // Add output directory
       if (config.output_dir) {
         env.UML_MCP_OUTPUT_DIR = config.output_dir;
       }
-      
+
       // Add log level
       if (config.log_level) {
         env.LOG_LEVEL = config.log_level;
       }
-      
+
       // Add Kroki server
       if (config.kroki_server) {
         env.KROKI_SERVER = config.kroki_server;
       }
-      
+
       // Add PlantUML server
       if (config.plantuml_server) {
         env.PLANTUML_SERVER = config.plantuml_server;
       }
-      
+
       // Add enabled formats
       if (config.enabled_formats && config.enabled_formats.length > 0) {
         env.ENABLED_FORMATS = config.enabled_formats.join(",");
       }
-      
+
       // Return command configuration
       return {
         command: "python",
@@ -136,7 +136,7 @@ build:
 capabilities:
   # Server information
   serverName: "UML Diagram Generator"
-  
+
   # Tools from console output
   tools:
     - name: "generate_uml"
@@ -154,7 +154,7 @@ capabilities:
           type: "string"
           description: "Directory where to save the generated image"
           required: true
-    
+
     - name: "generate_class_diagram"
       description: "Generate UML class diagram from PlantUML code"
       parameters:
@@ -166,7 +166,7 @@ capabilities:
           type: "string"
           description: "Directory where to save the generated image"
           required: true
-    
+
     - name: "generate_sequence_diagram"
       description: "Generate UML sequence diagram from PlantUML code"
       parameters:
@@ -178,7 +178,7 @@ capabilities:
           type: "string"
           description: "Directory where to save the generated image"
           required: true
-    
+
     - name: "generate_activity_diagram"
       description: "Generate UML activity diagram from PlantUML code"
       parameters:
@@ -190,7 +190,7 @@ capabilities:
           type: "string"
           description: "Directory where to save the generated image"
           required: true
-    
+
     - name: "generate_usecase_diagram"
       description: "Generate UML use case diagram from PlantUML code"
       parameters:
@@ -202,7 +202,7 @@ capabilities:
           type: "string"
           description: "Directory where to save the generated image"
           required: true
-    
+
     - name: "generate_state_diagram"
       description: "Generate UML state diagram from PlantUML code"
       parameters:
@@ -214,7 +214,7 @@ capabilities:
           type: "string"
           description: "Directory where to save the generated image"
           required: true
-    
+
     - name: "generate_component_diagram"
       description: "Generate UML component diagram from PlantUML code"
       parameters:
@@ -226,7 +226,7 @@ capabilities:
           type: "string"
           description: "Directory where to save the generated image"
           required: true
-    
+
     - name: "generate_deployment_diagram"
       description: "Generate UML deployment diagram from PlantUML code"
       parameters:
@@ -238,7 +238,7 @@ capabilities:
           type: "string"
           description: "Directory where to save the generated image"
           required: true
-    
+
     - name: "generate_object_diagram"
       description: "Generate UML object diagram from PlantUML code"
       parameters:
@@ -250,7 +250,7 @@ capabilities:
           type: "string"
           description: "Directory where to save the generated image"
           required: true
-    
+
     - name: "generate_mermaid_diagram"
       description: "Generate diagrams using Mermaid syntax"
       parameters:
@@ -262,7 +262,7 @@ capabilities:
           type: "string"
           description: "Directory where to save the generated image"
           required: true
-    
+
     - name: "generate_d2_diagram"
       description: "Generate diagrams using D2 syntax"
       parameters:
@@ -274,7 +274,7 @@ capabilities:
           type: "string"
           description: "Directory where to save the generated image"
           required: true
-    
+
     - name: "generate_graphviz_diagram"
       description: "Generate diagrams using Graphviz DOT syntax"
       parameters:
@@ -286,7 +286,7 @@ capabilities:
           type: "string"
           description: "Directory where to save the generated image"
           required: true
-    
+
     - name: "generate_erd_diagram"
       description: "Generate Entity-Relationship diagrams"
       parameters:
@@ -298,31 +298,31 @@ capabilities:
           type: "string"
           description: "Directory where to save the generated image"
           required: true
-  
+
   # Prompts from console output
   prompts:
     - name: "class_diagram"
       description: "Create a UML class diagram showing classes, attributes, methods, and relationships"
-    
+
     - name: "sequence_diagram"
       description: "Create a UML sequence diagram showing interactions between objects over time"
-    
+
     - name: "activity_diagram"
       description: "Create a UML activity diagram showing workflows and business processes"
-  
+
   # Resources from console output
   resources:
     - name: "uml://types"
       description: "List of available UML diagram types"
-    
+
     - name: "uml://templates"
       description: "Templates for creating UML diagrams"
-    
+
     - name: "uml://examples"
       description: "Example UML diagrams for reference"
-    
+
     - name: "uml://formats"
       description: "Supported output formats for diagrams"
-    
+
     - name: "uml://server-info"
       description: "Information about the UML-MCP server"

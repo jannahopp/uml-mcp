@@ -64,13 +64,13 @@ import subprocess
 def generate_class_diagram(code):
     # Start the MCP server process
     process = subprocess.Popen(
-        ["python", "mcp_server.py"],
+        ["python", "server.py"],
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True
     )
-    
+
     # Prepare MCP request
     request = {
         "type": "tool",
@@ -80,17 +80,17 @@ def generate_class_diagram(code):
             "output_dir": "./output"
         }
     }
-    
+
     # Send request to MCP server
     process.stdin.write(json.dumps(request) + "\n")
     process.stdin.flush()
-    
+
     # Read response
     response = json.loads(process.stdout.readline())
-    
+
     # Close process
     process.terminate()
-    
+
     return json.loads(response["result"])
 
 # Example usage
@@ -123,7 +123,7 @@ async function generateDiagram(diagramType, code) {
       code: code
     }),
   });
-  
+
   const result = await response.json();
   document.getElementById('diagram').src = result.url;
   document.getElementById('playground-link').href = result.playground;
@@ -140,5 +140,5 @@ echo '{
     "code": "@startuml\nAlice -> Bob: Hello\nBob --> Alice: Hi\n@enduml",
     "output_dir": "./diagrams"
   }
-}' | python mcp_server.py
+}' | python server.py
 ```

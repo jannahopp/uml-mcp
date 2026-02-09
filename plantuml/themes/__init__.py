@@ -6,10 +6,11 @@ This library allows you to connect to a PlantUML server and render
 PlantUML markup into PNG images.
 """
 
-from os import makedirs, path
 from io import open
-from typing import Optional, Tuple
+from os import path
+from typing import Tuple
 from zlib import compress
+
 import httpx
 
 """
@@ -21,6 +22,7 @@ class PlantUMLError(Exception):
     """
     Error in processing.
     """
+
     pass
 
 
@@ -28,6 +30,7 @@ class PlantUMLConnectionError(PlantUMLError):
     """
     Error connecting or talking to PlantUML Server.
     """
+
     pass
 
 
@@ -35,6 +38,7 @@ class PlantUMLHTTPError(Exception):
     """
     Request to PlantUML server returned HTTP Error.
     """
+
     def __init__(self, response, content):
         self.response = response
         self.content = content
@@ -55,6 +59,7 @@ User -> "Website" : Requests Page
 "Website" -> User : Sends Page
 @enduml
 """
+
 
 class PlantUML:
     """Connection to a PlantUML server with optional authentication.
@@ -83,7 +88,15 @@ class PlantUML:
                     httplib2.Http().request() call.
 
     """
-    def __init__(self, url: str, basic_auth: dict = None, form_auth: dict = None, http_opts: dict = None, request_opts: dict = None) -> None:
+
+    def __init__(
+        self,
+        url: str,
+        basic_auth: dict = None,
+        form_auth: dict = None,
+        http_opts: dict = None,
+        request_opts: dict = None,
+    ) -> None:
 
         if basic_auth is None:
             basic_auth = {}
@@ -97,27 +110,49 @@ class PlantUML:
         self.url = url
         self.request_opts = request_opts
 
-        if auth_type := 'basic_auth' if basic_auth else ('form_auth' if form_auth else None):
+        if auth_type := (
+            "basic_auth" if basic_auth else ("form_auth" if form_auth else None)
+        ):
             self.auth_type = auth_type
 
         self.auth = basic_auth or form_auth or None
-        self.client = httpx.Client(**http_opts, proxies=http_opts.get('proxies'))
+        self.client = httpx.Client(**http_opts, proxies=http_opts.get("proxies"))
 
-        if auth_type == 'basic_auth':
-            self.client.auth = (username := self.auth['username'], self.auth['password'])
-        elif auth_type == 'form_auth':
-            if 'url' not in self.auth:
-                raise PlantUMLError("The form_auth option 'url' must be provided and point to the login url.")
-            if 'body' not in self.auth:
-                raise PlantUMLError("The form_auth option 'body' must be provided and include a dictionary with the form elements required to log in. Example: form_auth={'url': 'http://example.com/login/', 'body': { 'username': 'me', 'password': 'secret'}}")
-            login_url, body, method, headers = self.auth['url'], self.auth['body'], self.auth.get('method', 'POST'), self.auth.get('headers', {'Content-type': 'application/x-www-form-urlencoded'})
+        if auth_type == "basic_auth":
+            self.client.auth = (
+                self.auth["username"],
+                self.auth["password"],
+            )
+        elif auth_type == "form_auth":
+            if "url" not in self.auth:
+                raise PlantUMLError(
+                    "The form_auth option 'url' must be provided and point to the login url."
+                )
+            if "body" not in self.auth:
+                raise PlantUMLError(
+                    "The form_auth option 'body' must be provided and include "
+                    "a dictionary with the form elements required to log in. "
+                    "Example: form_auth={'url': '...', 'body': {'username': 'me'}}"
+                )
+            login_url, body, method, headers = (
+                self.auth["url"],
+                self.auth["body"],
+                self.auth.get("method", "POST"),
+                self.auth.get(
+                    "headers", {"Content-type": "application/x-www-form-urlencoded"}
+                ),
+            )
             try:
-                response = self.client.request(method, login_url, headers=headers, data=body)
+                response = self.client.request(
+                    method, login_url, headers=headers, data=body
+                )
             except httpx.HTTPError as e:
                 raise PlantUMLConnectionError(e) from e
             if response.status_code != 200:
-                raise PlantUMLHTTPError(response, "Login failed. Check your form_auth settings.")
-            self.request_opts['Cookie'] = response.cookies.get_dict()
+                raise PlantUMLHTTPError(
+                    response, "Login failed. Check your form_auth settings."
+                )
+            self.request_opts["Cookie"] = response.cookies.get_dict()
 
     def get_url(self, plantuml_text):
         """Return the server URL for the image.
@@ -126,7 +161,8 @@ class PlantUML:
         :param str plantuml_text: The plantuml markup to render
         :returns: the plantuml server image URL
         """
-        return f'{self.url}/{self.deflate_and_encode(plantuml_text)}'
+        encoded = self.deflate_and_encode(plantuml_text)
+        return f"{self.url}/~1{encoded}"
 
     def process(self, plantuml_text: str):
         """Processes the plantuml text into the raw PNG image data.
@@ -141,7 +177,7 @@ class PlantUML:
             raise PlantUMLHTTPError(e, "") from e
         return response.content, url
 
-    def process_file(self, filename, outfile=None, errorfile=None, directory=''):
+    def process_file(self, filename, outfile=None, errorfile=None, directory=""):
         """Take a filename of a file containing plantuml text and processes
         it into a .png image.
         ...
@@ -152,13 +188,12 @@ class PlantUML:
             if not content:  # Add this check
                 raise PlantUMLHTTPError("Server returned an error", "")
         except PlantUMLHTTPError as e:
-            with open(path.join(directory, errorfile), 'w') as err:
+            with open(path.join(directory, errorfile), "w") as err:
                 err.write(e.content)
             return False
-        with open(path.join(directory, outfile), 'wb') as out:
+        with open(path.join(directory, outfile), "wb") as out:
             out.write(content)
         return True
-
 
     def deflate_and_encode(self, plantuml_text):
         """zlib compress the plantuml text and encode it for the plantuml server.
@@ -166,10 +201,9 @@ class PlantUML:
         :param str plantuml_text: The plantuml markup to render
         :returns: The encoded plantuml markup
         """
-        zlibbed_str = compress(plantuml_text.encode('utf-8'))
+        zlibbed_str = compress(plantuml_text.encode("utf-8"))
         compressed_string = zlibbed_str[2:-4]
         return self.encode(compressed_string)
-
 
     def encode(self, data: bytes):
         """encode the plantuml data which may be compresses in the proper
@@ -187,7 +221,6 @@ class PlantUML:
             else:
                 res += self._encode3bytes(data[i], data[i + 1], data[i + 2])
         return res
-
 
     def _encode3bytes(self, b1: int, b2: int, b3: int):
         """
@@ -209,7 +242,6 @@ class PlantUML:
         res += self._encode6bit(c4 & 0x3F)
         return res
 
-
     def _encode6bit(self, b):
         """
         Encode 6 bits into a single character
@@ -227,11 +259,10 @@ class PlantUML:
             return chr(97 + b)
         b -= 26
         if b == 0:
-            return '-'
-        return '_' if b == 1 else '?'
+            return "-"
+        return "_" if b == 1 else "?"
 
-    def generate_image_from_string(
-            self, plantuml_text: str) -> Tuple[bytes, str, str]:
+    def generate_image_from_string(self, plantuml_text: str) -> Tuple[bytes, str, str]:
         """Generate an image from a string containing plantuml markup.
 
         :param str plantuml_text: The plantuml markup to render
