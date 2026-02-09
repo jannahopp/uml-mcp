@@ -47,6 +47,13 @@
       "enum": ["svg", "png", "pdf"],
       "default": "svg",
       "x-from": { "query": "output_format" }
+    },
+    "theme": {
+      "type": "string",
+      "title": "Default theme",
+      "description": "Default PlantUML theme for diagram appearance (e.g. cerulean, sketchy-outline). Optional; only applies to PlantUML diagram types.",
+      "default": "",
+      "x-from": { "query": "theme" }
     }
   },
   "additionalProperties": false
