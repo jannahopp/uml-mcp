@@ -1,24 +1,19 @@
 {
   "version": 2,
-  "buildCommand": "pip install -r requirements.txt -r requirements-dev.txt",
+  "buildCommand": "pip install -r requirements.txt -r requirements-dev.txt && python scripts/generate_server_card.py",
   "installCommand": "pip install --upgrade pip",
   "framework": null,
   "outputDirectory": ".vercel/output/static",
   "builds": [
-    {
-      "src": "app.py",
-      "use": "@vercel/python",
-      "config": {
-        "maxLambdaSize": "50mb",
-        "runtime": "python3.10"
-      }
-    },
+    {"src": "app.py", "use": "@vercel/python", "config": {"maxLambdaSize": "50mb", "runtime": "python3.10"}},
     {"src": "favicon.ico", "use": "@vercel/static"},
-    {"src": ".well-known/**", "use": "@vercel/static"}
+    {"src": ".well-known/mcp/server-card.json", "use": "@vercel/static"},
+    {"src": "public/.well-known/mcp/server-card.json", "use": "@vercel/static"}
   ],
   "routes": [
-    {"src": "/.well-known/(.*)", "dest": "/.well-known/$1"},
+    {"src": "/.well-known/mcp/server-card.json", "dest": "/public/.well-known/mcp/server-card.json"},
     {"src": "/logo.png", "dest": "/favicon.ico"},
+    {"src": "/.well-known/mcp/server-card.json", "dest": "/.well-known/mcp/server-card.json"},
     {"src": "/(.*)", "dest": "/app.py"}
   ],
   "env": {

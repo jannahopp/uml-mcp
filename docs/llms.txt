@@ -1,5 +1,18 @@
 # UML-MCP — LLM-oriented overview
 
+Teaser
+Improve your diagramming skills with PlantUML, Mermaid, D2 (and Kroki) by creating optimized diagrams for various purposes using Sequence, Use Case, Class, Activity, Component, State, Object, Deployment, Mermaid, D2, Graphviz, ERD, BPMN, C4.
+
+Prompt hint
+[DIAGRAM TYPE] — Sequence, Use Case, Class, Activity, Component, State, Object, Deployment, Mermaid, D2, Graphviz, ERD, BPMN, C4.
+[ELEMENT TYPE] — Actors, Messages, Objects, Classes, Interfaces, Components, States, Nodes, Edges, Links, Frames, Constraints, Entities, Relationships, Tasks, Events, Modules.
+[PURPOSE] — Communication, Planning, Design, Analysis, Modeling, Documentation, Implementation, Testing, Debugging.
+[DIAGRAMMING TOOL] — PlantUML, Mermaid, D2 (Kroki for rendering).
+
+Recommended: use sequential thinking for complex diagrams. Use the uml_diagram_with_thinking prompt to get step-by-step planning (decide diagram type, purpose, and elements), then generate code and call generate_uml.
+
+---
+
 UML-MCP is a diagram generation server that implements the Model Context Protocol (MCP). It lets AI assistants and other MCP clients create diagrams (UML, Mermaid, D2, Graphviz, ERD, etc.) via tools and resources.
 
 ## What it does
@@ -53,6 +66,11 @@ Details: docs/configuration.md
 - plantuml/, kroki/, mermaid/, D2/ — diagram backends.
 - config/ — example MCP client configs (Cursor, Claude Desktop).
 - docs/ — documentation (this file, api/tools.md, configuration.md, installation.md, integrations/, testing.md).
+
+## Deploy and publish
+
+- Deploy to Vercel and publish on Smithery: docs/integrations/vercel_smithery.md
+- Smithery docs index: https://smithery.ai/docs/llms.txt
 
 ## More docs
 

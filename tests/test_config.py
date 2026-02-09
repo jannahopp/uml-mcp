@@ -36,7 +36,8 @@ class TestMCPSettingsDefaults:
     def test_default_server_name_version_description(self):
         """MCPSettings has expected default server metadata."""
         settings = MCPSettings(diagram_types={})
-        assert settings.server_name == "UML Diagram Generator"
+        assert settings.server_name == "uml_mcp"
+        assert settings.display_name == "UML Diagram Generator"
         assert settings.version == "1.2.0"
         assert settings.description == "Generate UML and other diagrams through MCP"
 

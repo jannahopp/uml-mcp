@@ -1,6 +1,6 @@
 # Deploy to Vercel and Publish on Smithery
 
-This guide walks you through deploying the UML-MCP server to Vercel and publishing it on Smithery so users can connect via **Streamable HTTP** without installing anything.
+This guide walks you through deploying the UML-MCP server to Vercel and publishing it on Smithery so users can connect via **Streamable HTTP** without installing anything. For the full Smithery docs index, see [smithery.ai/docs/llms.txt](https://smithery.ai/docs/llms.txt).
 
 ## 1. Deploy to Vercel
 
@@ -30,25 +30,28 @@ Use the **MCP URL** when publishing to Smithery.
 
 Smithery can list your server so users can add it with one click. You can either **host the server on Smithery** (Docker/stdio) or **point Smithery to your Vercel URL** (self-hosted HTTP).
 
-### Option A: Self-hosted (Vercel URL)
+### Option A: URL (bring your own hosting)
 
 1. Go to [smithery.ai/new](https://smithery.ai/new).
 2. Sign in if needed.
-3. Choose **Publish a self-hosted server** (or equivalent “external” / “URL” flow).
+3. Choose **URL** (bring your own hosting).
 4. Fill in:
    - **Namespace**: your Smithery username (e.g. `antoinebou12`)
    - **Server ID**: short slug (e.g. `uml`)
    - **MCP Server URL**: `https://<your-project>.vercel.app/mcp`  
-     Replace `<your-project>` with your actual Vercel project URL.
-5. Submit. Smithery will use your server’s Streamable HTTP transport and may scan metadata from `/.well-known/mcp/server-card.json` if needed.
+     Replace `<your-project>` with your actual Vercel project URL. Use the **root** deployment URL (e.g. `https://uml-xxx.vercel.app`), not a path; the MCP endpoint is at `/mcp`.
+5. Submit. Smithery will use your server’s Streamable HTTP transport and will fetch metadata from `https://<your-project>.vercel.app/.well-known/mcp/server-card.json` when automatic scanning is not possible.
 
-**Session configuration (optional):** To let users provide settings (output dir, Kroki URL, etc.) via Smithery OAuth UI, deploy via CLI with a config schema:
+**Config schema (recommended):** To remove the “No config schema provided” warning and let users set options (output dir, Kroki URL, etc.) in Smithery’s UI, publish (or re-publish) via the CLI and pass the config schema:
 
 ```bash
-npx @smithery/cli deploy --name @your-org/uml-mcp --url https://<your-project>.vercel.app/mcp --config-schema "$(cat smithery-config-schema.json)"
+# Use file path (works on Bash, PowerShell, etc.)
+npx @smithery/cli publish --name @your-org/uml-mcp --url https://<your-project>.vercel.app/mcp --config-schema smithery-config-schema.json
 ```
 
-See [Smithery Session Configuration](https://smithery.ai/docs/build/session-config) for schema format.
+On **PowerShell**, use the same command. Do not use `(Get-Content smithery-config-schema.json -Raw)` — that corrupts the JSON when passed to the CLI.
+
+See [Smithery Session Configuration](https://smithery.ai/docs/build/session-config) for schema format with `x-from` extension.
 
 After publishing, your server will appear at:
 
@@ -56,9 +59,11 @@ After publishing, your server will appear at:
 
 Example: `https://smithery.ai/server/@antoinebou12/uml`
 
-### Option B: Smithery-hosted (Docker)
+### Option B: Hosted (Smithery hosts it)
 
-If you prefer Smithery to run the server (Docker/stdio), use the existing `smithery.yaml` and deploy via Smithery’s Docker flow. The server will be hosted by Smithery; no Vercel URL is required. The `smithery.yaml` includes a [Session Configuration](https://smithery.ai/docs/build/session-config) schema so users can customize output directory, Kroki URL, log level, and other settings via Smithery UI.
+**Note:** Hosted deployment is in private early access — [contact Smithery](mailto:support@smithery.ai) if interested.
+
+If you use Smithery-hosted deployment, the existing `smithery.yaml` defines the server. Connect your GitHub repo and deploy via the Deployments tab, or run `npx @smithery/cli deploy --name @your-org/uml-mcp`. The `smithery.yaml` includes a [Session Configuration](https://smithery.ai/docs/build/session-config) schema for output directory, Kroki URL, log level, and other settings.
 
 ## 3. Connect from a client
 
@@ -99,6 +104,12 @@ If Smithery shows a connection error like `HTTP 401: Invalid OAuth error respons
    https://<your-project>.vercel.app/mcp?x-vercel-set-bypass-cookie=true&x-vercel-protection-bypass=YOUR_BYPASS_TOKEN
    ```
    Replace `YOUR_BYPASS_TOKEN` with the token from Vercel.
+
+### Connection error: Initialization failed with status 405 / “advertise server-card”
+
+Smithery discovers your server by requesting `/.well-known/mcp/server-card.json` on the **root** of your deployment (e.g. `https://<your-project>.vercel.app/.well-known/mcp/server-card.json`). If that request fails (e.g. 404 or 405), you get “Your server could not be automatically scanned” and “Please advertise a /.well-known/mcp/server-card.json”.
+
+**Fix:** This repo serves the server card from the FastAPI app. Ensure `vercel.json` does **not** serve `/.well-known/*` as static files so that the request reaches the app. The repo’s `vercel.json` is set up so that `/.well-known/mcp/server-card.json` is handled by the Python app. After redeploying, open `https://<your-project>.vercel.app/.well-known/mcp/server-card.json` in a browser; you should see JSON with `serverInfo` and `tools`. If you see 404/405, check Vercel routes and that the latest `vercel.json` is deployed.
 
 ### Other issues
 

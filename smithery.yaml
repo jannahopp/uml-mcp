@@ -147,7 +147,7 @@ startCommand:
 
 # Build configuration
 build:
-  dockerBuildPath: "../../"
+  dockerBuildPath: "."
   dockerfile: "./Dockerfile"
 
 # Server capabilities based on actual console output

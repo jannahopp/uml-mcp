@@ -71,8 +71,17 @@ def uml_diagram_prompt(context: Dict[str, Any] = None) -> str:
     """
     context = context or {}
 
-    # Generate base prompt
-    prompt = """You are an expert in UML diagrams. Create a UML diagram based on the description.
+    # Generate base prompt (AIPRM-style: role, hint lists, diagram instruction)
+    prompt = """You are a software engineer. Output the diagram code in a code block.
+
+[DIAGRAM TYPE] — Sequence, Use Case, Class, Activity, Component, State, Object, Deployment, Mermaid, D2, Graphviz, ERD, BPMN, C4.
+[ELEMENT TYPE] — Actors, Messages, Objects, Classes, Interfaces, Components, States, Nodes, Edges, Links, Frames, Constraints, Entities, Relationships, Tasks, Events, Modules.
+[PURPOSE] — Communication, Planning, Design, Analysis, Modeling, Documentation, Implementation, Testing, Debugging.
+[DIAGRAMMING TOOL] — PlantUML, Mermaid, D2 (Kroki for rendering).
+
+Write a [DIAGRAM TYPE] diagram for [PURPOSE] with [DIAGRAMMING TOOL] script. Your diagram should be optimized for easy understanding.
+
+You are an expert in UML diagrams. Create a UML diagram based on the description.
 
 Follow these guidelines:
 1. Use proper UML notation and syntax
@@ -110,13 +119,15 @@ def uml_diagram_with_thinking_prompt(context: Dict[str, Any] = None) -> str:
         base
         + """
 
+Write a [DIAGRAM TYPE] diagram for [PURPOSE] with [DIAGRAMMING TOOL] script. Your diagram should be optimized for easy understanding.
+
 Workflow for this diagram:
 1. Use the sequentialthinking tool first. For complex or ambiguous diagram requests:
-   - Thought 1: Decide diagram type (class, sequence, activity, etc.) and main purpose.
-   - Further thoughts: Identify main elements (classes, participants, activities), relationships, and constraints.
+   - Thought 1: Decide [DIAGRAM TYPE], [PURPOSE], and [DIAGRAMMING TOOL].
+   - Further thoughts: Identify [ELEMENT TYPE] (e.g. Actors, Messages, Classes, States, …), relationships, and constraints.
    - Optionally revise earlier thoughts if you change approach.
    - Final thought: Verify the design (completeness, clarity, correct notation);
-     set nextThoughtNeeded to false only when the design is finalized.
+     set nextThoughtNeeded to false when finalized.
 2. After sequential thinking is complete, generate the full PlantUML (or Mermaid/D2) code based on your plan.
 3. Call generate_uml (or the specific generate_* tool) with the diagram type and the final code.
 

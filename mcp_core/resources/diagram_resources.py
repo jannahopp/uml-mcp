@@ -128,7 +128,9 @@ def get_recommended_workflow():
         "workflow": (
             "For complex diagrams, use the sequentialthinking tool to plan and "
             "verify the design (diagram type, elements, relationships), then "
-            "call generate_uml (or a specific generate_* tool) with the final code."
+            "call generate_uml (or a specific generate_* tool) with the final code. "
+            "Decide diagram type, purpose (communication, design, documentation, etc.), "
+            "and include the right elements (actors, messages, classes, states, etc.) for that type."
         ),
         "prompt": "Use the uml_diagram_with_thinking prompt to get step-by-step instructions for this workflow.",
     }

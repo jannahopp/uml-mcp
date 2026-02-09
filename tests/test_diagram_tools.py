@@ -8,6 +8,9 @@ import pytest
 
 from mcp_core.tools.diagram_tools import (
     generate_activity_diagram,
+    generate_blockdiag_diagram,
+    generate_bpmn_diagram,
+    generate_c4_diagram,
     generate_class_diagram,
     generate_component_diagram,
     generate_d2_diagram,
@@ -37,6 +40,9 @@ GENERATE_TOOL_CASES = [
     (generate_d2_diagram, "d2", "x -> y"),
     (generate_graphviz_diagram, "graphviz", "digraph { a -> b; }"),
     (generate_erd_diagram, "erd", "entity E { id int }"),
+    (generate_blockdiag_diagram, "blockdiag", "blockdiag { A -> B; }"),
+    (generate_bpmn_diagram, "bpmn", '<?xml version="1.0"?><bpmn:definitions/>'),
+    (generate_c4_diagram, "c4plantuml", "@startuml\n!include C4_Context.puml\nPerson(user)\n@enduml"),
 ]
 
 
@@ -70,6 +76,9 @@ class TestDiagramTools:
             "generate_d2_diagram",
             "generate_graphviz_diagram",
             "generate_erd_diagram",
+            "generate_blockdiag_diagram",
+            "generate_bpmn_diagram",
+            "generate_c4_diagram",
             "sequentialthinking",
         ]
 
@@ -102,7 +111,7 @@ class TestDiagramTools:
         assert result.get("playground") is not None
         assert result.get("local_path") is not None
         mock_generate_diagram.assert_called_once_with(
-            "class", "@startuml\nclass Test\n@enduml", "svg", "/tmp/out"
+            "class", "@startuml\nclass Test\n@enduml", "svg", "/tmp/out", None
         )
 
     @patch("mcp_core.tools.diagram_tools.generate_diagram")
@@ -158,6 +167,7 @@ class TestDiagramTools:
         assert call_args[1] == sample_code
         assert call_args[2] == "svg"
         assert call_args[3] == "/tmp/out"
+        assert call_args[4] is None  # theme
 
     def test_sequentialthinking_returns_expected_shape(self):
         """sequentialthinking returns thoughtNumber, totalThoughts,

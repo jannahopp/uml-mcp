@@ -141,6 +141,17 @@ def test_plugin_manifest_endpoint(mock_plugin_manifest):
     assert data["logo_url"].endswith("/logo.png")
 
 
+def test_mcp_server_card_endpoint():
+    """Test MCP server card for Smithery scanning (/.well-known/mcp/server-card.json)."""
+    response = client.get("/.well-known/mcp/server-card.json")
+    assert response.status_code == 200
+    data = response.json()
+    assert "serverInfo" in data
+    assert data["serverInfo"]["name"] == "UML Diagram Generator"
+    assert "tools" in data
+    assert any(t["name"] == "generate_uml" for t in data["tools"])
+
+
 def test_openapi_spec():
     """Test the OpenAPI specification endpoint."""
     response = client.get("/openapi.json")

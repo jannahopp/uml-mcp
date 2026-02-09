@@ -70,7 +70,7 @@ class TestServerBootstrap:
         server = create_mcp_server()
         assert server is not None
         assert hasattr(server, "name")
-        assert server.name == "UML Diagram Generator"
+        assert server.name == "uml_mcp"
 
     def test_server_has_tools_registered(self, reset_mcp_server_singleton):
         """Server _tools dict contains all expected diagram and thinking tools."""

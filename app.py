@@ -199,51 +199,64 @@ async def get_plugin_manifest(request: Request):
         raise HTTPException(status_code=500, detail="Failed to load plugin manifest")
 
 
+def _build_server_card():
+    """Build MCP server card from live tool and resource registries."""
+    try:
+        from mcp_core.core.config import MCP_SETTINGS
+        from mcp_core.resources.diagram_resources import get_resource_registry
+        from mcp_core.tools.tool_decorator import get_tool_registry
+
+        tool_registry = get_tool_registry()
+        resource_registry = get_resource_registry()
+
+        tools = []
+        for name, info in tool_registry.items():
+            params = info.get("parameters", {})
+            properties = {}
+            required = []
+            for pname, pinfo in params.items():
+                py_type = pinfo.get("type", "str")
+                js_type = "string" if py_type in ("str", "Optional[str]") else "boolean" if py_type == "bool" else "integer" if py_type == "int" else "string"
+                properties[pname] = {"type": js_type, "description": pname.replace("_", " ").title()}
+                if pinfo.get("required", True):
+                    required.append(pname)
+            tools.append({
+                "name": name,
+                "description": info.get("description", ""),
+                "inputSchema": {"type": "object", "properties": properties, "required": required},
+            })
+
+        resources = []
+        for uri, info in resource_registry.items():
+            resources.append({
+                "uri": uri,
+                "name": uri,
+                "description": info.get("description", ""),
+            })
+
+        return {
+            "serverInfo": {
+                "name": MCP_SETTINGS.display_name,
+                "version": MCP_SETTINGS.version,
+            },
+            "tools": tools,
+            "resources": resources,
+            "prompts": [],
+        }
+    except Exception as e:
+        logger.warning("Could not build dynamic server card: %s", e)
+        return {
+            "serverInfo": {"name": "UML Diagram Generator", "version": "1.2.0"},
+            "tools": [],
+            "resources": [],
+            "prompts": [],
+        }
+
+
 @app.get("/.well-known/mcp/server-card.json")
 async def get_mcp_server_card():
-    """MCP server metadata for Smithery and other registries (optional manual metadata)."""
-    return JSONResponse(
-        content={
-            "serverInfo": {
-                "name": "UML Diagram Generator",
-                "version": "1.2.0",
-            },
-            "tools": [
-                {
-                    "name": "generate_uml",
-                    "description": "Generate any UML diagram by type and code",
-                },
-                {
-                    "name": "generate_class_diagram",
-                    "description": "Generate UML class diagram from PlantUML code",
-                },
-                {
-                    "name": "generate_sequence_diagram",
-                    "description": "Generate UML sequence diagram from PlantUML code",
-                },
-                {
-                    "name": "generate_activity_diagram",
-                    "description": "Generate UML activity diagram from PlantUML code",
-                },
-                {
-                    "name": "generate_mermaid_diagram",
-                    "description": "Generate diagrams using Mermaid syntax",
-                },
-                {
-                    "name": "generate_d2_diagram",
-                    "description": "Generate diagrams using D2 syntax",
-                },
-                {
-                    "name": "generate_graphviz_diagram",
-                    "description": "Generate diagrams using Graphviz DOT syntax",
-                },
-                {
-                    "name": "generate_erd_diagram",
-                    "description": "Generate Entity-Relationship diagrams",
-                },
-            ],
-        }
-    )
+    """MCP server metadata for Smithery and other registries (SEP-1649 server card)."""
+    return JSONResponse(content=_build_server_card())
 
 
 @app.get("/.well-known/privacy.txt")

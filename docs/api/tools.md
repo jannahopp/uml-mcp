@@ -41,7 +41,9 @@ Generates a class diagram.
 
 **Parameters:**
 - `code` (string): The PlantUML class diagram code
-- `output_dir` (string): Directory where to save the generated image
+- `output_dir` (string): Directory where to save the generated image (optional)
+- `output_format` (string): svg, png, or pdf (default: svg)
+- `theme` (string): PlantUML theme (optional, e.g. cerulean)
 
 **Returns:**
 Same as `generate_uml`

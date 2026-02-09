@@ -158,10 +158,19 @@ class SequentialThinkingHandler:
 _handler = SequentialThinkingHandler()
 
 
+ANNOTATIONS_THINKING = {
+    "readOnlyHint": True,
+    "destructiveHint": False,
+    "idempotentHint": False,
+    "openWorldHint": False,
+}
+
+
 @mcp_tool(
     name="sequentialthinking",
     description=SEQUENTIAL_THINKING_DESCRIPTION,
     category="thinking",
+    annotations=ANNOTATIONS_THINKING,
 )
 def sequentialthinking(
     thought: str,

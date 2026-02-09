@@ -55,6 +55,21 @@ The **integration tests** that are skipped by default:
 
 When you run integration tests with `USE_REAL_FASTMCP=1`, they verify that the in-repo sequential thinking tool is discoverable and callable via the real FastMCP client.
 
+## MCP Evaluation
+
+An evaluation harness for testing LLM usability of the MCP server is provided:
+
+- **Evaluation questions**: [evaluations/uml_mcp_eval.xml](../evaluations/uml_mcp_eval.xml) — 10 read-only Q&A pairs answerable from `uml://` resources.
+- **Script**: [scripts/evaluation.py](../scripts/evaluation.py) — Verifies server connection and tools/resources discovery.
+
+To run the connectivity check:
+
+```bash
+python scripts/evaluation.py -t stdio -c python -a server.py evaluations/uml_mcp_eval.xml
+```
+
+For full evaluation with Claude (requires `anthropic`), use the evaluation harness from the MCP Development Guide.
+
 ## Summary
 
 | Topic                     | Detail                                                                                    |

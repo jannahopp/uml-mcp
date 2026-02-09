@@ -25,7 +25,8 @@ class DiagramType(BaseModel):
 class MCPSettings(BaseModel):
     """Configuration settings for MCP server."""
 
-    server_name: str = "UML Diagram Generator"
+    server_name: str = "uml_mcp"  # MCP naming: {service}_mcp (protocol)
+    display_name: str = "UML Diagram Generator"  # Human-readable for UI
     version: str = "1.2.0"
     description: str = "Generate UML and other diagrams through MCP"
     output_dir: str = (
