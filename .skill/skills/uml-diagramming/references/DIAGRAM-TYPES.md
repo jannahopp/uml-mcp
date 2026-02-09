@@ -70,3 +70,9 @@ Use stereotypes to clarify roles when helpful:
 
 - Use clear, short subgraph IDs and labels: e.g. `subgraph client [Client]`, `subgraph api [API]`, `subgraph db [Database]`.
 - Avoid spaces in the ID; use the label in brackets for display.
+
+## Other Mermaid / Kroki types (reference)
+
+- **User Journey** — Mermaid: represent as flowchart or sequence with user/step nodes.
+- **Gitgraph** — Mermaid: `gitGraph` block for commit/branch visualization.
+- **ZenUML / Quadrant (XY)** — Kroki supports additional diagram types; map to Mermaid/PlantUML equivalents when needed (e.g. flowchart, sequence).

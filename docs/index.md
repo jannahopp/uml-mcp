@@ -15,6 +15,7 @@ UML-MCP enables you to generate various types of diagrams through the Model Cont
 - [Installation](installation.md)
 - [Configuration](configuration.md)
 - [Usage Examples](examples.md)
+- [Diagram Assistant](diagram-assistant.md) — Example prompts (API sequence, Gantt, BPMN guide, convert class to Mermaid), tools, and resources.
 
 ## Diagram Types
 

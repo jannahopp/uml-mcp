@@ -51,6 +51,31 @@ Create a component diagram for a microservices architecture with:
 - Notification Service
 ```
 
+## Diagram assistant (example prompts)
+
+The server supports a diagram-assistant workflow for common requests. Use these example prompts with your MCP client (e.g. Cursor, Claude Desktop); the assistant will use the right tools, resources, and prompts.
+
+| User prompt | What happens | Tools / resources |
+|-------------|--------------|-------------------|
+| **Show me a Mermaid sequence diagram for an API call** | Returns a Mermaid `sequenceDiagram` (client → API → backend) and can render it. | Prompt: `mermaid_sequence_api`. Resource: `uml://mermaid-examples` (key `sequence_api`). Tool: `generate_uml("mermaid", code)`. |
+| **Generate a Gantt chart using Mermaid syntax** | Returns a Mermaid `gantt` block and can render it. | Prompt: `mermaid_gantt`. Resource: `uml://mermaid-examples` (key `gantt`). Tool: `generate_uml("mermaid", code)`. |
+| **Explain how to draw a BPMN process model** | Explains BPMN 2.0.2 elements (events, tasks, gateways, flow, lanes) and how to generate BPMN. | Prompt: `bpmn_process_guide`. Resource: `uml://bpmn-guide`. Tool: `generate_bpmn_diagram` or `generate_uml("bpmn", code)`. |
+| **Convert this class diagram into Mermaid code** | Converts PlantUML or prose class diagram to Mermaid `classDiagram` and can render it. | Prompt: `convert_class_to_mermaid`. Tool: `generate_uml("mermaid", code)`. |
+
+**Resources**
+
+- `uml://types` — Supported diagram types (including `mermaid`, `bpmn`, `packetdiag`).
+- `uml://templates` — Starter templates per diagram type.
+- `uml://examples` — Full examples per diagram type.
+- `uml://mermaid-examples` — Mermaid API sequence and Gantt examples.
+- `uml://bpmn-guide` — BPMN 2.0.2 process modeling guide.
+
+**Public references (syntax and specs)**
+
+- [Kroki](https://kroki.io) — Supported diagram types and rendering.
+- [Mermaid](https://mermaid.js.org) — Mermaid syntax (sequence, gantt, classDiagram, etc.).
+- [OMG BPMN 2.0.2](https://www.omg.org/spec/BPMN/2.0.2) — BPMN specification.
+
 ## Using MCP Tools Directly
 
 If you're building an application that uses UML-MCP, you can call the tools directly:

@@ -641,6 +641,16 @@
       "uri": "uml://workflow",
       "name": "uml://workflow",
       "description": "Recommended workflow for complex diagram generation"
+    },
+    {
+      "uri": "uml://mermaid-examples",
+      "name": "uml://mermaid-examples",
+      "description": "Mermaid examples: API sequence diagram and Gantt chart"
+    },
+    {
+      "uri": "uml://bpmn-guide",
+      "name": "uml://bpmn-guide",
+      "description": "How to draw BPMN process models (BPMN 2.0.2 elements and flow)"
     }
   ],
   "prompts": [
@@ -649,6 +659,10 @@
     {"name": "class_diagram", "description": "Generate UML class diagram from description"},
     {"name": "sequence_diagram", "description": "Generate UML sequence diagram from description"},
     {"name": "activity_diagram", "description": "Generate UML activity diagram from description"},
-    {"name": "usecase_diagram", "description": "Generate UML use case diagram from description"}
+    {"name": "usecase_diagram", "description": "Generate UML use case diagram from description"},
+    {"name": "mermaid_sequence_api", "description": "Mermaid sequence diagram for an API call (client → API → backend)"},
+    {"name": "mermaid_gantt", "description": "Generate a Gantt chart using Mermaid syntax"},
+    {"name": "bpmn_process_guide", "description": "Explain how to draw a BPMN process model (elements, flow, BPMN 2.0.2)"},
+    {"name": "convert_class_to_mermaid", "description": "Convert a class diagram (PlantUML or description) into Mermaid classDiagram code"}
   ]
 }

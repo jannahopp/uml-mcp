@@ -14,10 +14,10 @@ repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if repo_root not in sys.path:
     sys.path.insert(0, repo_root)
 
-from mcp_core.core.server_card import build_server_card
-
 
 def main():
+    from mcp_core.core.server_card import build_server_card
+
     card = build_server_card()
     if not card.get("tools"):
         print("Skipping write: build_server_card returned no tools (missing deps?).", file=sys.stderr)

@@ -369,6 +369,131 @@ Provide the complete PlantUML code for the use case diagram:
     return prompt
 
 
+# Mermaid sequence diagram for API call
+@mcp_prompt(
+    "mermaid_sequence_api",
+    description="Mermaid sequence diagram for an API call (client → API → backend)",
+    category="mermaid",
+)
+def mermaid_sequence_api_prompt(context: Dict[str, Any] = None) -> str:
+    """
+    Prompt for a Mermaid sequenceDiagram showing a typical API call:
+    client, API, optional auth/DB, request/response, and optional alt block.
+    """
+    context = context or {}
+    return """You are a software engineer. Produce a Mermaid sequence diagram for an API call.
+
+Output a valid Mermaid sequenceDiagram with:
+- Participants: at least Client, API, and optionally Auth and/or DB (or backend service).
+- A request from Client to API (e.g. POST /login or GET /resource).
+- API interacting with Auth or backend/DB as needed.
+- Response back to the client; use alt/else for success vs error if appropriate.
+
+Syntax tips:
+- Use participant or actor for each lifeline.
+- Use ->> for request and -->> for response; + / - for activation if desired.
+- Wrap conditional responses in alt ... else ... end.
+
+Put the diagram in a single mermaid code block. After producing the diagram, call generate_uml with diagram_type "mermaid" and the code as the code argument.
+"""
+
+
+# Mermaid Gantt chart
+@mcp_prompt(
+    "mermaid_gantt",
+    description="Generate a Mermaid Gantt chart with title, dateFormat, sections, and tasks",
+    category="mermaid",
+)
+def mermaid_gantt_prompt(context: Dict[str, Any] = None) -> str:
+    """
+    Prompt for a Mermaid gantt chart with title, dateFormat, sections, and tasks.
+    """
+    context = context or {}
+    return """You are a software engineer. Produce a Mermaid Gantt chart.
+
+Output a valid Mermaid gantt block with:
+- title: short title for the chart
+- dateFormat: e.g. YYYY-MM-DD
+- At least one section with a label
+- Multiple tasks with ids, optional dates/durations (e.g. 7d, 14d), and optional dependency (after <id>)
+
+Example structure:
+gantt
+    title My project
+    dateFormat  YYYY-MM-DD
+    section Section A
+    Task A1    :a1, 2024-01-01, 7d
+    Task A2    :a2, after a1, 5d
+
+Put the diagram in a single mermaid code block. After producing the diagram, call generate_uml with diagram_type "mermaid" and the code as the code argument.
+"""
+
+
+# BPMN process model guidance
+@mcp_prompt(
+    "bpmn_process_guide",
+    description="Explain how to draw a BPMN process model (elements, flow, BPMN 2.0.2)",
+    category="bpmn",
+)
+def bpmn_process_guide_prompt(context: Dict[str, Any] = None) -> str:
+    """
+    Prompt that instructs the model to explain how to draw a BPMN process model:
+    start/end events, tasks, gateways, sequence flow, lanes, aligned with BPMN 2.0.2.
+    Optionally point to uml://bpmn-guide and the BPMN template/example and generate_bpmn_diagram.
+    """
+    context = context or {}
+    return """You are a process modeling expert. Explain how to draw a BPMN process model.
+
+Provide concise guidance that covers:
+1. Core elements (aligned with BPMN 2.0.2):
+   - Start Event and End Event
+   - Task (activity)
+   - Gateways: Exclusive (X), Parallel (+), Inclusive (O)
+   - Sequence Flow (solid arrows) and optionally Message Flow (dashed) between pools
+   - Lanes and Pools for roles/systems
+2. Flow rules: one start, one or more end; flows connect activities and gateways; gateways split/merge flows.
+3. When to use BPMN: business processes, workflows, orchestration.
+
+Optionally point the user to:
+- The resource uml://bpmn-guide for a structured reference.
+- The tool generate_bpmn_diagram to produce BPMN XML, or generate_uml with diagram_type "bpmn".
+- The uml://templates resource (key "bpmn") for a minimal BPMN XML starter.
+"""
+
+
+# Convert class diagram to Mermaid
+@mcp_prompt(
+    "convert_class_to_mermaid",
+    description="Convert a class diagram (PlantUML or description) into Mermaid classDiagram code",
+    category="mermaid",
+)
+def convert_class_to_mermaid_prompt(context: Dict[str, Any] = None) -> str:
+    """
+    Prompt for converting a class diagram (PlantUML or prose) into Mermaid classDiagram.
+    Instructs to output Mermaid classDiagram and optionally call generate_uml("mermaid", code).
+    """
+    context = context or {}
+    return """You are a software engineer. Convert the user's class diagram into Mermaid classDiagram code.
+
+The user will provide either:
+- PlantUML class diagram code (@startuml ... class ... @enduml), or
+- A prose description of classes, attributes, methods, and relationships.
+
+Steps:
+1. Identify each class: name, attributes (with types if given), and methods.
+2. Map visibility: + public, - private, # protected (Mermaid: + - #).
+3. Map relationships to Mermaid syntax:
+   - Inheritance: ClassA --|> ClassB
+   - Composition: ClassA *-- ClassB
+   - Aggregation: ClassA o-- ClassB
+   - Association: ClassA -- ClassB (add label with : label)
+   - Dependency: ClassA ..> ClassB
+4. Output a single Mermaid code block starting with classDiagram and containing all classes and relationships.
+
+After producing the Mermaid code, call generate_uml with diagram_type "mermaid" and the code as the code argument.
+"""
+
+
 def register_prompts_with_server(server: FastMCP) -> List[str]:
     """
     Register all decorated prompts with the MCP server

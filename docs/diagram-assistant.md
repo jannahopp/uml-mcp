@@ -1,0 +1,50 @@
+# Diagram Assistant
+
+The Diagram Assistant is the set of MCP tools, resources, and prompts that help users generate and understand UML and other diagrams. This page describes four example user prompts and how the server satisfies them.
+
+## Example prompts and behavior
+
+| User prompt | Desired behavior | Tools | Resources |
+|-------------|------------------|--------|-----------|
+| "Show me a Mermaid sequence diagram for an API call" | Return valid Mermaid `sequenceDiagram` (client → API → backend) and optionally call `generate_uml("mermaid", code)`. | `generate_uml` | `uml://examples` (mermaid), `uml://mermaid-examples` (sequence_api) |
+| "Generate a Gantt chart using Mermaid syntax" | Return valid Mermaid `gantt` block and optionally call `generate_uml("mermaid", code)`. | `generate_uml` | `uml://mermaid-examples` (gantt), `uml://templates` |
+| "Explain how to draw a BPMN process model" | Return concise guidance (elements, flow, BPMN 2.0.2 alignment) and optionally point to BPMN template/example. | `generate_bpmn_diagram`, `generate_uml` | `uml://bpmn-guide`, `uml://templates` (bpmn) |
+| "Convert this class diagram into Mermaid code" | Take PlantUML or description and output Mermaid `classDiagram`; optionally call `generate_uml("mermaid", code)`. | `generate_uml` | `uml://templates`, `uml://examples` |
+
+## Tools
+
+- **generate_uml** — Main entry point: pass `diagram_type` (e.g. `class`, `sequence`, `mermaid`, `bpmn`) and `code` to render via Kroki or PlantUML.
+- **generate_bpmn_diagram** — BPMN-specific generator for BPMN XML.
+- **generate_class_diagram**, **generate_sequence_diagram**, and other specific generators — Convenience wrappers that still use Kroki or PlantUML under the hood.
+
+## Resources
+
+- **uml://types** — Available diagram types and backends.
+- **uml://templates** — Starter template code per diagram type (including `mermaid`, `mermaid_gantt`-style content via Mermaid examples).
+- **uml://examples** — Full examples per diagram type.
+- **uml://mermaid-examples** — Named Mermaid examples: `sequence_api` (API call sequence), `gantt` (Gantt chart).
+- **uml://bpmn-guide** — Short BPMN 2.0.2-oriented guide: core elements (Start/End events, Task, Gateways, Sequence Flow, Lanes), flow rules, and pointer to BPMN template/tools.
+- **uml://formats** — Supported output formats per type.
+- **uml://server-info** — Server name, version, tools, prompts.
+- **uml://workflow** — Recommended workflow (e.g. sequential thinking then generate_uml).
+
+## Prompts
+
+Registered prompts that support the four scenarios above:
+
+- **mermaid_sequence_api** — Produce a Mermaid sequence diagram for an API call (client, API, auth/DB, request/response, optional `alt`); then call `generate_uml("mermaid", code)`.
+- **mermaid_gantt** — Produce a Mermaid Gantt chart with title, dateFormat, sections, and tasks; then call `generate_uml("mermaid", code)`.
+- **bpmn_process_guide** — Explain how to draw a BPMN process (elements, flow, BPMN 2.0.2); point to `uml://bpmn-guide` and `generate_bpmn_diagram` / `generate_uml("bpmn", ...)`.
+- **convert_class_to_mermaid** — Convert a class diagram (PlantUML or prose) into Mermaid `classDiagram` and optionally call `generate_uml("mermaid", code)`.
+
+Other diagram prompts (e.g. `class_diagram`, `sequence_diagram`, `uml_diagram_with_thinking`) remain available for general UML generation.
+
+## Supported diagram types
+
+The server supports (among others): `class`, `sequence`, `activity`, `usecase`, `state`, `component`, `deployment`, `object`, `mermaid`, `d2`, `graphviz`, `erd`, `blockdiag`, `packetdiag`, `bpmn`, `c4plantuml`. See **uml://types** for the full list and descriptions.
+
+## Reference
+
+- Kroki cheatsheet and docs for syntax and supported diagram types.
+- BPMN 2.0.2 (OMG) for BPMN terminology and element set.
+- Skill: `.skill/skills/uml-diagramming/SKILL.md` and `references/DIAGRAM-TYPES.md` for type mappings and examples.

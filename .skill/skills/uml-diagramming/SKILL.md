@@ -146,6 +146,31 @@ end
 @enduml
 ```
 
+**Example 3 (Mermaid – API call sequence)**
+
+User request: "Show me a Mermaid sequence diagram for an API call."
+
+Use `sequenceDiagram` with participants such as Client, API, Auth, DB. Show request/response and optional `alt` for success/error. See resource `uml://mermaid-examples` (key `sequence_api`) or `uml://examples` (Mermaid) for examples. Then call `generate_uml("mermaid", code)`.
+
+**Example 4 (Mermaid – Gantt)**
+
+User request: "Generate a Gantt chart using Mermaid syntax."
+
+Use a Mermaid `gantt` block with `title`, `dateFormat`, `section`, and tasks (with ids and durations or `after`). See resource `uml://mermaid-examples` (key `gantt`). Then call `generate_uml("mermaid", code)`.
+
+**Convert class diagram to Mermaid**
+
+When the user asks to convert a class diagram (PlantUML or prose) into Mermaid:
+1. Map each class to `classDiagram` syntax: class name, then lines for attributes/methods with `+` `-` `#`.
+2. Map relationships: inheritance `--|>`, composition `*--`, aggregation `o--`, association `--` with `: label`, dependency `..>`.
+3. Emit one Mermaid code block and call `generate_uml("mermaid", code)`.
+
+**BPMN process model**
+
+When the user asks how to draw a BPMN process model:
+- Describe core BPMN 2.0.2 elements: Start/End events, Task, Gateways (Exclusive, Parallel, Inclusive), Sequence Flow, Lanes, Pools.
+- Point to resource `uml://bpmn-guide` for the structured guide and to `generate_bpmn_diagram` or `generate_uml("bpmn", ...)` for generating BPMN XML.
+
 ## Additional Resources
 
 For full diagram-type mappings and optional constraints (direction, detail_level, max_nodes, naming_style, group_by), see [references/DIAGRAM-TYPES.md](references/DIAGRAM-TYPES.md).
