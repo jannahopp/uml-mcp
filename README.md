@@ -106,7 +106,7 @@ To expose the server over HTTP so anyone can connect without installing (e.g. vi
 2. Your **MCP URL** will be: `https://<your-project>.vercel.app/mcp`.
 3. **Publish on Smithery**: go to [smithery.ai/new](https://smithery.ai/new), choose to publish a self-hosted server, and set **MCP Server URL** to `https://<your-project>.vercel.app/mcp` (Namespace: e.g. `antoinebou12`, Server ID: `uml`).
 
-See **[docs/integrations/vercel_smithery.md](docs/integrations/vercel_smithery.md)** for step-by-step instructions.
+See **[docs/integrations/vercel_smithery.md](docs/integrations/vercel_smithery.md)** for step-by-step instructions. If Smithery shows a 401 or "Invalid OAuth" error, your Vercel project likely has Deployment Protection on; see the [Troubleshooting section](docs/integrations/vercel_smithery.md#troubleshooting) there (disable protection or use a bypass token).
 
 ## Configuration
 

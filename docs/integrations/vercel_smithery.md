@@ -84,6 +84,24 @@ Replace `<your-project>` with your real Vercel URL.
 
 ## Troubleshooting
 
+### HTTP 401 / "Invalid OAuth error response" when connecting via Smithery
+
+If Smithery shows a connection error like `HTTP 401: Invalid OAuth error response: SyntaxError: Unexpected token '<', "<!doctype "... is not valid JSON`, the gateway is hitting **Vercel Deployment Protection**: Vercel returns an HTML login page instead of JSON, so the MCP handshake fails.
+
+**Fix (choose one):**
+
+1. **Disable Deployment Protection (recommended for public MCP)**  
+   In the [Vercel project](https://vercel.com/dashboard) → **Settings** → **Deployment Protection**, turn off protection for Production and/or Preview so your app URL is publicly reachable. Then use the normal MCP URL in Smithery: `https://<your-project>.vercel.app/mcp`.
+
+2. **Keep protection and use a bypass token**  
+   If you want to keep protection, use Vercel’s [Protection Bypass for automation](https://vercel.com/docs/deployment-protection/methods-to-bypass-deployment-protection/protection-bypass-automation). Get the bypass token from the project’s Deployment Protection settings, then in Smithery set **MCP Server URL** to:
+   ```
+   https://<your-project>.vercel.app/mcp?x-vercel-set-bypass-cookie=true&x-vercel-protection-bypass=YOUR_BYPASS_TOKEN
+   ```
+   Replace `YOUR_BYPASS_TOKEN` with the token from Vercel.
+
+### Other issues
+
 - **502 / timeout**: Vercel serverless functions have a max duration (e.g. 60s on Hobby). Long-running tool calls may hit this; consider optimizing or using Smithery-hosted Docker for heavy use.
 - **MCP at /mcp**: Ensure you use the path `/mcp` (e.g. `https://...vercel.app/mcp`), not the root URL.
 - **CORS**: The app allows all origins for API and MCP; restrict in production if needed.
