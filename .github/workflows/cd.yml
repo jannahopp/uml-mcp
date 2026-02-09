@@ -21,7 +21,15 @@ on:
         default: false
 
 jobs:
+  # At least one job must have no dependencies (workflow requirement)
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare
+        run: echo "CD pipeline starting"
+
   build:
+    needs: prepare
     uses: ./.github/workflows/build.yml
 
   publish:

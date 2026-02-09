@@ -1,6 +1,6 @@
 # Deploy to Vercel and Publish on Smithery
 
-This guide walks you through deploying the UML-MCP server to Vercel and publishing it on Smithery so users can connect via **Streamable HTTP** without installing anything. For the full Smithery docs index, see [smithery.ai/docs/llms.txt](https://smithery.ai/docs/llms.txt).
+This guide walks you through deploying the UML-MCP server to Vercel and publishing it on Smithery so users can connect via **Streamable HTTP** without installing anything. For the full Smithery docs index, see [smithery.ai/docs/llms.txt](https://smithery.ai/docs/llms.txt.
 
 ## 1. Deploy to Vercel
 
@@ -28,13 +28,13 @@ Use the **MCP URL** when publishing to Smithery.
 
 ## 2. Publish on Smithery
 
-Smithery can list your server so users can add it with one click. You can either **host the server on Smithery** (Docker/stdio) or **point Smithery to your Vercel URL** (self-hosted HTTP).
+Smithery can list your server so users can add it with one click. You can either **host the server on Smithery** (Docker/stdio) or **point Smithery to your Vercel URL** (self-hosted HTTP.
 
 ### Option A: URL (bring your own hosting)
 
-1. Go to [smithery.ai/new](https://smithery.ai/new).
+1. Go to [smithery.ai/new](https://smithery.ai/new.
 2. Sign in if needed.
-3. Choose **URL** (bring your own hosting).
+3. Choose **URL** (bring your own hosting.
 4. Fill in:
    - **Namespace**: your Smithery username (e.g. `antoinebou12`)
    - **Server ID**: short slug (e.g. `uml`)
@@ -99,17 +99,17 @@ If Smithery shows a connection error like `HTTP 401: Invalid OAuth error respons
    In the [Vercel project](https://vercel.com/dashboard) → **Settings** → **Deployment Protection**, turn off protection for Production and/or Preview so your app URL is publicly reachable. Then use the normal MCP URL in Smithery: `https://<your-project>.vercel.app/mcp`.
 
 2. **Keep protection and use a bypass token**  
-   If you want to keep protection, use Vercel’s [Protection Bypass for automation](https://vercel.com/docs/deployment-protection/methods-to-bypass-deployment-protection/protection-bypass-automation). Get the bypass token from the project’s Deployment Protection settings, then in Smithery set **MCP Server URL** to:
+   If you want to keep protection, use Vercel’s [Protection Bypass for automation](https://vercel.com/docs/deployment-protection/methods-to-bypass-deployment-protection/protection-bypass-automation. Get the bypass token from the project’s Deployment Protection settings, then in Smithery set **MCP Server URL** to:
    ```
    https://<your-project>.vercel.app/mcp?x-vercel-set-bypass-cookie=true&x-vercel-protection-bypass=YOUR_BYPASS_TOKEN
    ```
    Replace `YOUR_BYPASS_TOKEN` with the token from Vercel.
 
-### Connection error: Initialization failed with status 404 / “advertise server-card”
+### Connection error: Initialization failed with status 404 or 405 / “advertise server-card”
 
-Smithery discovers your server by requesting `/.well-known/mcp/server-card.json` on the **root** of your deployment. Vercel reserves the `/.well-known` path and does not allow rewrites to serverless functions, so the FastAPI app never receives that URL (you get 404).
+Smithery discovers your server by requesting `/.well-known/mcp/server-card.json` on the **root** of your deployment. Vercel reserves the `/.well-known` path and does not allow rewrites to serverless functions, so the FastAPI app may never receive that URL (404). If the path is served but only for certain HTTP methods, you can get **405 Method Not Allowed**; serving the server card as a static asset fixes both (GET/HEAD return 200).
 
-**Fix:** This repo serves the server card as a **static file** at `public/.well-known/mcp/server-card.json`. Vercel serves the `public/` folder at the root, and `vercel.json` includes an explicit build and route for this file. Before publishing to Smithery, verify: open `https://<your-project>.vercel.app/.well-known/mcp/server-card.json` in a browser; you should see valid JSON with `serverInfo`, `tools`, and `resources`. If you see 404/405, redeploy and ensure the latest `vercel.json` is deployed (check that `public/.well-known/mcp/server-card.json` exists). To regenerate when tools change, run `python scripts/generate_server_card.py`. “Wrote .well-known/mcp/server-card.json”).
+**Fix:** This repo serves the server card as a **static file** at `public/.well-known/mcp/server-card.json`. In `vercel.json`, a **rewrite** maps `/.well-known/mcp/server-card.json` to `/public/.well-known/mcp/server-card.json`, and a static **build** entry includes that file in the deployment. Ensure both the rewrite and the `public/.well-known/mcp/server-card.json` build are present in `vercel.json`. Before publishing to Smithery, verify: open `https://<your-project>.vercel.app/.well-known/mcp/server-card.json` in a browser; you should see valid JSON with `serverInfo`, `tools`, and `resources`. If you see 404/405, redeploy and ensure the latest `vercel.json` is deployed (and that `public/.well-known/mcp/server-card.json` exists after the build). To regenerate the file when tools change, run `python scripts/generate_server_card.py`.”.
 
 ### Other issues
 

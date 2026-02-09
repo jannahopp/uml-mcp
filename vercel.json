@@ -10,10 +10,11 @@
     {"src": ".well-known/mcp/server-card.json", "use": "@vercel/static"},
     {"src": "public/.well-known/mcp/server-card.json", "use": "@vercel/static"}
   ],
+  "rewrites": [
+    {"source": "/.well-known/mcp/server-card.json", "destination": "/public/.well-known/mcp/server-card.json"}
+  ],
   "routes": [
-    {"src": "/.well-known/mcp/server-card.json", "dest": "/.well-known/mcp/server-card.json"},
     {"src": "/logo.png", "dest": "/favicon.ico"},
-    {"src": "/.well-known/mcp/server-card.json", "dest": "/.well-known/mcp/server-card.json"},
     {"src": "/(.*)", "dest": "/app.py"}
   ],
   "env": {
