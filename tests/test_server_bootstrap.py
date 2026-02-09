@@ -63,7 +63,9 @@ EXPECTED_PROMPTS = [
 class TestServerBootstrap:
     """Tests that server creation wires tools, resources, and prompts correctly."""
 
-    def test_create_mcp_server_returns_server_with_name(self, reset_mcp_server_singleton):
+    def test_create_mcp_server_returns_server_with_name(
+        self, reset_mcp_server_singleton
+    ):
         """create_mcp_server returns a server instance with the configured name."""
         server = create_mcp_server()
         assert server is not None

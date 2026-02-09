@@ -42,6 +42,14 @@ Smithery can list your server so users can add it with one click. You can either
      Replace `<your-project>` with your actual Vercel project URL.
 5. Submit. Smithery will use your server’s Streamable HTTP transport and may scan metadata from `/.well-known/mcp/server-card.json` if needed.
 
+**Session configuration (optional):** To let users provide settings (output dir, Kroki URL, etc.) via Smithery OAuth UI, deploy via CLI with a config schema:
+
+```bash
+npx @smithery/cli deploy --name @your-org/uml-mcp --url https://<your-project>.vercel.app/mcp --config-schema "$(cat smithery-config-schema.json)"
+```
+
+See [Smithery Session Configuration](https://smithery.ai/docs/build/session-config) for schema format.
+
 After publishing, your server will appear at:
 
 `https://smithery.ai/server/@<namespace>/<server-id>`
@@ -50,7 +58,7 @@ Example: `https://smithery.ai/server/@antoinebou12/uml`
 
 ### Option B: Smithery-hosted (Docker)
 
-If you prefer Smithery to run the server (Docker/stdio), use the existing `smithery.yaml` and deploy via Smithery’s Docker flow. The server will be hosted by Smithery; no Vercel URL is required.
+If you prefer Smithery to run the server (Docker/stdio), use the existing `smithery.yaml` and deploy via Smithery’s Docker flow. The server will be hosted by Smithery; no Vercel URL is required. The `smithery.yaml` includes a [Session Configuration](https://smithery.ai/docs/build/session-config) schema so users can customize output directory, Kroki URL, log level, and other settings via Smithery UI.
 
 ## 3. Connect from a client
 

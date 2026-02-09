@@ -5,52 +5,69 @@ description: "UML diagram generation server with MCP interface supporting PlantU
 
 startCommand:
   type: stdio
+  # Session Configuration: flat schema only (string/number/boolean), max 20 fields, 1KB
+  # x-from: where Smithery reads config (header/query for HTTP; CLI args for stdio)
   configSchema:
     type: "object"
     properties:
       debug:
         type: "boolean"
+        title: "Debug mode"
         description: "Enable debug mode for verbose logging"
         default: false
+        x-from: { query: "debug" }
       output_dir:
         type: "string"
+        title: "Output directory"
         description: "Directory to store generated diagram files"
         default: "/app/output"
+        x-from: { query: "output_dir" }
       transport:
         type: "string"
+        title: "Transport"
         description: "Transport protocol to use (stdio or http)"
         enum: ["stdio", "http"]
         default: "stdio"
+        x-from: { query: "transport" }
       host:
         type: "string"
+        title: "Host"
         description: "Host to bind to when using HTTP transport"
         default: "127.0.0.1"
+        x-from: { query: "host" }
       port:
         type: "integer"
+        title: "Port"
         description: "Port to bind to when using HTTP transport"
         default: 8000
         minimum: 1024
         maximum: 65535
+        x-from: { query: "port" }
       log_level:
         type: "string"
+        title: "Log level"
         description: "Logging level"
         enum: ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
         default: "INFO"
+        x-from: { query: "log_level" }
       kroki_server:
         type: "string"
+        title: "Kroki server URL"
         description: "Kroki server URL for diagram rendering"
         default: "https://kroki.io"
+        x-from: { query: "kroki_server" }
       plantuml_server:
         type: "string"
-        description: "PlantUML server URL for diagram rendering (leave empty to use Kroki)"
+        title: "PlantUML server URL"
+        description: "PlantUML server URL (leave empty to use Kroki)"
         default: ""
+        x-from: { query: "plantuml_server" }
       enabled_formats:
-        type: "array"
-        description: "Enabled diagram formats (leave empty for all formats)"
-        items:
-          type: "string"
-          enum: ["plantuml", "mermaid", "d2", "graphviz", "erd"]
-        default: []
+        type: "string"
+        title: "Enabled formats"
+        description: "Comma-separated diagram formats (plantuml,mermaid,d2,graphviz,erd). Empty for all."
+        default: ""
+        x-from: { query: "enabled_formats" }
     additionalProperties: false
     description: "Configuration for UML diagram generation server"
   commandFunction: |-
@@ -103,9 +120,10 @@ startCommand:
         env.PLANTUML_SERVER = config.plantuml_server;
       }
 
-      // Add enabled formats
-      if (config.enabled_formats && config.enabled_formats.length > 0) {
-        env.ENABLED_FORMATS = config.enabled_formats.join(",");
+      // Add enabled formats (string: comma-separated per Session Config)
+      const formats = config.enabled_formats;
+      if (formats && (typeof formats === "string" ? formats.trim() : formats.length > 0)) {
+        env.ENABLED_FORMATS = Array.isArray(formats) ? formats.join(",") : formats.trim();
       }
 
       // Return command configuration

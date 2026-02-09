@@ -1,0 +1,36 @@
+{
+  "type": "object",
+  "description": "Session configuration for UML-MCP when published via Smithery (URL or stdio)",
+  "properties": {
+    "output_dir": {
+      "type": "string",
+      "title": "Output directory",
+      "description": "Directory to store generated diagram files",
+      "default": "./output",
+      "x-from": { "query": "output_dir" }
+    },
+    "kroki_server": {
+      "type": "string",
+      "title": "Kroki server URL",
+      "description": "Kroki server URL for diagram rendering",
+      "default": "https://kroki.io",
+      "x-from": { "query": "kroki_server" }
+    },
+    "plantuml_server": {
+      "type": "string",
+      "title": "PlantUML server URL",
+      "description": "PlantUML server URL (leave empty to use Kroki)",
+      "default": "",
+      "x-from": { "query": "plantuml_server" }
+    },
+    "log_level": {
+      "type": "string",
+      "title": "Log level",
+      "description": "Logging level",
+      "enum": ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+      "default": "INFO",
+      "x-from": { "query": "log_level" }
+    }
+  },
+  "additionalProperties": false
+}

@@ -8,7 +8,7 @@ import logging
 import os
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, Response
 from pydantic import BaseModel, Field
@@ -30,10 +30,14 @@ except Exception as e:  # noqa: BLE001
     logger.info("MCP HTTP not available: %s", e)
 
 # Initialize FastAPI (use MCP lifespan when mounted so session manager initializes)
+# Swagger UI at /docs, ReDoc at /redoc for API exploration
 app = FastAPI(
     title="UML Diagram Generator",
-    description="API for generating UML and other diagrams; MCP at /mcp",
+    description="API for generating UML and other diagrams; MCP at /mcp. [Swagger UI](/docs) · [ReDoc](/redoc)",
     version="1.2.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json",
     lifespan=_mcp_http_app.lifespan if _mcp_http_app else None,
 )
 
@@ -92,6 +96,11 @@ async def root():
         "message": "Welcome to the UML-MCP API",
         "version": "1.2.0",
         "status": "operational",
+        "docs": "/docs",
+        "redoc": "/redoc",
+        "openapi_json": "/openapi.json",
+        "openapi_yaml": "/openapi.yaml",
+        "mcp": "/mcp",
     }
 
 
@@ -166,23 +175,24 @@ async def generate_diagram_endpoint(request: DiagramRequest):
 
 @app.get("/logo.png")
 async def get_logo():
-    """Return the logo for the plugin"""
+    """Return the logo for the plugin (used by Smithery and AI plugin manifests)."""
     logo_path = os.path.join(os.path.dirname(__file__), "favicon.ico")
     if os.path.exists(logo_path):
-        return FileResponse(logo_path)
-    else:
-        # Return a default response if logo file not found
-        raise HTTPException(status_code=404, detail="Logo not found")
+        return FileResponse(logo_path, media_type="image/x-icon")
+    raise HTTPException(status_code=404, detail="Logo not found")
 
 
 @app.get("/.well-known/ai-plugin.json")
-async def get_plugin_manifest():
-    """Return the plugin manifest for OpenAI plugins"""
+async def get_plugin_manifest(request: Request):
+    """Return the plugin manifest for OpenAI plugins and Smithery (base URL from request)."""
     try:
         with open(
             os.path.join(os.path.dirname(__file__), ".well-known/ai-plugin.json"), "r"
         ) as f:
             manifest = json.load(f)
+        base = str(request.base_url).rstrip("/")
+        manifest["api"] = {"type": "openapi", "url": f"{base}/openapi.json"}
+        manifest["logo_url"] = f"{base}/logo.png"
         return JSONResponse(content=manifest)
     except Exception as e:
         logger.exception(f"Error loading plugin manifest: {str(e)}")
@@ -199,14 +209,38 @@ async def get_mcp_server_card():
                 "version": "1.2.0",
             },
             "tools": [
-                {"name": "generate_uml", "description": "Generate any UML diagram by type and code"},
-                {"name": "generate_class_diagram", "description": "Generate UML class diagram from PlantUML code"},
-                {"name": "generate_sequence_diagram", "description": "Generate UML sequence diagram from PlantUML code"},
-                {"name": "generate_activity_diagram", "description": "Generate UML activity diagram from PlantUML code"},
-                {"name": "generate_mermaid_diagram", "description": "Generate diagrams using Mermaid syntax"},
-                {"name": "generate_d2_diagram", "description": "Generate diagrams using D2 syntax"},
-                {"name": "generate_graphviz_diagram", "description": "Generate diagrams using Graphviz DOT syntax"},
-                {"name": "generate_erd_diagram", "description": "Generate Entity-Relationship diagrams"},
+                {
+                    "name": "generate_uml",
+                    "description": "Generate any UML diagram by type and code",
+                },
+                {
+                    "name": "generate_class_diagram",
+                    "description": "Generate UML class diagram from PlantUML code",
+                },
+                {
+                    "name": "generate_sequence_diagram",
+                    "description": "Generate UML sequence diagram from PlantUML code",
+                },
+                {
+                    "name": "generate_activity_diagram",
+                    "description": "Generate UML activity diagram from PlantUML code",
+                },
+                {
+                    "name": "generate_mermaid_diagram",
+                    "description": "Generate diagrams using Mermaid syntax",
+                },
+                {
+                    "name": "generate_d2_diagram",
+                    "description": "Generate diagrams using D2 syntax",
+                },
+                {
+                    "name": "generate_graphviz_diagram",
+                    "description": "Generate diagrams using Graphviz DOT syntax",
+                },
+                {
+                    "name": "generate_erd_diagram",
+                    "description": "Generate Entity-Relationship diagrams",
+                },
             ],
         }
     )

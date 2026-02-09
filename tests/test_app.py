@@ -52,8 +52,12 @@ def test_root_endpoint():
     """Test the root endpoint."""
     response = client.get("/")
     assert response.status_code == 200
-    assert response.json()["message"] == "Welcome to the UML-MCP API"
-    assert "version" in response.json()
+    data = response.json()
+    assert data["message"] == "Welcome to the UML-MCP API"
+    assert "version" in data
+    assert data.get("docs") == "/docs"
+    assert data.get("openapi_json") == "/openapi.json"
+    assert data.get("mcp") == "/mcp"
 
 
 def test_health_check():
@@ -125,11 +129,16 @@ def test_generate_diagram_endpoint_error(mock_generate_diagram):
 
 
 def test_plugin_manifest_endpoint(mock_plugin_manifest):
-    """Test the plugin manifest endpoint."""
+    """Test the plugin manifest endpoint (dynamic base URL for Smithery/logo)."""
     response = client.get("/.well-known/ai-plugin.json")
     assert response.status_code == 200
-    assert "schema_version" in response.json()
-    assert "name_for_human" in response.json()
+    data = response.json()
+    assert "schema_version" in data
+    assert "name_for_human" in data
+    # Base URL from request so logo and OpenAPI work on any deployment
+    assert data["api"]["type"] == "openapi"
+    assert data["api"]["url"].endswith("/openapi.json")
+    assert data["logo_url"].endswith("/logo.png")
 
 
 def test_openapi_spec():
@@ -140,3 +149,10 @@ def test_openapi_spec():
     assert "openapi" in response.json()
     assert "info" in response.json()
     assert "paths" in response.json()
+
+
+def test_swagger_docs_available():
+    """Test Swagger UI is served at /docs."""
+    response = client.get("/docs")
+    assert response.status_code == 200
+    assert "swagger" in response.text.lower() or "openapi" in response.text.lower()
