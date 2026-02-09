@@ -58,7 +58,10 @@ def mcp_prompt(
 
 
 # Base UML diagram prompt function
-@mcp_prompt("uml_diagram", description="Base prompt for UML diagram generation")
+@mcp_prompt(
+    "uml_diagram",
+    description="Base prompt for UML diagram generation. Guides the model to produce diagram code (PlantUML, Mermaid, D2) for any diagram type including class, sequence, activity, use case, and more.",
+)
 def uml_diagram_prompt(context: Dict[str, Any] = None) -> str:
     """
     Base prompt for UML diagram generation
@@ -103,7 +106,7 @@ Provide the diagram code that can be directly used to generate the UML diagram:
 # UML diagram with sequential thinking (plan → verify → generate)
 @mcp_prompt(
     "uml_diagram_with_thinking",
-    description="Generate UML diagram using sequential thinking to plan and verify first",
+    description="Generate UML diagram using sequential thinking to plan and verify first. Instructs the model to use the sequentialthinking tool for complex or ambiguous requests before generating diagram code and calling generate_uml.",
     category="uml",
 )
 def uml_diagram_with_thinking_prompt(context: Dict[str, Any] = None) -> str:
@@ -141,7 +144,10 @@ generation tool.
 
 
 # Class diagram prompt
-@mcp_prompt("class_diagram", description="Generate UML class diagram from description")
+@mcp_prompt(
+    "class_diagram",
+    description="Generate UML class diagram from a natural language description. Produces PlantUML code with classes, attributes, methods, visibility, inheritance, composition, and associations.",
+)
 def class_diagram_prompt(context: Dict[str, Any] = None) -> str:
     """
     Prompt for generating UML class diagrams
@@ -196,7 +202,8 @@ Provide the complete PlantUML code for the class diagram:
 
 # Sequence diagram prompt
 @mcp_prompt(
-    "sequence_diagram", description="Generate UML sequence diagram from description"
+    "sequence_diagram",
+    description="Generate UML sequence diagram from a description. Produces PlantUML code with participants, lifelines, messages, activations, and optional return messages.",
 )
 def sequence_diagram_prompt(context: Dict[str, Any] = None) -> str:
     """
@@ -255,7 +262,8 @@ Provide the complete PlantUML code for the sequence diagram:
 
 # Activity diagram prompt
 @mcp_prompt(
-    "activity_diagram", description="Generate UML activity diagram from description"
+    "activity_diagram",
+    description="Generate UML activity diagram from a description. Produces PlantUML code with start/end, activities, decisions, forks, joins, and swimlanes.",
 )
 def activity_diagram_prompt(context: Dict[str, Any] = None) -> str:
     """
@@ -312,7 +320,8 @@ Provide the complete PlantUML code for the activity diagram:
 
 # Use case diagram prompt
 @mcp_prompt(
-    "usecase_diagram", description="Generate UML use case diagram from description"
+    "usecase_diagram",
+    description="Generate UML use case diagram from a description. Produces PlantUML code with actors, use cases, system boundary, include/extend relationships, and associations.",
 )
 def usecase_diagram_prompt(context: Dict[str, Any] = None) -> str:
     """
@@ -372,7 +381,7 @@ Provide the complete PlantUML code for the use case diagram:
 # Mermaid sequence diagram for API call
 @mcp_prompt(
     "mermaid_sequence_api",
-    description="Mermaid sequence diagram for an API call (client → API → backend)",
+    description="Produce a Mermaid sequence diagram for an API call flow: client, API, optional Auth/DB, request/response, and optional alt blocks for success vs error.",
     category="mermaid",
 )
 def mermaid_sequence_api_prompt(context: Dict[str, Any] = None) -> str:
@@ -401,7 +410,7 @@ Put the diagram in a single mermaid code block. After producing the diagram, cal
 # Mermaid Gantt chart
 @mcp_prompt(
     "mermaid_gantt",
-    description="Generate a Mermaid Gantt chart with title, dateFormat, sections, and tasks",
+    description="Generate a Mermaid Gantt chart with title, dateFormat, sections, and tasks including dependencies (after) and durations.",
     category="mermaid",
 )
 def mermaid_gantt_prompt(context: Dict[str, Any] = None) -> str:
@@ -432,7 +441,7 @@ Put the diagram in a single mermaid code block. After producing the diagram, cal
 # BPMN process model guidance
 @mcp_prompt(
     "bpmn_process_guide",
-    description="Explain how to draw a BPMN process model (elements, flow, BPMN 2.0.2)",
+    description="Explain how to draw a BPMN process model. Covers start/end events, tasks, gateways (XOR, AND, OR), sequence flow, lanes, pools, aligned with BPMN 2.0.2.",
     category="bpmn",
 )
 def bpmn_process_guide_prompt(context: Dict[str, Any] = None) -> str:
@@ -464,7 +473,7 @@ Optionally point the user to:
 # Convert class diagram to Mermaid
 @mcp_prompt(
     "convert_class_to_mermaid",
-    description="Convert a class diagram (PlantUML or description) into Mermaid classDiagram code",
+    description="Convert a class diagram (PlantUML code or prose description) into Mermaid classDiagram syntax, mapping visibility, relationships, and inheritance.",
     category="mermaid",
 )
 def convert_class_to_mermaid_prompt(context: Dict[str, Any] = None) -> str:

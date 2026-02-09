@@ -9,10 +9,10 @@ import json
 import os
 import sys
 
-# Ensure project root is on path
+# Ensure project root is on path (append so venv site-packages take precedence)
 repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if repo_root not in sys.path:
-    sys.path.insert(0, repo_root)
+    sys.path.append(repo_root)
 
 
 def main():

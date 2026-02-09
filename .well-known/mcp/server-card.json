@@ -3,7 +3,696 @@
     "name": "UML Diagram Generator",
     "version": "1.2.0"
   },
-  "tools": [],
-  "resources": [],
-  "prompts": []
+  "tools": [
+    {
+      "name": "sequentialthinking",
+      "description": "A detailed tool for dynamic and reflective problem-solving through thoughts.\nThis tool helps analyze problems through a flexible thinking process that can adapt and evolve.\nEach thought can build on, question, or revise previous insights as understanding deepens.\n\nWhen to use this tool:\n- Breaking down complex problems into steps\n- Planning and design with room for revision\n- Analysis that might need course correction\n- Problems where the full scope might not be clear initially\n- Problems that require a multi-step solution\n- Tasks that need to maintain context over multiple steps\n- Situations where irrelevant information needs to be filtered out\n\nKey features:\n- You can adjust total_thoughts up or down as you progress\n- You can question or revise previous thoughts\n- You can add more thoughts even after reaching what seemed like the end\n- You can express uncertainty and explore alternative approaches\n- Not every thought needs to build linearly - you can branch or backtrack\n- Generates a solution hypothesis\n- Verifies the hypothesis based on the Chain of Thought steps\n- Repeats the process until satisfied\n- Provides a correct answer\n\nParameters explained:\n- thought: Your current thinking step, which can include:\n  * Regular analytical steps\n  * Revisions of previous thoughts\n  * Questions about previous decisions\n  * Realizations about needing more analysis\n  * Changes in approach\n  * Hypothesis generation\n  * Hypothesis verification\n- nextThoughtNeeded: True if you need more thinking, even if at what seemed like the end\n- thoughtNumber: Current number in sequence (can go beyond initial total if needed)\n- totalThoughts: Current estimate of thoughts needed (can be adjusted up/down)\n- isRevision: A boolean indicating if this thought revises previous thinking\n- revisesThought: If is_revision is true, which thought number is being reconsidered\n- branchFromThought: If branching, which thought number is the branching point\n- branchId: Identifier for the current branch (if any)\n- needsMoreThoughts: If reaching end but realizing more thoughts needed\n\nYou should:\n1. Start with an initial estimate of needed thoughts, but be ready to adjust\n2. Feel free to question or revise previous thoughts\n3. Don't hesitate to add more thoughts if needed, even at the \"end\"\n4. Express uncertainty when present\n5. Mark thoughts that revise previous thinking or branch into new paths\n6. Ignore information that is irrelevant to the current step\n7. Generate a solution hypothesis when appropriate\n8. Verify the hypothesis based on the Chain of Thought steps\n9. Repeat the process until satisfied with the solution\n10. Provide a single, ideally correct answer as the final output\n11. Only set nextThoughtNeeded to false when truly done and a satisfactory answer is reached",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "thought": {
+            "type": "string",
+            "description": "Your current thinking step (analytical step, revision, hypothesis, etc.)"
+          },
+          "nextThoughtNeeded": {
+            "type": "boolean",
+            "description": "True if you need more thinking steps"
+          },
+          "thoughtNumber": {
+            "type": "integer",
+            "description": "Current thought number in the sequence"
+          },
+          "totalThoughts": {
+            "type": "integer",
+            "description": "Current estimate of total thoughts needed (can be adjusted)"
+          },
+          "isRevision": {
+            "type": "boolean",
+            "description": "True if this thought revises previous thinking"
+          },
+          "revisesThought": {
+            "type": "integer",
+            "description": "If isRevision is true, the thought number being reconsidered"
+          },
+          "branchFromThought": {
+            "type": "integer",
+            "description": "If branching, the thought number this branch started from"
+          },
+          "branchId": {
+            "type": "string",
+            "description": "Identifier for the current branch (if any)"
+          },
+          "needsMoreThoughts": {
+            "type": "boolean",
+            "description": "True if you reached the end but need more thoughts"
+          }
+        },
+        "required": [
+          "thought",
+          "nextThoughtNeeded",
+          "thoughtNumber",
+          "totalThoughts"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "generate_uml",
+      "description": "Generate any UML or diagram by type (class, sequence, mermaid, d2, etc.)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "diagram_type": {
+            "type": "string",
+            "description": "Type of diagram (e.g. class, sequence, activity, mermaid, d2)"
+          },
+          "code": {
+            "type": "string",
+            "description": "Diagram code in the format for the chosen type"
+          },
+          "output_dir": {
+            "type": "string",
+            "description": "Directory to save the generated image"
+          },
+          "output_format": {
+            "type": "string",
+            "description": "Output format: svg, png, or pdf"
+          },
+          "theme": {
+            "type": "string",
+            "description": "PlantUML theme (only for PlantUML diagram types)"
+          }
+        },
+        "required": [
+          "diagram_type",
+          "code"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "generate_class_diagram",
+      "description": "Generate UML class diagram from PlantUML code",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "PlantUML/Mermaid/D2/diagram code (e.g. '@startuml\\nclass User\\n@enduml')"
+          },
+          "output_dir": {
+            "type": "string",
+            "description": "Directory to save the generated image (e.g. './output')"
+          },
+          "output_format": {
+            "type": "string",
+            "description": "Output format: svg, png, or pdf (depending on diagram type)"
+          },
+          "theme": {
+            "type": "string",
+            "description": "PlantUML theme for UML diagrams (e.g. cerulean, sketchy-outline)"
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "generate_sequence_diagram",
+      "description": "Generate UML sequence diagram from PlantUML code",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "PlantUML/Mermaid/D2/diagram code (e.g. '@startuml\\nclass User\\n@enduml')"
+          },
+          "output_dir": {
+            "type": "string",
+            "description": "Directory to save the generated image (e.g. './output')"
+          },
+          "output_format": {
+            "type": "string",
+            "description": "Output format: svg, png, or pdf (depending on diagram type)"
+          },
+          "theme": {
+            "type": "string",
+            "description": "PlantUML theme for UML diagrams (e.g. cerulean, sketchy-outline)"
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "generate_activity_diagram",
+      "description": "Generate UML activity diagram from PlantUML code",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "PlantUML/Mermaid/D2/diagram code (e.g. '@startuml\\nclass User\\n@enduml')"
+          },
+          "output_dir": {
+            "type": "string",
+            "description": "Directory to save the generated image (e.g. './output')"
+          },
+          "output_format": {
+            "type": "string",
+            "description": "Output format: svg, png, or pdf (depending on diagram type)"
+          },
+          "theme": {
+            "type": "string",
+            "description": "PlantUML theme for UML diagrams (e.g. cerulean, sketchy-outline)"
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "generate_usecase_diagram",
+      "description": "Generate UML use case diagram from PlantUML code",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "PlantUML/Mermaid/D2/diagram code (e.g. '@startuml\\nclass User\\n@enduml')"
+          },
+          "output_dir": {
+            "type": "string",
+            "description": "Directory to save the generated image (e.g. './output')"
+          },
+          "output_format": {
+            "type": "string",
+            "description": "Output format: svg, png, or pdf (depending on diagram type)"
+          },
+          "theme": {
+            "type": "string",
+            "description": "PlantUML theme for UML diagrams (e.g. cerulean, sketchy-outline)"
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "generate_state_diagram",
+      "description": "Generate UML state diagram from PlantUML code",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "PlantUML/Mermaid/D2/diagram code (e.g. '@startuml\\nclass User\\n@enduml')"
+          },
+          "output_dir": {
+            "type": "string",
+            "description": "Directory to save the generated image (e.g. './output')"
+          },
+          "output_format": {
+            "type": "string",
+            "description": "Output format: svg, png, or pdf (depending on diagram type)"
+          },
+          "theme": {
+            "type": "string",
+            "description": "PlantUML theme for UML diagrams (e.g. cerulean, sketchy-outline)"
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "generate_component_diagram",
+      "description": "Generate UML component diagram from PlantUML code",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "PlantUML/Mermaid/D2/diagram code (e.g. '@startuml\\nclass User\\n@enduml')"
+          },
+          "output_dir": {
+            "type": "string",
+            "description": "Directory to save the generated image (e.g. './output')"
+          },
+          "output_format": {
+            "type": "string",
+            "description": "Output format: svg, png, or pdf (depending on diagram type)"
+          },
+          "theme": {
+            "type": "string",
+            "description": "PlantUML theme for UML diagrams (e.g. cerulean, sketchy-outline)"
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "generate_deployment_diagram",
+      "description": "Generate UML deployment diagram from PlantUML code",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "PlantUML/Mermaid/D2/diagram code (e.g. '@startuml\\nclass User\\n@enduml')"
+          },
+          "output_dir": {
+            "type": "string",
+            "description": "Directory to save the generated image (e.g. './output')"
+          },
+          "output_format": {
+            "type": "string",
+            "description": "Output format: svg, png, or pdf (depending on diagram type)"
+          },
+          "theme": {
+            "type": "string",
+            "description": "PlantUML theme for UML diagrams (e.g. cerulean, sketchy-outline)"
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "generate_object_diagram",
+      "description": "Generate UML object diagram from PlantUML code",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "PlantUML/Mermaid/D2/diagram code (e.g. '@startuml\\nclass User\\n@enduml')"
+          },
+          "output_dir": {
+            "type": "string",
+            "description": "Directory to save the generated image (e.g. './output')"
+          },
+          "output_format": {
+            "type": "string",
+            "description": "Output format: svg, png, or pdf (depending on diagram type)"
+          },
+          "theme": {
+            "type": "string",
+            "description": "PlantUML theme for UML diagrams (e.g. cerulean, sketchy-outline)"
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "generate_mermaid_diagram",
+      "description": "Generate diagrams using Mermaid syntax",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "PlantUML/Mermaid/D2/diagram code (e.g. '@startuml\\nclass User\\n@enduml')"
+          },
+          "output_dir": {
+            "type": "string",
+            "description": "Directory to save the generated image (e.g. './output')"
+          },
+          "output_format": {
+            "type": "string",
+            "description": "Output format: svg, png, or pdf (depending on diagram type)"
+          },
+          "theme": {
+            "type": "string",
+            "description": "PlantUML theme for UML diagrams (e.g. cerulean, sketchy-outline)"
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "generate_d2_diagram",
+      "description": "Generate diagrams using D2 syntax",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "PlantUML/Mermaid/D2/diagram code (e.g. '@startuml\\nclass User\\n@enduml')"
+          },
+          "output_dir": {
+            "type": "string",
+            "description": "Directory to save the generated image (e.g. './output')"
+          },
+          "output_format": {
+            "type": "string",
+            "description": "Output format: svg, png, or pdf (depending on diagram type)"
+          },
+          "theme": {
+            "type": "string",
+            "description": "PlantUML theme for UML diagrams (e.g. cerulean, sketchy-outline)"
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "generate_graphviz_diagram",
+      "description": "Generate diagrams using Graphviz DOT syntax",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "PlantUML/Mermaid/D2/diagram code (e.g. '@startuml\\nclass User\\n@enduml')"
+          },
+          "output_dir": {
+            "type": "string",
+            "description": "Directory to save the generated image (e.g. './output')"
+          },
+          "output_format": {
+            "type": "string",
+            "description": "Output format: svg, png, or pdf (depending on diagram type)"
+          },
+          "theme": {
+            "type": "string",
+            "description": "PlantUML theme for UML diagrams (e.g. cerulean, sketchy-outline)"
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "generate_erd_diagram",
+      "description": "Generate Entity-Relationship diagrams",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "PlantUML/Mermaid/D2/diagram code (e.g. '@startuml\\nclass User\\n@enduml')"
+          },
+          "output_dir": {
+            "type": "string",
+            "description": "Directory to save the generated image (e.g. './output')"
+          },
+          "output_format": {
+            "type": "string",
+            "description": "Output format: svg, png, or pdf (depending on diagram type)"
+          },
+          "theme": {
+            "type": "string",
+            "description": "PlantUML theme for UML diagrams (e.g. cerulean, sketchy-outline)"
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "generate_blockdiag_diagram",
+      "description": "Generate simple block diagrams using BlockDiag syntax",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "PlantUML/Mermaid/D2/diagram code (e.g. '@startuml\\nclass User\\n@enduml')"
+          },
+          "output_dir": {
+            "type": "string",
+            "description": "Directory to save the generated image (e.g. './output')"
+          },
+          "output_format": {
+            "type": "string",
+            "description": "Output format: svg, png, or pdf (depending on diagram type)"
+          },
+          "theme": {
+            "type": "string",
+            "description": "PlantUML theme for UML diagrams (e.g. cerulean, sketchy-outline)"
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "generate_bpmn_diagram",
+      "description": "Generate Business Process Model and Notation (BPMN) diagrams",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "PlantUML/Mermaid/D2/diagram code (e.g. '@startuml\\nclass User\\n@enduml')"
+          },
+          "output_dir": {
+            "type": "string",
+            "description": "Directory to save the generated image (e.g. './output')"
+          },
+          "output_format": {
+            "type": "string",
+            "description": "Output format: svg, png, or pdf (depending on diagram type)"
+          },
+          "theme": {
+            "type": "string",
+            "description": "PlantUML theme for UML diagrams (e.g. cerulean, sketchy-outline)"
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "generate_c4_diagram",
+      "description": "Generate C4 model architecture diagrams using PlantUML",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "PlantUML/Mermaid/D2/diagram code (e.g. '@startuml\\nclass User\\n@enduml')"
+          },
+          "output_dir": {
+            "type": "string",
+            "description": "Directory to save the generated image (e.g. './output')"
+          },
+          "output_format": {
+            "type": "string",
+            "description": "Output format: svg, png, or pdf (depending on diagram type)"
+          },
+          "theme": {
+            "type": "string",
+            "description": "PlantUML theme for UML diagrams (e.g. cerulean, sketchy-outline)"
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    }
+  ],
+  "resources": [
+    {
+      "uri": "uml://types",
+      "name": "uml://types",
+      "description": "Returns available diagram types with backend, description, and supported formats (e.g. class, sequence, mermaid, d2). Use before generating to verify diagram_type."
+    },
+    {
+      "uri": "uml://templates",
+      "name": "uml://templates",
+      "description": "Returns starter templates (PlantUML, Mermaid, D2, etc.) for each diagram type. Use to get minimal valid code to customize."
+    },
+    {
+      "uri": "uml://examples",
+      "name": "uml://examples",
+      "description": "Returns example diagrams for each type (class, sequence, activity, etc.). Use as reference for syntax and structure."
+    },
+    {
+      "uri": "uml://formats",
+      "name": "uml://formats",
+      "description": "Returns supported output formats (svg, png, pdf) per diagram type. Use to choose valid output_format for generate_uml."
+    },
+    {
+      "uri": "uml://server-info",
+      "name": "uml://server-info",
+      "description": "Returns server metadata: name, version, tools, prompts, Kroki URL. Use for discovery and health checks."
+    },
+    {
+      "uri": "uml://mermaid-examples",
+      "name": "uml://mermaid-examples",
+      "description": "Returns named Mermaid examples (sequence_api, gantt) for API-call flows and Gantt charts. Reference for mermaid_sequence_api and mermaid_gantt prompts."
+    },
+    {
+      "uri": "uml://bpmn-guide",
+      "name": "uml://bpmn-guide",
+      "description": "Structured reference for BPMN 2.0.2: start/end events, tasks, gateways, sequence flow, lanes, pools. Use with generate_bpmn_diagram or bpmn_process_guide prompt."
+    },
+    {
+      "uri": "uml://workflow",
+      "name": "uml://workflow",
+      "description": "Recommended workflow for complex diagrams: use sequentialthinking to plan and verify, then call generate_uml. Points to uml_diagram_with_thinking prompt."
+    }
+  ],
+  "prompts": [
+    {
+      "name": "uml_diagram",
+      "description": "Base prompt for UML diagram generation. Guides the model to produce diagram code (PlantUML, Mermaid, D2) for any diagram type including class, sequence, activity, use case, and more."
+    },
+    {
+      "name": "uml_diagram_with_thinking",
+      "description": "Generate UML diagram using sequential thinking to plan and verify first. Instructs the model to use the sequentialthinking tool for complex or ambiguous requests before generating diagram code and calling generate_uml."
+    },
+    {
+      "name": "class_diagram",
+      "description": "Generate UML class diagram from a natural language description. Produces PlantUML code with classes, attributes, methods, visibility, inheritance, composition, and associations."
+    },
+    {
+      "name": "sequence_diagram",
+      "description": "Generate UML sequence diagram from a description. Produces PlantUML code with participants, lifelines, messages, activations, and optional return messages."
+    },
+    {
+      "name": "activity_diagram",
+      "description": "Generate UML activity diagram from a description. Produces PlantUML code with start/end, activities, decisions, forks, joins, and swimlanes."
+    },
+    {
+      "name": "usecase_diagram",
+      "description": "Generate UML use case diagram from a description. Produces PlantUML code with actors, use cases, system boundary, include/extend relationships, and associations."
+    },
+    {
+      "name": "mermaid_sequence_api",
+      "description": "Produce a Mermaid sequence diagram for an API call flow: client, API, optional Auth/DB, request/response, and optional alt blocks for success vs error."
+    },
+    {
+      "name": "mermaid_gantt",
+      "description": "Generate a Mermaid Gantt chart with title, dateFormat, sections, and tasks including dependencies (after) and durations."
+    },
+    {
+      "name": "bpmn_process_guide",
+      "description": "Explain how to draw a BPMN process model. Covers start/end events, tasks, gateways (XOR, AND, OR), sequence flow, lanes, pools, aligned with BPMN 2.0.2."
+    },
+    {
+      "name": "convert_class_to_mermaid",
+      "description": "Convert a class diagram (PlantUML code or prose description) into Mermaid classDiagram syntax, mapping visibility, relationships, and inheritance."
+    }
+  ]
 }

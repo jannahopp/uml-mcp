@@ -23,12 +23,12 @@ from .schemas import GenerateUMLInput
 
 logger = logging.getLogger(__name__)
 
-# MCP tool annotations per best practices
-ANNOTATIONS_GENERATE = {
-    "readOnlyHint": False,
+# MCP tool annotations per best practices (diagram tools call Kroki, may write files)
+ANNOTATIONS_DIAGRAM = {
+    "readOnlyHint": False,  # May write files when output_dir provided
     "destructiveHint": False,
-    "idempotentHint": False,
-    "openWorldHint": True,  # Calls external Kroki service
+    "idempotentHint": True,  # Same inputs produce same diagram via Kroki
+    "openWorldHint": True,  # Calls external Kroki service for rendering
 }
 
 
@@ -88,7 +88,7 @@ def _validate_and_generate(
     description="Generate any UML or diagram by type (class, sequence, mermaid, d2, etc.)",
     category="uml",
     example="generate_uml('class', '@startuml\\nclass User\\n@enduml', './output')",
-    annotations=ANNOTATIONS_GENERATE,
+    annotations=ANNOTATIONS_DIAGRAM,
 )
 def generate_uml(
     diagram_type: str,
@@ -125,7 +125,7 @@ def generate_uml(
     description="Generate UML class diagram from PlantUML code",
     category="uml",
     example="generate_class_diagram('@startuml\\nclass User\\n@enduml', './output')",
-    annotations=ANNOTATIONS_GENERATE,
+    annotations=ANNOTATIONS_DIAGRAM,
 )
 def generate_class_diagram(
     code: str,
@@ -156,7 +156,7 @@ def generate_class_diagram(
     description="Generate UML sequence diagram from PlantUML code",
     category="uml",
     example="generate_sequence_diagram('@startuml\\nAlice -> Bob: hello\\n@enduml')",
-    annotations=ANNOTATIONS_GENERATE,
+    annotations=ANNOTATIONS_DIAGRAM,
 )
 def generate_sequence_diagram(
     code: str,
@@ -184,7 +184,7 @@ def generate_sequence_diagram(
     description="Generate UML activity diagram from PlantUML code",
     category="uml",
     example="generate_activity_diagram('@startuml\\nstart\\n:do work;\\n@enduml')",
-    annotations=ANNOTATIONS_GENERATE,
+    annotations=ANNOTATIONS_DIAGRAM,
 )
 def generate_activity_diagram(
     code: str,
@@ -212,7 +212,7 @@ def generate_activity_diagram(
     description="Generate UML use case diagram from PlantUML code",
     category="uml",
     example="generate_usecase_diagram('@startuml\\nactor User\\n@enduml')",
-    annotations=ANNOTATIONS_GENERATE,
+    annotations=ANNOTATIONS_DIAGRAM,
 )
 def generate_usecase_diagram(
     code: str,
@@ -240,7 +240,7 @@ def generate_usecase_diagram(
     description="Generate UML state diagram from PlantUML code",
     category="uml",
     example="generate_state_diagram('@startuml\\n[*] --> Idle\\n@enduml')",
-    annotations=ANNOTATIONS_GENERATE,
+    annotations=ANNOTATIONS_DIAGRAM,
 )
 def generate_state_diagram(
     code: str,
@@ -268,7 +268,7 @@ def generate_state_diagram(
     description="Generate UML component diagram from PlantUML code",
     category="uml",
     example="generate_component_diagram('@startuml\\n[Component]\\n@enduml')",
-    annotations=ANNOTATIONS_GENERATE,
+    annotations=ANNOTATIONS_DIAGRAM,
 )
 def generate_component_diagram(
     code: str,
@@ -296,7 +296,7 @@ def generate_component_diagram(
     description="Generate UML deployment diagram from PlantUML code",
     category="uml",
     example="generate_deployment_diagram('@startuml\\nnode n1\\n@enduml')",
-    annotations=ANNOTATIONS_GENERATE,
+    annotations=ANNOTATIONS_DIAGRAM,
 )
 def generate_deployment_diagram(
     code: str,
@@ -324,7 +324,7 @@ def generate_deployment_diagram(
     description="Generate UML object diagram from PlantUML code",
     category="uml",
     example="generate_object_diagram('@startuml\\nobject o1\\n@enduml')",
-    annotations=ANNOTATIONS_GENERATE,
+    annotations=ANNOTATIONS_DIAGRAM,
 )
 def generate_object_diagram(
     code: str,
@@ -352,7 +352,7 @@ def generate_object_diagram(
     description="Generate diagrams using Mermaid syntax",
     category="other",
     example="generate_mermaid_diagram('graph TD; A-->B;')",
-    annotations=ANNOTATIONS_GENERATE,
+    annotations=ANNOTATIONS_DIAGRAM,
 )
 def generate_mermaid_diagram(
     code: str,
@@ -380,7 +380,7 @@ def generate_mermaid_diagram(
     description="Generate diagrams using D2 syntax",
     category="other",
     example="generate_d2_diagram('x -> y')",
-    annotations=ANNOTATIONS_GENERATE,
+    annotations=ANNOTATIONS_DIAGRAM,
 )
 def generate_d2_diagram(
     code: str,
@@ -408,7 +408,7 @@ def generate_d2_diagram(
     description="Generate diagrams using Graphviz DOT syntax",
     category="other",
     example="generate_graphviz_diagram('digraph { a -> b; }')",
-    annotations=ANNOTATIONS_GENERATE,
+    annotations=ANNOTATIONS_DIAGRAM,
 )
 def generate_graphviz_diagram(
     code: str,
@@ -436,7 +436,7 @@ def generate_graphviz_diagram(
     description="Generate Entity-Relationship diagrams",
     category="database",
     example="generate_erd_diagram('entity E { id int }')",
-    annotations=ANNOTATIONS_GENERATE,
+    annotations=ANNOTATIONS_DIAGRAM,
 )
 def generate_erd_diagram(
     code: str,
@@ -464,7 +464,7 @@ def generate_erd_diagram(
     description="Generate simple block diagrams using BlockDiag syntax",
     category="other",
     example="generate_blockdiag_diagram('blockdiag { A -> B; }')",
-    annotations=ANNOTATIONS_GENERATE,
+    annotations=ANNOTATIONS_DIAGRAM,
 )
 def generate_blockdiag_diagram(
     code: str,
@@ -492,7 +492,7 @@ def generate_blockdiag_diagram(
     description="Generate Business Process Model and Notation (BPMN) diagrams",
     category="other",
     example="generate_bpmn_diagram('<bpmn:definitions>...</bpmn:definitions>')",
-    annotations=ANNOTATIONS_GENERATE,
+    annotations=ANNOTATIONS_DIAGRAM,
 )
 def generate_bpmn_diagram(
     code: str,
@@ -520,7 +520,7 @@ def generate_bpmn_diagram(
     description="Generate C4 model architecture diagrams using PlantUML",
     category="uml",
     example="generate_c4_diagram('@startuml\\n!include C4_Context.puml\\nPerson(user)\\n@enduml')",
-    annotations=ANNOTATIONS_GENERATE,
+    annotations=ANNOTATIONS_DIAGRAM,
 )
 def generate_c4_diagram(
     code: str,

@@ -58,7 +58,10 @@ def mcp_resource(
 
 
 # Define resources using decorators
-@mcp_resource("uml://types", description="Get available diagram types")
+@mcp_resource(
+    "uml://types",
+    description="Returns available diagram types with backend, description, and supported formats (e.g. class, sequence, mermaid, d2). Use before generating to verify diagram_type.",
+)
 def get_diagram_types():
     """Get available diagram types"""
     types = {}
@@ -72,7 +75,8 @@ def get_diagram_types():
 
 
 @mcp_resource(
-    "uml://templates", description="Get diagram templates for different diagram types"
+    "uml://templates",
+    description="Returns starter templates (PlantUML, Mermaid, D2, etc.) for each diagram type. Use to get minimal valid code to customize.",
 )
 def get_diagram_templates():
     """Get diagram templates for different diagram types"""
@@ -83,7 +87,8 @@ def get_diagram_templates():
 
 
 @mcp_resource(
-    "uml://examples", description="Get diagram examples for different diagram types"
+    "uml://examples",
+    description="Returns example diagrams for each type (class, sequence, activity, etc.). Use as reference for syntax and structure.",
 )
 def get_diagram_examples():
     """Get diagram examples for different diagram types"""
@@ -94,7 +99,8 @@ def get_diagram_examples():
 
 
 @mcp_resource(
-    "uml://formats", description="Get supported output formats for each diagram type"
+    "uml://formats",
+    description="Returns supported output formats (svg, png, pdf) per diagram type. Use to choose valid output_format for generate_uml.",
 )
 def get_output_formats():
     """Get supported output formats for each diagram type"""
@@ -104,7 +110,10 @@ def get_output_formats():
     return formats
 
 
-@mcp_resource("uml://server-info", description="Get MCP server information")
+@mcp_resource(
+    "uml://server-info",
+    description="Returns server metadata: name, version, tools, prompts, Kroki URL. Use for discovery and health checks.",
+)
 def get_server_info():
     """Get MCP server information"""
     return {
@@ -120,7 +129,7 @@ def get_server_info():
 
 @mcp_resource(
     "uml://mermaid-examples",
-    description="Mermaid examples: API sequence diagram and Gantt chart",
+    description="Returns named Mermaid examples (sequence_api, gantt) for API-call flows and Gantt charts. Reference for mermaid_sequence_api and mermaid_gantt prompts.",
 )
 def get_mermaid_examples():
     """Return named Mermaid examples (sequence_api, gantt) for API-call and Gantt prompts."""
@@ -132,7 +141,7 @@ def get_mermaid_examples():
 
 @mcp_resource(
     "uml://bpmn-guide",
-    description="How to draw BPMN process models (BPMN 2.0.2 elements and flow)",
+    description="Structured reference for BPMN 2.0.2: start/end events, tasks, gateways, sequence flow, lanes, pools. Use with generate_bpmn_diagram or bpmn_process_guide prompt.",
 )
 def get_bpmn_guide():
     """Return a short guide to BPMN process modeling aligned with BPMN 2.0.2."""
@@ -161,7 +170,7 @@ def get_bpmn_guide():
 
 @mcp_resource(
     "uml://workflow",
-    description="Recommended workflow for complex diagram generation",
+    description="Recommended workflow for complex diagrams: use sequentialthinking to plan and verify, then call generate_uml. Points to uml_diagram_with_thinking prompt.",
 )
 def get_recommended_workflow():
     """Return the recommended workflow: use sequentialthinking to plan and verify, then generate_uml."""
