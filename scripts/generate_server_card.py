@@ -35,7 +35,10 @@ def main():
 
     card = build_server_card()
     if not card.get("tools"):
-        print("Skipping write: build_server_card returned no tools (missing deps?).", file=sys.stderr)
+        print(
+            "Skipping write: build_server_card returned no tools (missing deps?).",
+            file=sys.stderr,
+        )
         sys.exit(1)
     # Write to .well-known/ (for local/dev)
     out_path = os.path.join(out_dir, "server-card.json")

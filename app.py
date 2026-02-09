@@ -181,7 +181,9 @@ async def generate_diagram_endpoint(request: DiagramRequest):
     "/logo.png",
     responses={
         200: {
-            "content": {"image/x-icon": {"schema": {"type": "string", "format": "binary"}}},
+            "content": {
+                "image/x-icon": {"schema": {"type": "string", "format": "binary"}}
+            },
             "description": "Plugin logo (ICO format, used by Smithery and AI plugin manifests).",
         }
     },

@@ -31,10 +31,12 @@ def parse_evaluation_file(file_path: Path) -> list[dict]:
         question_elem = qa_pair.find("question")
         answer_elem = qa_pair.find("answer")
         if question_elem is not None and answer_elem is not None:
-            evaluations.append({
-                "question": (question_elem.text or "").strip(),
-                "answer": (answer_elem.text or "").strip(),
-            })
+            evaluations.append(
+                {
+                    "question": (question_elem.text or "").strip(),
+                    "answer": (answer_elem.text or "").strip(),
+                }
+            )
     return evaluations
 
 
@@ -43,7 +45,9 @@ def main():
         description="Evaluate MCP servers using test questions",
     )
     parser.add_argument("eval_file", type=Path, help="Path to evaluation XML file")
-    parser.add_argument("-t", "--transport", choices=["stdio", "sse", "http"], default="stdio")
+    parser.add_argument(
+        "-t", "--transport", choices=["stdio", "sse", "http"], default="stdio"
+    )
     parser.add_argument("-c", "--command", help="Command to run MCP server (stdio)")
     parser.add_argument("-a", "--args", nargs="+", help="Arguments for command (stdio)")
     parser.add_argument("-u", "--url", help="MCP server URL (sse/http)")
@@ -98,10 +102,16 @@ def main():
 
     asyncio.run(run())
 
-    print("\nTo run full evaluation with Claude, use the evaluation harness from the MCP")
-    print("Development Guide. This script verifies the server connection and discovery.")
+    print(
+        "\nTo run full evaluation with Claude, use the evaluation harness from the MCP"
+    )
+    print(
+        "Development Guide. This script verifies the server connection and discovery."
+    )
     print("\nExample full evaluation (requires anthropic):")
-    print("  python scripts/evaluation.py -t stdio -c python -a server.py evaluations/uml_mcp_eval.xml")
+    print(
+        "  python scripts/evaluation.py -t stdio -c python -a server.py evaluations/uml_mcp_eval.xml"
+    )
 
 
 if __name__ == "__main__":
