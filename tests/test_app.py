@@ -167,3 +167,23 @@ def test_swagger_docs_available():
     response = client.get("/docs")
     assert response.status_code == 200
     assert "swagger" in response.text.lower() or "openapi" in response.text.lower()
+
+
+def test_mcp_post_never_405():
+    """POST /mcp must return 200 (MCP mounted) or 503 (fallback), never 405."""
+    response = client.post("/mcp", json={})
+    assert response.status_code != 405, "POST /mcp must not return Method Not Allowed"
+    assert response.status_code in (200, 503)
+    if response.status_code == 503:
+        data = response.json()
+        assert "detail" in data
+        assert "MCP HTTP transport is not available" in data["detail"]
+
+
+def test_mcp_get_fallback_returns_503():
+    """When MCP fallback is active, GET /mcp returns 503 with clear detail."""
+    response = client.get("/mcp")
+    # In test env we use mock FastMCP (no http_app), so fallback is always active
+    assert response.status_code == 503
+    data = response.json()
+    assert data.get("detail") == "MCP HTTP transport is not available."

@@ -45,6 +45,34 @@ app = FastAPI(
     lifespan=_mcp_http_app.lifespan if _mcp_http_app else None,
 )
 
+# MCP Streamable HTTP requires Accept: application/json, text/event-stream.
+# Some clients/proxies (e.g. Smithery) omit it; normalize for /mcp so the MCP layer accepts the request.
+MCP_ACCEPT = "application/json, text/event-stream"
+
+
+class _MCPAcceptHeaderMiddleware:
+    """Set Accept: application/json, text/event-stream for /mcp when missing."""
+
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] == "http":
+            path = scope.get("path", "")
+            if path.startswith("/mcp"):
+                headers = list(scope.get("headers", []))
+                accept_val = None
+                for k, v in headers:
+                    if k.lower() == b"accept":
+                        accept_val = v
+                        break
+                if accept_val is None or b"text/event-stream" not in accept_val:
+                    headers = [(k, v) for k, v in headers if k.lower() != b"accept"]
+                    headers.append((b"accept", MCP_ACCEPT.encode("utf-8")))
+                    scope = {**scope, "headers": headers}
+        await self.app(scope, receive, send)
+
+
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
@@ -53,6 +81,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+# Run first (outermost): normalize Accept for /mcp so MCP Streamable HTTP accepts the request.
+app.add_middleware(_MCPAcceptHeaderMiddleware)
 
 # Import local modules
 try:
@@ -288,16 +318,28 @@ async def get_openapi_yaml():
 
 # Mount MCP server at /mcp for Smithery and Streamable HTTP clients; fallback when unavailable
 if _mcp_http_app is not None:
+    logger.info("MCP HTTP app mounted at /mcp")
     app.mount("/mcp", _mcp_http_app)
 else:
+    logger.info(
+        "MCP HTTP fallback: GET/POST /mcp return 503 (MCP HTTP transport not available)."
+    )
+    _mcp_unavailable_detail = {"detail": "MCP HTTP transport is not available."}
 
     @app.get("/mcp")
-    async def mcp_unavailable():
+    async def mcp_unavailable_get():
         """Return 503 when MCP HTTP transport is not available (e.g. fastmcp missing or init failed)."""
-        return JSONResponse(
-            status_code=503,
-            content={"detail": "MCP HTTP transport is not available."},
-        )
+        return JSONResponse(status_code=503, content=_mcp_unavailable_detail)
+
+    @app.post("/mcp")
+    async def mcp_unavailable_post():
+        """Return 503 when MCP HTTP transport is not available (Streamable HTTP uses POST)."""
+        return JSONResponse(status_code=503, content=_mcp_unavailable_detail)
+
+    @app.options("/mcp")
+    async def mcp_unavailable_options():
+        """Allow CORS preflight for /mcp when MCP is unavailable."""
+        return Response(status_code=204)
 
 
 # Main entry point for local development

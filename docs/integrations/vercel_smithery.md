@@ -115,6 +115,28 @@ Smithery discovers your server by requesting `/.well-known/mcp/server-card.json`
 
 **Fix:** This repo serves the server card as a **static file** at `public/.well-known/mcp/server-card.json`. In `vercel.json`, a **rewrite** maps `/.well-known/mcp/server-card.json` to `/public/.well-known/mcp/server-card.json`, and a static **build** entry includes that file in the deployment. Ensure both the rewrite and the `public/.well-known/mcp/server-card.json` build are present in `vercel.json`. Before publishing to Smithery, verify: open `https://<your-project>.vercel.app/.well-known/mcp/server-card.json` in a browser; you should see valid JSON with `serverInfo`, `tools`, and `resources`. If you see 404/405, redeploy and ensure the latest `vercel.json` is deployed (and that `public/.well-known/mcp/server-card.json` exists after the build). To regenerate the file when tools change, run `python scripts/generate_server_card.py`. Then ensure `public/.well-known/mcp/server-card.json` is committed and deployed.
 
+### "Not Acceptable: Client must accept text/event-stream" (JSON-RPC error)
+
+The [MCP Streamable HTTP](https://spec.modelcontextprotocol.io/specification/2025-03-26/basic/transports/) protocol requires clients to send an **Accept** header that includes `text/event-stream` (e.g. `Accept: application/json, text/event-stream`). If the client or proxy (e.g. Smithery) does not send this header, the MCP layer may respond with a JSON-RPC error: `"Not Acceptable: Client must accept text/event-stream"` (code -32600).
+
+**Server-side workaround:** This app includes middleware that, for all requests to `/mcp` and `/mcp/...`, sets or normalizes the `Accept` header to `application/json, text/event-stream` when it is missing or does not include `text/event-stream`. So connections via Smithery or Cursor should work even if the client or proxy omits the header. No client or Smithery configuration change is required.
+
+If you still see this error after deploying the latest version, ensure the middleware is present in `app.py` (`_MCPAcceptHeaderMiddleware`) and that requests to `/mcp` go through the FastAPI app (not a static rewrite).
+
+### 405 on POST /mcp (Reconnect failed)
+
+If you see **405 Method Not Allowed** on **POST /mcp** (e.g. “Reconnect failed” in Cursor via Smithery, or “Streamable HTTP error: Error POSTing to endpoint: {detail:Method Not Allowed}”), it means the MCP HTTP app did not mount at `/mcp`. The server only registered a GET handler for `/mcp`, so Streamable HTTP clients that use POST get 405.
+
+**What to check:**
+
+1. **Vercel build and runtime logs**  
+   In the app startup logs, look for either “MCP HTTP app mounted at /mcp” (success) or “MCP HTTP fallback: GET/POST /mcp return 503 (MCP HTTP transport not available).” If you see the fallback message, the MCP app failed to load. Check for any exception logged in the same block (the app logs with `exc_info=True`).
+
+2. **Dependencies**  
+   Confirm that `fastmcp` and all modules used by `get_mcp_server()` (e.g. diagram tools, resources, prompts, Kroki, PlantUML) are installed and import without error. The build runs `pip install -r requirements.txt -r requirements-dev.txt`; ensure the build completes and that `fastmcp>=2.3.1` is present.
+
+**405 vs 503 fallback:** When the MCP app is not mounted, the server registers both GET and POST handlers for `/mcp` that return **503** with `{"detail": "MCP HTTP transport is not available."}` (and OPTIONS for CORS). So clients see “service unavailable” rather than “method not allowed,” and the logs make it clear that the fallback is active.
+
 ### Other issues
 
 - **405 Method Not Allowed** on the server card URL: usually fixed by ensuring the server card is served as a static asset at `/.well-known/mcp/server-card.json` so GET/HEAD return 200 (see the 404/405 section above).
