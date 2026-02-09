@@ -123,6 +123,12 @@ The [MCP Streamable HTTP](https://spec.modelcontextprotocol.io/specification/202
 
 If you still see this error after deploying the latest version, ensure the middleware is present in `app.py` (`_MCPAcceptHeaderMiddleware`) and that requests to `/mcp` go through the FastAPI app (not a static rewrite).
 
+### "Bad Request: Missing session ID" (JSON-RPC -32600)
+
+If you see `{"error":{"code":-32600,"message":"Bad Request: Missing session ID"}}` when connecting to `/mcp`, the MCP Streamable HTTP transport is rejecting requests because session validation fails (e.g. on serverless, where sessions cannot persist across invocations).
+
+**Fix:** Ensure `FASTMCP_STATELESS_HTTP=true` is set in your Vercel project. In stateless mode, each request gets a fresh context and does not require session IDs. This is already configured in `vercel.json` for this repo; if you use the Vercel Dashboard for env vars, add it there for Production (and Preview if needed).
+
 ### 405 on POST /mcp (Reconnect failed)
 
 If you see **405 Method Not Allowed** on **POST /mcp** (e.g. “Reconnect failed” in Cursor via Smithery, or “Streamable HTTP error: Error POSTing to endpoint: {detail:Method Not Allowed}”), it means the MCP HTTP app did not mount at `/mcp`. The server only registered a GET handler for `/mcp`, so Streamable HTTP clients that use POST get 405.
