@@ -42,16 +42,9 @@ Smithery can list your server so users can add it with one click. You can either
      Replace `<your-project>` with your actual Vercel project URL. Use the **root** deployment URL (e.g. `https://uml-xxx.vercel.app`), not a path; the MCP endpoint is at `/mcp`.
 5. Submit. Smithery will use your server’s Streamable HTTP transport and will fetch metadata from `https://<your-project>.vercel.app/.well-known/mcp/server-card.json` when automatic scanning is not possible.
 
-**Config schema (recommended):** To remove the “No config schema provided” warning and let users set options (output dir, Kroki URL, etc.) in Smithery’s UI, publish (or re-publish) via the CLI and pass the config schema:
+**Config schema (recommended):** To remove the “No config schema provided” warning and let users set options (output dir, Kroki URL, etc.) in Smithery’s UI, add a session config schema after creating the server (see below). The current [@smithery/cli](https://www.npmjs.com/package/@smithery/cli) has no `publish` or `deploy` for URL-based servers; use the web flow only.
 
-```bash
-# Use file path (works on Bash, PowerShell, etc.)
-npx @smithery/cli publish --name @your-org/uml-mcp --url https://<your-project>.vercel.app/mcp --config-schema smithery-config-schema.json
-```
-
-On **PowerShell**, use the same command. Do not use `(Get-Content smithery-config-schema.json -Raw)` — that corrupts the JSON when passed to the CLI.
-
-See [Smithery Session Configuration](https://smithery.ai/docs/build/session-config) for schema format with `x-from` extension.
+After creating the server, open it on Smithery → **Settings** → **Session configuration** (or equivalent) and paste or upload the contents of `smithery-config-schema.json`. See [Smithery Session Configuration](https://smithery.ai/docs/build/session-config) for the JSON Schema format with `x-from` extension.
 
 After publishing, your server will appear at:
 
@@ -59,7 +52,7 @@ After publishing, your server will appear at:
 
 Example: `https://smithery.ai/server/@antoinebou12/uml`
 
-**Improve your Smithery listing:** Open **Settings → General** on your server’s Smithery page. Set **Display name**, **Description**, **Homepage** (e.g. your repo URL or `https://umlmcp.vercel.app`), and **Server icon** to improve discoverability and the Server Metadata score. Publishing with `--config-schema smithery-config-schema.json` (see above) improves the Configuration UX score.
+**Improve your Smithery listing:** Open **Settings → General** on your server’s Smithery page. Set **Display name**, **Description**, **Homepage** (e.g. your repo URL or `https://umlmcp.vercel.app`), and **Server icon** to improve discoverability and the Server Metadata score. Adding the session config schema (see above) improves the Configuration UX score.
 
 **AI and plugin compatibility:** The app serves `/.well-known/ai-plugin.json` with a dynamic base URL (so OpenAI-style plugins work on any deployment), `/openapi.json` and `/openapi.yaml` for API docs and AI consumers, and `/logo.png` (ICO) for manifests. The server card at `/.well-known/mcp/server-card.json` uses correct JSON schema types for all tools so AI models and Smithery get accurate tool schemas.
 
@@ -67,7 +60,7 @@ Example: `https://smithery.ai/server/@antoinebou12/uml`
 
 **Note:** Hosted deployment is in private early access — [contact Smithery](mailto:support@smithery.ai) if interested.
 
-If you use Smithery-hosted deployment, the existing `smithery.yaml` defines the server. Connect your GitHub repo and deploy via the Deployments tab, or run `npx @smithery/cli deploy --name @your-org/uml-mcp`. The `smithery.yaml` includes a [Session Configuration](https://smithery.ai/docs/build/session-config) schema for output directory, Kroki URL, log level, and other settings.
+If you use Smithery-hosted deployment, the existing `smithery.yaml` defines the server. Connect your GitHub repo and deploy via the **Deployments** tab on your server's Smithery page. The `smithery.yaml` includes a [Session Configuration](https://smithery.ai/docs/build/session-config) schema for output directory, Kroki URL, log level, and other settings.
 
 ## 3. Connect from a client
 
@@ -131,22 +124,42 @@ If you see `{"error":{"code":-32600,"message":"Bad Request: Missing session ID"}
 
 ### 405 on POST /mcp (Reconnect failed)
 
-If you see **405 Method Not Allowed** on **POST /mcp** (e.g. “Reconnect failed” in Cursor via Smithery, or “Streamable HTTP error: Error POSTing to endpoint: {detail:Method Not Allowed}”), it means the MCP HTTP app did not mount at `/mcp`. The server only registered a GET handler for `/mcp`, so Streamable HTTP clients that use POST get 405.
+If you see **405 Method Not Allowed** on **POST /mcp** (e.g. “Reconnect failed” in Cursor via Smithery, or “Streamable HTTP error: Error POSTing to endpoint: {detail:Method Not Allowed}”), the client or a proxy is POSTing to an endpoint that does not allow POST.
 
 **What to check:**
 
-1. **Vercel build and runtime logs**  
+1. **Correct MCP URL**  
+   The client must POST to the **MCP endpoint** (e.g. `https://<your-project>.vercel.app/mcp`), not to the server card or root. POSTing to `/.well-known/mcp/server-card.json` or to the root URL can return 405 because those are served as GET-only (static card) or other handlers. In Cursor/Smithery, ensure the configured URL is exactly `https://<your-project>.vercel.app/mcp` (with `/mcp`).
+
+2. **Vercel build and runtime logs**  
    In the app startup logs, look for either “MCP HTTP app mounted at /mcp” (success) or “MCP HTTP fallback: GET/POST /mcp return 503 (MCP HTTP transport not available).” If you see the fallback message, the MCP app failed to load. Check for any exception logged in the same block (the app logs with `exc_info=True`).
 
-2. **Dependencies**  
+3. **Dependencies**  
    Confirm that `fastmcp` and all modules used by `get_mcp_server()` (e.g. diagram tools, resources, prompts, Kroki, PlantUML) are installed and import without error. The build runs `pip install -r requirements.txt -r requirements-dev.txt`; ensure the build completes and that `fastmcp>=2.3.1` is present.
 
-**405 vs 503 fallback:** When the MCP app is not mounted, the server registers both GET and POST handlers for `/mcp` that return **503** with `{"detail": "MCP HTTP transport is not available."}` (and OPTIONS for CORS). So clients see “service unavailable” rather than “method not allowed,” and the logs make it clear that the fallback is active.
+**405 vs 503 fallback:** When the MCP app is not mounted, this server registers both GET and POST for `/mcp` and returns **503** with `{"detail": "MCP HTTP transport is not available."}` (and OPTIONS for CORS). So if the request reaches the FastAPI app at `/mcp`, you would see 503, not 405. A 405 usually means the request is hitting a different handler (e.g. wrong URL or a proxy that only allows GET for that path).
+
+### "Vercel Runtime Timeout Error: Task timed out after 300 seconds" (GET /mcp)
+
+MCP Streamable HTTP keeps a **long-lived GET** connection open (Server-Sent Events) for the session. Vercel terminates serverless invocations after a maximum duration, so the function that handles GET `/mcp` is killed when that limit is reached (default **300 seconds** on Hobby and Pro).
+
+**What you see:** Logs show `GET 200 /mcp/` followed by `Vercel Runtime Timeout Error: Task timed out after 300 seconds` or `Terminating session: None`. The client (Cursor, Smithery, etc.) then loses the connection and may show a reconnect or timeout error.
+
+**Mitigations:**
+
+1. **Increase max duration (Pro/Enterprise)**  
+   This repo sets `maxDuration: 800` in `vercel.json` for `app.py`. On **Pro** or **Enterprise** (with Fluid Compute), that allows the GET `/mcp` connection to stay open up to **800 seconds** (~13 minutes) instead of 300. On **Hobby**, the platform cap is 300s, so the setting has no effect beyond the default.
+
+2. **Reconnect on timeout**  
+   Clients should reconnect when the stream ends. Cursor and Smithery typically retry or allow re-adding the server; after a timeout, reconnect to `/mcp` to start a new session.
+
+3. **Long-lived or heavy use**  
+   For sessions that must stay open indefinitely (or to avoid timeouts entirely), use **Smithery-hosted** deployment (Docker) or self-host the server (e.g. Docker, a long-running process) instead of Vercel serverless.
 
 ### Other issues
 
 - **405 Method Not Allowed** on the server card URL: usually fixed by ensuring the server card is served as a static asset at `/.well-known/mcp/server-card.json` so GET/HEAD return 200 (see the 404/405 section above).
-- **502 / timeout**: Vercel serverless functions have a max duration (e.g. 60s on Hobby). Long-running tool calls may hit this; consider optimizing or using Smithery-hosted Docker for heavy use.
+- **502 / timeout**: Vercel serverless functions have a max duration (300s default; 800s on Pro when set in `vercel.json`). The MCP GET connection is long-lived and will hit this limit; see the [timeout section](#vercel-runtime-timeout-error-task-timed-out-after-300-seconds-get-mcp) above. For very long sessions or heavy use, consider Smithery-hosted Docker.
 - **MCP at /mcp**: Ensure you use the path `/mcp` (e.g. `https://...vercel.app/mcp`), not the root URL.
 - **CORS**: The app allows all origins for API and MCP; restrict in production if needed.
 - **Logo or OpenAPI YAML**: `/logo.png` is served by the app (image/x-icon). `/openapi.yaml` returns the spec in YAML when PyYAML is installed (required in `requirements.txt`); if not, it returns 501 and clients should use `/openapi.json`.

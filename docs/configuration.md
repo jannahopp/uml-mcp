@@ -91,5 +91,5 @@ For better **Configuration UX** and MCP quality scores:
 - The server card at `/.well-known/mcp/server-card.json` includes **tool annotations** (`readOnlyHint`, `destructiveHint`, `idempotentHint`, `openWorldHint`) and a **config schema URL** (`configSchemaUrl`: `config-schema.json`).
 - The session config schema is served at `/.well-known/mcp/config-schema.json` (same path as the card) so clients can resolve it when the card is loaded from that origin.
 - When publishing via Smithery CLI, pass the config schema:  
-  `npx @smithery/cli publish ... --config-schema smithery-config-schema.json`  
+  `[smithery.ai/new](https://smithery.ai/new) (web); add session config from `smithery-config-schema.json` in Settings`  
   See [Vercel/Smithery integration](integrations/vercel_smithery.md).

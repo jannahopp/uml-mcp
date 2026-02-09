@@ -3,6 +3,20 @@ FastAPI application for UML diagram generation service on Vercel.
 Provides REST API and MCP (Model Context Protocol) at /mcp for Smithery and clients.
 """
 
+import warnings
+
+# Suppress deprecation warnings from Vercel's vendored websockets/uvicorn (not from this app).
+warnings.filterwarnings(
+    "ignore",
+    category=DeprecationWarning,
+    module="websockets.legacy",
+)
+warnings.filterwarnings(
+    "ignore",
+    category=DeprecationWarning,
+    message=r".*WebSocketServerProtocol.*deprecated.*",
+)
+
 import json
 import logging
 import os

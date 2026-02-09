@@ -122,7 +122,7 @@ To expose the server over HTTP so anyone can connect without installing (e.g. vi
 
 See **[docs/integrations/vercel_smithery.md](docs/integrations/vercel_smithery.md)** for step-by-step instructions. If Smithery shows a 401 or "Invalid OAuth" error, your Vercel project likely has Deployment Protection on; see the [Troubleshooting section](docs/integrations/vercel_smithery.md#troubleshooting) there (disable protection or use a bypass token).
 
-**Improve your Smithery listing:** After publishing, open **Settings → General** on your server’s Smithery page. Set **Display name**, **Description**, **Homepage** (e.g. this repo or `https://umlmcp.vercel.app`), and **Server icon** to improve discoverability and the Server Metadata score. For better Configuration UX, publish with a config schema: `npx @smithery/cli publish ... --config-schema smithery-config-schema.json` (see [vercel_smithery.md](docs/integrations/vercel_smithery.md)).
+**Improve your Smithery listing:** After publishing, open **Settings → General** on your server’s Smithery page. Set **Display name**, **Description**, **Homepage** (e.g. this repo or `https://umlmcp.vercel.app`), and **Server icon** to improve discoverability and the Server Metadata score. For better Configuration UX, publish with a config schema: `[smithery.ai/new](https://smithery.ai/new) (web); add config from `smithery-config-schema.json` in the server's Settings` (see [vercel_smithery.md](docs/integrations/vercel_smithery.md)).
 
 ## Configuration
 
