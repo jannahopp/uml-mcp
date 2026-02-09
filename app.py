@@ -1,6 +1,6 @@
 """
 FastAPI application for UML diagram generation service on Vercel.
-This provides a REST API interface to the UML-MCP server functionality.
+Provides REST API and MCP (Model Context Protocol) at /mcp for Smithery and clients.
 """
 
 import json
@@ -17,11 +17,24 @@ from pydantic import BaseModel, Field
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Initialize FastAPI
+# Optional MCP HTTP app for /mcp (used on Vercel / Smithery)
+_mcp_http_app = None
+try:
+    from mcp_core.core.server import get_mcp_server
+
+    _mcp = get_mcp_server()
+    if hasattr(_mcp, "http_app"):
+        _mcp_http_app = _mcp.http_app(path="/")
+        logger.info("MCP HTTP app configured at /mcp")
+except Exception as e:  # noqa: BLE001
+    logger.info("MCP HTTP not available: %s", e)
+
+# Initialize FastAPI (use MCP lifespan when mounted so session manager initializes)
 app = FastAPI(
     title="UML Diagram Generator",
-    description="API for generating UML and other diagrams",
+    description="API for generating UML and other diagrams; MCP at /mcp",
     version="1.2.0",
+    lifespan=_mcp_http_app.lifespan if _mcp_http_app else None,
 )
 
 # Configure CORS
@@ -176,6 +189,29 @@ async def get_plugin_manifest():
         raise HTTPException(status_code=500, detail="Failed to load plugin manifest")
 
 
+@app.get("/.well-known/mcp/server-card.json")
+async def get_mcp_server_card():
+    """MCP server metadata for Smithery and other registries (optional manual metadata)."""
+    return JSONResponse(
+        content={
+            "serverInfo": {
+                "name": "UML Diagram Generator",
+                "version": "1.2.0",
+            },
+            "tools": [
+                {"name": "generate_uml", "description": "Generate any UML diagram by type and code"},
+                {"name": "generate_class_diagram", "description": "Generate UML class diagram from PlantUML code"},
+                {"name": "generate_sequence_diagram", "description": "Generate UML sequence diagram from PlantUML code"},
+                {"name": "generate_activity_diagram", "description": "Generate UML activity diagram from PlantUML code"},
+                {"name": "generate_mermaid_diagram", "description": "Generate diagrams using Mermaid syntax"},
+                {"name": "generate_d2_diagram", "description": "Generate diagrams using D2 syntax"},
+                {"name": "generate_graphviz_diagram", "description": "Generate diagrams using Graphviz DOT syntax"},
+                {"name": "generate_erd_diagram", "description": "Generate Entity-Relationship diagrams"},
+            ],
+        }
+    )
+
+
 @app.get("/.well-known/privacy.txt")
 async def get_privacy_policy():
     """Return the privacy policy for the plugin"""
@@ -223,6 +259,11 @@ async def get_openapi_yaml():
                 "error": "YAML conversion not available, use /openapi.json instead"
             }
         )
+
+
+# Mount MCP server at /mcp for Smithery and Streamable HTTP clients
+if _mcp_http_app is not None:
+    app.mount("/mcp", _mcp_http_app)
 
 
 # Main entry point for local development

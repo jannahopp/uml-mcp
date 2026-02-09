@@ -58,6 +58,15 @@ class TestParseArgs:
 class TestSetupLogging:
     """Tests for setup_logging()."""
 
+    @pytest.fixture(autouse=True)
+    def _restore_root_logger(self):
+        root = logging.getLogger()
+        original_level = root.level
+        original_handlers = root.handlers[:]
+        yield
+        root.handlers = original_handlers
+        root.setLevel(original_level)
+
     @patch("mcp_core.core.cli.logging.FileHandler")
     @patch("mcp_core.core.cli.os.makedirs")
     @patch("mcp_core.core.cli.os.path.exists")

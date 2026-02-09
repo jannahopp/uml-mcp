@@ -68,7 +68,7 @@ Without `--all-groups`, tools like black, flake8, isort are not installed and `u
 
 ### Running the server
 
-**MCP server (single CLI entrypoint):** `server.py` is the official MCP server; the FastAPI app in `app.py` is the separate REST API (e.g. for Vercel).
+**MCP server (single CLI entrypoint):** `server.py` is the official MCP server; the FastAPI app in `app.py` provides both the REST API and the **MCP over HTTP** endpoint at `/mcp` for Vercel and Smithery.
 
 **Canonical entry point** (MCP server using mcp_core and Kroki):
 
@@ -97,6 +97,16 @@ List available tools and exit:
 ```bash
 python server.py --list-tools
 ```
+
+### Deploy to Vercel and publish on Smithery
+
+To expose the server over HTTP so anyone can connect without installing (e.g. via [Smithery](https://smithery.ai)):
+
+1. **Deploy to [Vercel](https://vercel.com)** (connect this repo; `vercel.json` is already configured).
+2. Your **MCP URL** will be: `https://<your-project>.vercel.app/mcp`.
+3. **Publish on Smithery**: go to [smithery.ai/new](https://smithery.ai/new), choose to publish a self-hosted server, and set **MCP Server URL** to `https://<your-project>.vercel.app/mcp` (Namespace: e.g. `antoinebou12`, Server ID: `uml`).
+
+See **[docs/integrations/vercel_smithery.md](docs/integrations/vercel_smithery.md)** for step-by-step instructions.
 
 ## Configuration
 

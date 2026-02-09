@@ -6,8 +6,11 @@ Ensures deterministic test environment (e.g. mock FastMCP when TESTING=1).
 
 import os
 
-# Set TESTING before any mcp_core imports; fastmcp_wrapper decides mock vs real at import time
-os.environ.setdefault("TESTING", "1")
+# Force mock FastMCP for default test run unless integration tests requested.
+# fastmcp_wrapper decides mock vs real at import time; set before any mcp_core import.
+if not os.environ.get("USE_REAL_FASTMCP", "").strip():
+    os.environ["TESTING"] = "1"
+    os.environ["MOCK_FASTMCP"] = "1"
 
 import pytest
 

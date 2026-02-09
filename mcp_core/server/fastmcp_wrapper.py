@@ -118,9 +118,14 @@ if use_mock:
                     print(json.dumps(response))
 
         def _run_http(self, host: str, port: int):
-            self.logger.info(f"Starting {self.name} HTTP server on {host}:{port}")
-            # Mock HTTP server implementation
-            pass
+            raise NotImplementedError(
+                "Mock FastMCP does not support HTTP transport. "
+                "Set USE_REAL_FASTMCP=1 or install the real fastmcp package."
+            )
+
+        def run_http(self, host: str = "127.0.0.1", port: int = 8000):
+            """Public HTTP entry point called by start_server()."""
+            self._run_http(host, port)
 
         def _handle_request(self, request: Dict[str, Any]) -> Dict[str, Any]:
             """Handle an MCP request and return the response."""

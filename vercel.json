@@ -13,36 +13,16 @@
         "runtime": "python3.10"
       }
     },
-    {
-      "src": "favicon.ico",
-      "use": "@vercel/static"
-    },
-    {
-      "src": ".well-known/**",
-      "use": "@vercel/static"
-    }
+    {"src": "favicon.ico", "use": "@vercel/static"},
+    {"src": ".well-known/**", "use": "@vercel/static"}
   ],
   "routes": [
-    {
-      "src": "/.well-known/(.*)",
-      "dest": "/.well-known/$1"
-    },
-    {
-      "src": "/logo.png",
-      "dest": "/favicon.ico"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/app.py"
-    }
+    {"src": "/.well-known/(.*)", "dest": "/.well-known/$1"},
+    {"src": "/logo.png", "dest": "/favicon.ico"},
+    {"src": "/(.*)", "dest": "/app.py"}
   ],
   "env": {
     "KROKI_SERVER": "https://kroki.io",
     "VERCEL_OUTPUT_DIR": "/tmp/diagrams"
-  },
-  "functions": {
-    "app.py": {
-      "includeFiles": "mcp/**,kroki/**,mermaid/**,plantuml/**,D2/**,*.py,*.json,*.ico,.well-known/**"
-    }
   }
 }
