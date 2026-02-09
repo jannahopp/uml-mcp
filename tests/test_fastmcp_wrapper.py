@@ -2,7 +2,7 @@
 Tests for FastMCP wrapper (mock) request routing.
 """
 
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -21,8 +21,8 @@ class TestFastMcpMockRouting:
     def server(self):
         s = FastMCP("test-server")
         s._tools["echo"] = lambda msg: {"echo": msg}
-        s._prompts["greet"] = lambda name: f"Hello, {name}"
-        s._resources["test://x"] = lambda: {"data": "x"}
+        s._prompts["greet"] = lambda name: f"Hello, {name}"  # type: ignore[possibly-missing-attribute]
+        s._resources["test://x"] = lambda: {"data": "x"}  # type: ignore[possibly-missing-attribute]
         return s
 
     def test_handle_request_tool(self, server):
@@ -83,6 +83,6 @@ class TestFastMcpMockRouting:
     def test_run_http_calls_run_http(self):
         """run(transport='http', host=..., port=...) calls _run_http."""
         server = FastMCP("test-server")
-        server._run_http = MagicMock()
-        server.run(transport="http", host="0.0.0.0", port=9999)
-        server._run_http.assert_called_once_with("0.0.0.0", 9999)
+        with patch.object(server, "_run_http", MagicMock()) as mock_run_http:
+            server.run(transport="http", host="0.0.0.0", port=9999)
+            mock_run_http.assert_called_once_with("0.0.0.0", 9999)
