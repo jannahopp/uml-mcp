@@ -17,7 +17,7 @@ from pydantic import BaseModel, Field
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Optional MCP HTTP app for /mcp (used on Vercel / Smithery)
+# Optional MCP HTTP app for /mcp (used on Vercel / Smithery). Requires fastmcp>=2.3.1 for http_app().
 _mcp_http_app = None
 try:
     from mcp_core.core.server import get_mcp_server
@@ -26,8 +26,12 @@ try:
     if hasattr(_mcp, "http_app"):
         _mcp_http_app = _mcp.http_app(path="/")
         logger.info("MCP HTTP app configured at /mcp")
+    else:
+        logger.warning(
+            "FastMCP instance has no http_app (need fastmcp>=2.3.1); MCP at /mcp will be unavailable."
+        )
 except Exception as e:  # noqa: BLE001
-    logger.info("MCP HTTP not available: %s", e)
+    logger.warning("MCP HTTP not available: %s", e, exc_info=True)
 
 # Initialize FastAPI (use MCP lifespan when mounted so session manager initializes)
 # Swagger UI at /docs, ReDoc at /redoc for API exploration
@@ -280,9 +284,18 @@ async def get_openapi_yaml():
         )
 
 
-# Mount MCP server at /mcp for Smithery and Streamable HTTP clients
+# Mount MCP server at /mcp for Smithery and Streamable HTTP clients; fallback when unavailable
 if _mcp_http_app is not None:
     app.mount("/mcp", _mcp_http_app)
+else:
+
+    @app.get("/mcp")
+    async def mcp_unavailable():
+        """Return 503 when MCP HTTP transport is not available (e.g. fastmcp missing or init failed)."""
+        return JSONResponse(
+            status_code=503,
+            content={"detail": "MCP HTTP transport is not available."},
+        )
 
 
 # Main entry point for local development

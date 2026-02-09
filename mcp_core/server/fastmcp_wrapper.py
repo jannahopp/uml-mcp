@@ -38,7 +38,25 @@ else:
         if not hasattr(fastmcp, "FastMCP"):
             raise ImportError("FastMCP class not found in fastmcp package")
         logger.info("Using production FastMCP implementation")
-        from fastmcp import Context, FastMCP
+        from fastmcp import FastMCP
+
+        # Context may be in fastmcp or fastmcp.context (2.x / 3.x)
+        try:
+            from fastmcp import Context
+        except ImportError:
+            try:
+                from fastmcp.context import Context  # type: ignore[attr-defined]
+            except ImportError:
+                # Stub so callers always get a class when not using mock
+                class Context:  # noqa: F811
+                    def __init__(self):
+                        self.data = {}
+
+                    def get(self, key: str, default: Any = None) -> Any:
+                        return self.data.get(key, default)
+
+                    def set(self, key: str, value: Any):
+                        self.data[key] = value
     except ImportError as e:
         logger.error(f"FastMCP package error: {str(e)}")
         raise ImportError(

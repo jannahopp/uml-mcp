@@ -42,8 +42,8 @@ python-dateutil = "^2.8.2"
 # Add diagram-related dependencies
 graphviz = "^0.20.1"
 pillow = "^10.1.0"
-# If fastmcp is not your own module but a dependency
-fastmcp = "^0.4.0"
+# If fastmcp is not your own module but a dependency (2.3.1+ for http_app / Streamable HTTP)
+fastmcp = ">=2.3.1,<4"
 mcp = "^1.2.0"
 
 [tool.poetry.group.dev.dependencies]
