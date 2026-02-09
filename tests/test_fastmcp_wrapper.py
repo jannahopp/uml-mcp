@@ -6,7 +6,12 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from mcp_core.server.fastmcp_wrapper import FastMCP
+from mcp_core.server.fastmcp_wrapper import FastMCP, USING_MOCK_FASTMCP
+
+pytestmark = pytest.mark.skipif(
+    not USING_MOCK_FASTMCP,
+    reason="Requires mock FastMCP (unset USE_REAL_FASTMCP for unit tests)",
+)
 
 
 class TestFastMcpMockRouting:

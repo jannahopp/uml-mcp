@@ -8,6 +8,7 @@ import pytest
 
 from mcp_core.core.config import MCP_SETTINGS
 from mcp_core.core.server import create_mcp_server, get_mcp_server, start_server
+from mcp_core.server.fastmcp_wrapper import USING_MOCK_FASTMCP
 
 
 class TestCreateMcpServer:
@@ -20,6 +21,10 @@ class TestCreateMcpServer:
         assert server is not None
         assert server.name == MCP_SETTINGS.server_name
 
+    @pytest.mark.skipif(
+        not USING_MOCK_FASTMCP,
+        reason="Requires mock FastMCP (unset USE_REAL_FASTMCP for unit tests)",
+    )
     def test_create_mcp_server_registers_tools(self, reset_mcp_server_singleton):
         server = create_mcp_server()
         assert hasattr(server, "_tools")
@@ -27,11 +32,19 @@ class TestCreateMcpServer:
         assert "generate_uml" in server._tools
         assert "generate_class_diagram" in server._tools
 
+    @pytest.mark.skipif(
+        not USING_MOCK_FASTMCP,
+        reason="Requires mock FastMCP (unset USE_REAL_FASTMCP for unit tests)",
+    )
     def test_create_mcp_server_registers_prompts(self, reset_mcp_server_singleton):
         server = create_mcp_server()
         assert hasattr(server, "_prompts")
         assert len(server._prompts) >= 1
 
+    @pytest.mark.skipif(
+        not USING_MOCK_FASTMCP,
+        reason="Requires mock FastMCP (unset USE_REAL_FASTMCP for unit tests)",
+    )
     def test_create_mcp_server_registers_resources(self, reset_mcp_server_singleton):
         server = create_mcp_server()
         assert hasattr(server, "_resources")

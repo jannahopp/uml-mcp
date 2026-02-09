@@ -45,6 +45,8 @@ else:
             "FastMCP package is required but not installed. Set MOCK_FASTMCP=true to use mock implementation."
         )
 
+USING_MOCK_FASTMCP = use_mock
+
 # Define mock classes if needed
 if use_mock:
 
@@ -160,4 +162,4 @@ if use_mock:
 
 
 # Export the required classes
-__all__ = ["FastMCP", "Context"]
+__all__ = ["FastMCP", "Context", "USING_MOCK_FASTMCP"]

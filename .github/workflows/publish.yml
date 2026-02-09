@@ -50,25 +50,15 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
         with:
+          version: "latest"
           python-version: ${{ matrix.python-version }}
-
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: 2.1.2
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-
-      - name: Configure Poetry
-        run: |
-          poetry config virtualenvs.in-project true
+          enable-cache: true
 
       - name: Validate Python package structure
         run: |
-          # Ensure every Python package has an __init__.py file
           for dir in mcp_core kroki mermaid plantuml D2 ai_uml; do
             if [ -d "$dir" ] && [ ! -f "$dir/__init__.py" ]; then
               echo "Creating missing __init__.py in $dir"
@@ -77,31 +67,25 @@ jobs:
           done
 
       - name: Install dependencies
-        run: |
-          poetry install --no-interaction --with dev
-          # Ensure httpx is installed to avoid dependency issues
-          poetry run pip install httpx>=0.25.0
+        run: uv sync --all-groups
 
       - name: List installed packages
-        run: |
-          poetry run pip list
+        run: uv pip list
 
       - name: Lint with flake8
         run: |
-          poetry run flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-          poetry run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=88 --statistics
+          uv run flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          uv run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=88 --statistics
 
       - name: Check typing with mypy
-        run: |
-          poetry run mypy mcp_core/
+        run: uv run mypy mcp_core/
 
       - name: Run tests
-        run: |
-          poetry run pytest
+        run: uv run pytest
 
       - name: Build package
         run: |
-          poetry build
+          uv build
           echo "Built package for Python ${{ matrix.python-version }}"
           ls -la dist/
 
@@ -130,39 +114,39 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: 2.1.2
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-
       - name: Bump version
+        env:
+          INCREMENT: ${{ github.event.inputs.version_increment }}
         run: |
-          # Get current version before bumping
-          CURRENT_VERSION=$(poetry version -s)
-          echo "Current version: $CURRENT_VERSION"
-
-          # Bump version using Poetry
-          poetry version ${{ github.event.inputs.version_increment }}
-          NEW_VERSION=$(poetry version -s)
+          NEW_VERSION=$(python - <<'PY'
+          import os, re
+          inc = os.environ.get("INCREMENT", "patch")
+          with open("pyproject.toml") as f:
+            content = f.read()
+          m = re.search(r'version = "(\d+)\.(\d+)\.(\d+)"', content)
+          if not m:
+            raise SystemExit("Could not find version in pyproject.toml")
+          major, minor, patch = int(m.group(1)), int(m.group(2)), int(m.group(3))
+          if inc == "major":
+            major, minor, patch = major + 1, 0, 0
+          elif inc == "minor":
+            minor, patch = minor + 1, 0
+          else:
+            patch += 1
+          new_version = f"{major}.{minor}.{patch}"
+          content = re.sub(r'version = "\d+\.\d+\.\d+"', f'version = "{new_version}"', content)
+          with open("pyproject.toml", "w") as f:
+            f.write(content)
+          print(new_version)
+          PY
+          )
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
           echo "Version bumped to $NEW_VERSION"
-
-          # Update version in config file if it exists
           VERSION_FILE="mcp_core/core/config.py"
-          if [ -f "$VERSION_FILE" ]; then
-            if grep -q "version = " "$VERSION_FILE"; then
-              sed -i "s/version = \".*\"/version = \"$NEW_VERSION\"/" $VERSION_FILE
-              echo "Updated version in $VERSION_FILE"
-            else
-              echo "Warning: Could not find version string in $VERSION_FILE"
-            fi
-          else
-            echo "Warning: Config file $VERSION_FILE not found"
+          if [ -f "$VERSION_FILE" ] && grep -q "version = " "$VERSION_FILE"; then
+            sed -i "s/version = \".*\"/version = \"$NEW_VERSION\"/" $VERSION_FILE
+            echo "Updated version in $VERSION_FILE"
           fi
-
-          # Commit and push changes
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "actions@github.com"
           git add pyproject.toml
@@ -175,8 +159,10 @@ jobs:
   publish-to-pypi:
     needs: [test-and-build, bump-version]
     if: |
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.publish_to_pypi == 'true') ||
-      github.event_name == 'release'
+      always() &&
+      needs.test-and-build.result == 'success' &&
+      (needs.bump-version.result == 'success' || needs.bump-version.result == 'skipped') &&
+      ((github.event_name == 'workflow_dispatch' && github.event.inputs.publish_to_pypi == 'true') || github.event_name == 'release')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -185,42 +171,36 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event_name == 'workflow_dispatch' && 'main' || github.ref }}
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
         with:
+          version: "latest"
           python-version: '3.10'
-
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: 2.1.2
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-
-      - name: Configure Poetry
-        run: |
-          poetry config repositories.pypi https://upload.pypi.org/legacy/
-          poetry config pypi-token.pypi ${{ secrets.PYPI_API_TOKEN }}
+          enable-cache: true
 
       - name: Get version
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "NEW_VERSION=${{ needs.bump-version.outputs.new_version }}" >> $GITHUB_ENV
           else
-            VERSION=$(poetry version -s)
-            echo "NEW_VERSION=$VERSION" >> $GITHUB_ENV
+            NEW_VERSION=$(python -c "import re; print(re.search(r'version = \"([^\"]+)\"', open('pyproject.toml').read()).group(1))")
+            echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
           fi
           echo "Using version ${{ env.NEW_VERSION }}"
 
       - name: Build package
         run: |
-          poetry build
+          uv build
           echo "Built package for version ${{ env.NEW_VERSION }}"
           ls -la dist/
 
       - name: Publish package to PyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
         run: |
-          poetry publish --repository pypi
+          uv pip install twine
+          uv run twine upload dist/*
           echo "Published version ${{ env.NEW_VERSION }} to PyPI"
 
       - name: Create release artifact

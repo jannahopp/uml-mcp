@@ -7,10 +7,19 @@ so create_mcp_server() returns a mock server with _tools, _prompts, _resources p
 
 import os
 
+import pytest
+
 # Ensure mock FastMCP is used (TESTING or pytest already set in test env)
 os.environ.setdefault("TESTING", "true")
 
+from mcp_core.server.fastmcp_wrapper import USING_MOCK_FASTMCP  # noqa: E402
+
 from mcp_core.core.server import create_mcp_server  # noqa: E402
+
+pytestmark = pytest.mark.skipif(
+    not USING_MOCK_FASTMCP,
+    reason="Requires mock FastMCP (unset USE_REAL_FASTMCP for unit tests)",
+)
 
 # Expected tool names from register_diagram_tools
 EXPECTED_TOOLS = [
