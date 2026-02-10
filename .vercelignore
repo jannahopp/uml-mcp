@@ -23,3 +23,19 @@ CODE_OF_CONDUCT.md
 CONTRIBUTING.md
 SECURITY.md
 FALLBACK_IMPLEMENTATION.md
+
+# Dev / build / tooling
+scripts/
+Makefile
+mkdocs.yml
+renovate.json
+requirements-dev.txt
+tools/docker/
+.git/
+.gitignore
+.pytest_cache/
+.coverage
+*.pyc
+__pycache__/
+*.egg-info/
+*.egg
