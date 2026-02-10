@@ -1,0 +1,11 @@
+# Large or unused assets (stay under 250 MB bundle limit)
+public/ressources/
+tools/kroki/d2_bin
+examples/
+docs/
+evaluations/
+tests/
+.github/
+.skill/
+site/
+*.pdf

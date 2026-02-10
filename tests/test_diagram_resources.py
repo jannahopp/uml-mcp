@@ -4,7 +4,6 @@ Unit tests for MCP diagram resources.
 
 from unittest.mock import MagicMock
 
-from tools.kroki.kroki_templates import DiagramExamples, DiagramTemplates
 from mcp_core.resources.diagram_resources import (
     get_diagram_examples,
     get_diagram_templates,

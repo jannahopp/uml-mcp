@@ -4,7 +4,6 @@ Run from project root: uv run python examples/generate_example_files.py
 """
 from pathlib import Path
 
-from tools.kroki.kroki import LANGUAGE_OUTPUT_SUPPORT
 from tools.kroki.kroki_templates import DiagramExamples
 
 EXAMPLES_DIR = Path(__file__).resolve().parent

@@ -5,7 +5,6 @@ This script shows how the system automatically falls back from Kroki
 to alternative rendering services when Kroki is unavailable.
 """
 
-import os
 import sys
 from pathlib import Path
 
@@ -13,8 +12,8 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from mcp_core.core.utils import generate_diagram
-from mcp_core.core.config import MCP_SETTINGS
+from mcp_core.core.utils import generate_diagram  # noqa: E402
+from mcp_core.core.config import MCP_SETTINGS  # noqa: E402
 
 
 def test_diagram_generation_with_fallback():
@@ -66,7 +65,7 @@ def test_diagram_generation_with_fallback():
     if "error" in result and result["error"]:
         print(f"  [ERROR] {result['error']}")
     else:
-        print(f"  [SUCCESS]")
+        print("  [SUCCESS]")
         print(f"  URL: {result['url']}")
         print(f"  Playground: {result.get('playground', 'N/A')}")
         if result.get('local_path'):
@@ -95,7 +94,7 @@ def test_diagram_generation_with_fallback():
     if "error" in result and result["error"]:
         print(f"  [ERROR] {result['error']}")
     else:
-        print(f"  [SUCCESS]")
+        print("  [SUCCESS]")
         print(f"  URL: {result['url']}")
         print(f"  Playground: {result.get('playground', 'N/A')}")
         if result.get('local_path'):
@@ -125,7 +124,7 @@ def test_diagram_generation_with_fallback():
     if "error" in result and result["error"]:
         print(f"  [ERROR] {result['error']}")
     else:
-        print(f"  [SUCCESS]")
+        print("  [SUCCESS]")
         print(f"  URL: {result['url']}")
         print(f"  Playground: {result.get('playground', 'N/A')}")
         if result.get('local_path'):
