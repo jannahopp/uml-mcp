@@ -99,12 +99,12 @@ def generate_uml(
     Args:
         diagram_type: Type of diagram (class, sequence, activity, mermaid, d2, etc.)
         code: The diagram code in the syntax for the chosen type
-        output_dir: Directory where to save the generated image (optional)
+        output_dir: Directory where to save the generated image (optional). When omitted, no file is written; only url, playground, and optionally content_base64 are returned (memory-only).
         output_format: Output format svg, png, or pdf (default: svg)
         theme: PlantUML theme for UML diagrams (e.g. cerulean)
 
     Returns:
-        Dict with code, url, playground, local_path, and optional error
+        Dict with code, url, playground, local_path, and optional error; when output_dir is omitted, content_base64 is included for in-memory display.
     """
     logger.info(
         f"Called generate_uml tool: type={diagram_type}, code length={len(code)}"

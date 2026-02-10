@@ -124,6 +124,10 @@ If you see `{"error":{"code":-32600,"message":"Bad Request: Missing session ID"}
 
 **Fix:** Ensure `FASTMCP_STATELESS_HTTP=true` is set in your Vercel project. In stateless mode, each request gets a fresh context and does not require session IDs. This is already configured in `vercel.json` for this repo; if you use the Vercel Dashboard for env vars, add it there for Production (and Preview if needed).
 
+### Read-only filesystem (diagram save fails on Vercel)
+
+On Vercel, the runtime filesystem may be read-only. If the MCP cannot write the generated diagram to disk, it still returns the **Kroki URL** and **playground** link in the tool result (only `local_path` is omitted). So diagram generation continues to work; clients can open the URL to view the image. Alternatively, use **`POST /kroki_encode`** with `type`, `code`, and `output_format` in the body to get a diagram URL without any file write (useful for serverless or when you only need a shareable link).
+
 ### 405 on POST /mcp (Reconnect failed)
 
 If you see **405 Method Not Allowed** on **POST /mcp** (e.g. “Reconnect failed” in Cursor via Smithery, or “Streamable HTTP error: Error POSTing to endpoint: {detail:Method Not Allowed}”), the client or a proxy is POSTing to an endpoint that does not allow POST.

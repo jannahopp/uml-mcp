@@ -2,6 +2,7 @@
 Tests for the core utilities of UML-MCP.
 """
 
+import errno
 import os
 from unittest.mock import MagicMock, patch
 
@@ -97,3 +98,29 @@ def test_output_directory_creation(tmp_path):
 
     # Directory should now exist
     assert os.path.exists(non_existent_dir)
+
+
+def test_generate_diagram_readonly_filesystem_returns_url_without_local_path(
+    mock_kroki_client, tmp_path
+):
+    """When writing to output_dir raises OSError (e.g. read-only FS), still return url and playground with local_path=None."""
+    real_open = open
+
+    def open_side_effect(path, mode="r", *args, **kwargs):
+        if mode == "wb":
+            raise OSError(errno.EROFS, "Read-only file system")
+        return real_open(path, mode, *args, **kwargs)
+
+    with patch("mcp_core.core.utils.open", side_effect=open_side_effect):
+        result = generate_diagram(
+            diagram_type="class",
+            code="@startuml\nclass Test\n@enduml",
+            output_format="svg",
+            output_dir=str(tmp_path),
+        )
+
+    assert "error" not in result
+    assert result["url"] == "https://kroki.io/plantuml/svg/test_url"
+    assert result["playground"] == "https://playground.example.com"
+    assert result["local_path"] is None
+    assert "code" in result

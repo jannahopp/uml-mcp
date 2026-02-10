@@ -14,6 +14,17 @@ def _default_output_dir() -> str:
     return str(Path.cwd() / "output")
 
 
+def _get_output_dir() -> str:
+    """Output dir: on Vercel use writable /tmp; else MCP env or cwd/output."""
+    if os.environ.get("VERCEL"):
+        return os.environ.get("VERCEL_OUTPUT_DIR", "/tmp/diagrams")
+    return (
+        os.environ.get("MCP_OUTPUT_DIR")
+        or os.environ.get("UML_MCP_OUTPUT_DIR")
+        or _default_output_dir()
+    )
+
+
 class DiagramType(BaseModel):
     """Configuration for a diagram type."""
 
@@ -32,11 +43,7 @@ class MCPSettings(BaseModel):
     config_schema_url: str = (
         ""  # Optional URL for session config schema (improves Configuration UX score)
     )
-    output_dir: str = (
-        os.environ.get("MCP_OUTPUT_DIR")
-        or os.environ.get("UML_MCP_OUTPUT_DIR")
-        or _default_output_dir()
-    )
+    output_dir: str = _get_output_dir()
     tools: List[str] = []
     prompts: List[str] = []
     resources: List[str] = []  # Added resources field

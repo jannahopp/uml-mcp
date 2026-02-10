@@ -18,6 +18,7 @@
   "env": {
     "KROKI_SERVER": "https://kroki.io",
     "VERCEL_OUTPUT_DIR": "/tmp/diagrams",
+    "MCP_OUTPUT_DIR": "/tmp/diagrams",
     "FASTMCP_STATELESS_HTTP": "true"
   }
 }

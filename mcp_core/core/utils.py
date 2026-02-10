@@ -5,6 +5,7 @@ Logging is configured only by the CLI entrypoint (mcp_core.core.cli).
 Kroki client is lazy-loaded for testability.
 """
 
+import base64
 import datetime
 import logging
 import os
@@ -94,25 +95,30 @@ def generate_diagram(
         diagram_type: Type of diagram (class, sequence, mermaid, d2, etc.)
         code: The diagram code/description
         output_format: Output format (png, svg, etc.)
-        output_dir: Directory to save the generated image
+        output_dir: Directory to save the generated image (optional). When None, no file is written (memory-only).
         theme: PlantUML theme (e.g. cerulean) - only for PlantUML backends
 
     Returns:
-        Dict containing code, url, playground, local_path, and optional error
+        Dict containing code, url, playground, local_path, and optional error; when not writing to file, content_base64 is included.
     """
     if _diagram_generator is not None:
         return _diagram_generator(diagram_type, code, output_format, output_dir, theme)
 
     logger.info(f"Generating {diagram_type} diagram")
 
-    # Get the output directory (use default if not provided)
-    if output_dir is None:
-        output_dir = MCP_SETTINGS.output_dir
-
-    # Ensure output directory exists
+    # When output_dir is None, do not write to disk (memory-only); only explicit path triggers file I/O.
+    # Ensure output directory exists when path was explicitly provided; on read-only FS skip write
     if output_dir:
-        os.makedirs(output_dir, exist_ok=True)
-        logger.debug(f"Using output directory: {output_dir}")
+        try:
+            os.makedirs(output_dir, exist_ok=True)
+            logger.debug(f"Using output directory: {output_dir}")
+        except OSError as e:
+            logger.warning(
+                "Could not create output directory %s (%s); returning Kroki URL only.",
+                output_dir,
+                e,
+            )
+            output_dir = None
 
     # Get diagram configuration
     diagram_config = MCP_SETTINGS.diagram_types.get(diagram_type.lower())
@@ -130,11 +136,12 @@ def generate_diagram(
             "error": error_msg,
         }
 
-    # Determine which backend service to use
+    # Single connector: Kroki is used for all diagram types (plantuml, mermaid, d2, etc.);
+    # no file or alternate server is used for rendering.
     backend_type = diagram_config.backend
 
-    # Prepare code based on backend type
-    prepared_code = code
+    # Prepare code based on backend type. PlantUML gets @startuml/@enduml wrap; Mermaid/D2 sent as-is.
+    prepared_code = code.strip()
     if backend_type == "plantuml":
         if "@startuml" not in prepared_code:
             prepared_code = f"@startuml\n{prepared_code}"
@@ -158,16 +165,29 @@ def generate_diagram(
         local_path = None
         if output_dir:
             local_path = os.path.join(output_dir, f"{filename_prefix}.{output_format}")
-            with open(local_path, "wb") as f:
-                f.write(result["content"])
-            logger.info(f"Diagram saved to {local_path}")
+            try:
+                with open(local_path, "wb") as f:
+                    f.write(result["content"])
+                logger.info(f"Diagram saved to {local_path}")
+            except OSError as e:
+                # Read-only filesystem (e.g. Vercel serverless): skip save, still return Kroki URL
+                logger.warning(
+                    "Could not save diagram to %s (%s); returning Kroki URL only.",
+                    local_path,
+                    e,
+                )
+                local_path = None
 
-        return {
+        out = {
             "code": prepared_code,
             "url": result["url"],
             "playground": result.get("playground"),
             "local_path": local_path,
         }
+        # When not writing to file, include image in memory as base64 so clients can display without fetching URL.
+        if local_path is None and result.get("content"):
+            out["content_base64"] = base64.b64encode(result["content"]).decode("ascii")
+        return out
 
     except Exception as e:
         logger.error(f"Error generating diagram: {str(e)}")

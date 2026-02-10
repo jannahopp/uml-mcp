@@ -4,7 +4,7 @@ Tests for the FastAPI application.
 
 import json
 import os
-from unittest.mock import mock_open, patch
+from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
 from fastapi.testclient import TestClient
@@ -58,6 +58,7 @@ def test_root_endpoint():
     assert data.get("docs") == "/docs"
     assert data.get("openapi_json") == "/openapi.json"
     assert data.get("mcp") == "/mcp"
+    assert data.get("kroki_encode") == "/kroki_encode"
 
 
 def test_health_check():
@@ -187,3 +188,58 @@ def test_mcp_get_fallback_returns_503():
     assert response.status_code == 503
     data = response.json()
     assert data.get("detail") == "MCP HTTP transport is not available."
+
+
+def test_kroki_encode_success():
+    """POST /kroki_encode with valid body returns 200 with url and playground (mocked Kroki)."""
+    mock_kroki_instance = MagicMock()
+    mock_kroki_instance.get_url.return_value = "https://kroki.io/plantuml/svg/encoded123"
+    mock_kroki_instance.get_playground_url.return_value = "https://www.plantuml.com/plantuml/uml/..."
+
+    with patch("kroki.kroki.Kroki", return_value=mock_kroki_instance):
+        response = client.post(
+            "/kroki_encode",
+            json={
+                "type": "class",
+                "code": "@startuml\nclass A\n@enduml",
+                "output_format": "svg",
+            },
+        )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["url"] == "https://kroki.io/plantuml/svg/encoded123"
+    assert data["playground"] == "https://www.plantuml.com/plantuml/uml/..."
+
+
+def test_kroki_encode_unsupported_type():
+    """POST /kroki_encode with unsupported type returns 400."""
+    response = client.post(
+        "/kroki_encode",
+        json={
+            "type": "invalid_type",
+            "code": "some code",
+            "output_format": "svg",
+        },
+    )
+    assert response.status_code == 400
+    data = response.json()
+    assert "detail" in data
+    assert "Unsupported diagram type" in data["detail"] or "invalid_type" in data["detail"]
+
+
+def test_kroki_encode_unsupported_format():
+    """POST /kroki_encode with output_format not supported for the type returns 400."""
+    response = client.post(
+        "/kroki_encode",
+        json={
+            "type": "class",
+            "code": "@startuml\nclass A\n@enduml",
+            "output_format": "pdf",
+        },
+    )
+    # DiagramType for "class" has formats ["png", "svg"] by default; "pdf" may be unsupported
+    assert response.status_code == 400
+    data = response.json()
+    assert "detail" in data
+    assert "Format" in data["detail"] or "not supported" in data["detail"].lower()

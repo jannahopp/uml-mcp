@@ -148,6 +148,7 @@ async def root():
         "openapi_json": "/openapi.json",
         "openapi_yaml": "/openapi.yaml",
         "mcp": "/mcp",
+        "kroki_encode": "/kroki_encode",
     }
 
 
@@ -218,6 +219,54 @@ async def generate_diagram_endpoint(request: DiagramRequest):
         raise HTTPException(
             status_code=500, detail=f"Failed to generate diagram: {str(e)}"
         )
+
+
+class KrokiEncodeRequest(BaseModel):
+    """Request body for /kroki_encode: returns Kroki URL without writing to disk."""
+
+    type: str = Field(description="Diagram type (class, sequence, mermaid, d2, etc.).")
+    code: str = Field(description="Diagram source code.")
+    output_format: str = Field(default="svg", description="Output format: svg, png, or pdf.")
+
+
+@app.post("/kroki_encode")
+async def kroki_encode_endpoint(request: KrokiEncodeRequest):
+    """Return the Kroki-encoded URL for a diagram (no file write). Use when running on a read-only filesystem (e.g. serverless)."""
+    try:
+        from kroki.kroki import Kroki
+        from mcp_core.core.config import MCP_SETTINGS
+    except ImportError as e:
+        logger.warning("kroki_encode dependencies unavailable: %s", e)
+        raise HTTPException(
+            status_code=503,
+            detail="Kroki encode not available; required modules could not be imported.",
+        ) from e
+
+    diagram_type = request.type.lower()
+    diagram_config = MCP_SETTINGS.diagram_types.get(diagram_type)
+    if not diagram_config:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unsupported diagram type: {diagram_type}. Use /supported_formats for valid types.",
+        )
+    if request.output_format not in diagram_config.formats:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Format {request.output_format} not supported for {diagram_type}. Supported: {diagram_config.formats}",
+        )
+
+    code = request.code.strip()
+    backend = diagram_config.backend
+    if backend == "plantuml":
+        if "@startuml" not in code:
+            code = f"@startuml\n{code}"
+        if "@enduml" not in code:
+            code = f"{code}\n@enduml"
+
+    kroki = Kroki(base_url=os.environ.get("KROKI_SERVER", "https://kroki.io"))
+    url = kroki.get_url(backend, code, request.output_format)
+    playground = kroki.get_playground_url(backend, code)
+    return {"url": url, "playground": playground}
 
 
 @app.get(
