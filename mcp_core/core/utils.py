@@ -97,33 +97,41 @@ def _generate_diagram_plantuml_fallback(
     """Fallback to local PlantUML server when Kroki fails."""
     import httpx
     from tools.kroki.plantuml import PlantUML
-    
+
     plantuml_server = MCP_SETTINGS.plantuml_server
     logger.info(f"Using PlantUML server fallback: {plantuml_server}")
-    
+
     plantuml_client = PlantUML(url=plantuml_server)
-    
+
     # Generate URL (PlantUML server format with output format)
     encoded = plantuml_client.deflate_and_encode(code)
     url = f"{plantuml_server}/{output_format}/~1{encoded}"
-    
+
     # Get playground URL (PlantUML.com)
     playground = f"https://www.plantuml.com/plantuml/uml/~1{encoded}"
-    
+
     # Fetch the diagram content from the PlantUML server
     response = httpx.get(url)
     response.raise_for_status()
     content = response.content
-    
+
     # Apply scale if needed
-    if output_format.lower() == "svg" and scale is not None and abs(scale - 1.0) >= 1e-9 and scale >= 0.1:
+    if (
+        output_format.lower() == "svg"
+        and scale is not None
+        and abs(scale - 1.0) >= 1e-9
+        and scale >= 0.1
+    ):
         from tools.kroki.kroki import scale_svg
+
         content = scale_svg(content, scale)
-    
+
     # Save to file if output_dir specified
     local_path = None
     if output_dir:
-        filename_prefix = f"{diagram_type}_{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}"
+        filename_prefix = (
+            f"{diagram_type}_{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}"
+        )
         local_path = os.path.join(output_dir, f"{filename_prefix}.{output_format}")
         try:
             with open(local_path, "wb") as f:
@@ -132,18 +140,18 @@ def _generate_diagram_plantuml_fallback(
         except OSError as e:
             logger.warning(f"Could not save diagram to {local_path} ({e})")
             local_path = None
-    
+
     out = {
         "code": code,
         "url": url,
         "playground": playground,
         "local_path": local_path,
     }
-    
+
     # Include base64 content when not saving to file
     if local_path is None and content:
         out["content_base64"] = base64.b64encode(content).decode("ascii")
-    
+
     return out
 
 
@@ -156,29 +164,29 @@ def _generate_diagram_mermaid_fallback(
     """Fallback to Mermaid.ink when Kroki fails."""
     import httpx
     from tools.kroki.mermaid import generate_mermaid_urls
-    
+
     logger.info("Using Mermaid.ink fallback")
-    
+
     # Generate Mermaid URLs (pass diagram_text, not diagram_state)
     urls = generate_mermaid_urls(
-        diagram_text=code,
-        theme="default",
-        image_format=output_format.lower()
+        diagram_text=code, theme="default", image_format=output_format.lower()
     )
-    
+
     # Get URL and playground from the MermaidUrls object
     url = urls.image_url
     playground = urls.edit_url
-    
+
     # Fetch the diagram content
     response = httpx.get(url)
     response.raise_for_status()
     content = response.content
-    
+
     # Save to file if output_dir specified
     local_path = None
     if output_dir:
-        filename_prefix = f"{diagram_type}_{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}"
+        filename_prefix = (
+            f"{diagram_type}_{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}"
+        )
         local_path = os.path.join(output_dir, f"{filename_prefix}.{output_format}")
         try:
             with open(local_path, "wb") as f:
@@ -187,18 +195,18 @@ def _generate_diagram_mermaid_fallback(
         except OSError as e:
             logger.warning(f"Could not save diagram to {local_path} ({e})")
             local_path = None
-    
+
     out = {
         "code": code,
         "url": url,
         "playground": playground,
         "local_path": local_path,
     }
-    
+
     # Include base64 content when not saving to file
     if local_path is None and content:
         out["content_base64"] = base64.b64encode(content).decode("ascii")
-    
+
     return out
 
 
@@ -328,13 +336,15 @@ def generate_diagram(
         # When not writing to file, include image in memory as base64 so clients can display without fetching URL.
         if local_path is None and content:
             out["content_base64"] = base64.b64encode(content).decode("ascii")
-        
+
         logger.info(f"Successfully generated {diagram_type} diagram via Kroki")
         return out
 
     except Exception as e:
         kroki_error = e
-        logger.warning(f"Kroki failed for {diagram_type}: {str(e)}. Attempting fallback...")
+        logger.warning(
+            f"Kroki failed for {diagram_type}: {str(e)}. Attempting fallback..."
+        )
 
     # STEP 2: Kroki failed - try fallback methods based on backend type
     try:

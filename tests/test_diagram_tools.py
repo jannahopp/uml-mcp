@@ -134,7 +134,10 @@ class TestDiagramTools:
             output_format="pdf",
         )
         assert "error" in result
-        assert "output_format" in result["error"].lower() or "validation" in result["error"].lower()
+        assert (
+            "output_format" in result["error"].lower()
+            or "validation" in result["error"].lower()
+        )
         mock_generate_diagram.assert_not_called()
 
     @patch("mcp_core.tools.diagram_tools.generate_diagram")

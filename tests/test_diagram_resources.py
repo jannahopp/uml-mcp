@@ -74,13 +74,23 @@ class TestGetDiagramExamples:
         templates_result = get_diagram_templates()
         examples_result = get_diagram_examples()
         for diagram_type in types_result:
-            assert diagram_type in templates_result, f"Missing template for {diagram_type}"
-            assert diagram_type in examples_result, f"Missing example for {diagram_type}"
+            assert diagram_type in templates_result, (
+                f"Missing template for {diagram_type}"
+            )
+            assert diagram_type in examples_result, (
+                f"Missing example for {diagram_type}"
+            )
             t = templates_result[diagram_type]
             e = examples_result[diagram_type]
-            assert isinstance(t, str) and len(t) > 0, f"Empty template for {diagram_type}"
-            assert isinstance(e, str) and len(e) > 0, f"Empty example for {diagram_type}"
-            assert "No specific template" not in t, f"Default template for {diagram_type}"
+            assert isinstance(t, str) and len(t) > 0, (
+                f"Empty template for {diagram_type}"
+            )
+            assert isinstance(e, str) and len(e) > 0, (
+                f"Empty example for {diagram_type}"
+            )
+            assert "No specific template" not in t, (
+                f"Default template for {diagram_type}"
+            )
             assert "No specific example" not in e, f"Default example for {diagram_type}"
 
 

@@ -226,7 +226,9 @@ class KrokiEncodeRequest(BaseModel):
 
     type: str = Field(description="Diagram type (class, sequence, mermaid, d2, etc.).")
     code: str = Field(description="Diagram source code.")
-    output_format: str = Field(default="svg", description="Output format: svg, png, or pdf.")
+    output_format: str = Field(
+        default="svg", description="Output format: svg, png, or pdf."
+    )
 
 
 @app.post("/kroki_encode")

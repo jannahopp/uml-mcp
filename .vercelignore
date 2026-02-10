@@ -9,3 +9,17 @@ tests/
 .skill/
 site/
 *.pdf
+
+# Additional exclusions to reduce bundle size
+config/
+Dockerfile
+docker-compose.yml
+.editorconfig
+.pre-commit-config.yaml
+.env.example
+htmlcov/
+*.md
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+SECURITY.md
+FALLBACK_IMPLEMENTATION.md

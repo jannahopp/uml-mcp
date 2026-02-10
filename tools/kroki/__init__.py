@@ -29,7 +29,12 @@ from .mermaid import (
 )
 
 # PlantUML client and themes
-from .plantuml import PlantUML, PlantUMLConnectionError, PlantUMLError, PlantUMLHTTPError
+from .plantuml import (
+    PlantUML,
+    PlantUMLConnectionError,
+    PlantUMLError,
+    PlantUMLHTTPError,
+)
 from .plantuml_themes import EXTERNAL_THEMES, THEMES, Theme
 
 # D2 utilities

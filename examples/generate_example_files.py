@@ -2,6 +2,7 @@
 Generate one example file per Kroki diagram type from DiagramExamples.
 Run from project root: uv run python examples/generate_example_files.py
 """
+
 from pathlib import Path
 
 from tools.kroki.kroki_templates import DiagramExamples

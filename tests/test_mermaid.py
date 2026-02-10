@@ -92,14 +92,20 @@ def test_generate_mermaid_urls_state_overrides_text():
 
 def test_generate_mermaid_urls_requires_input():
     """generate_mermaid_urls raises ValueError when neither state nor text given."""
-    with pytest.raises(ValueError, match="Provide either diagram_state or diagram_text"):
+    with pytest.raises(
+        ValueError, match="Provide either diagram_state or diagram_text"
+    ):
         generate_mermaid_urls()
 
 
 def test_generate_mermaid_urls_image_format():
     """generate_mermaid_urls respects image_format for image URL."""
-    urls_svg = generate_mermaid_urls(diagram_text="graph TD\n  A-->B", image_format="svg")
-    urls_png = generate_mermaid_urls(diagram_text="graph TD\n  A-->B", image_format="png")
+    urls_svg = generate_mermaid_urls(
+        diagram_text="graph TD\n  A-->B", image_format="svg"
+    )
+    urls_png = generate_mermaid_urls(
+        diagram_text="graph TD\n  A-->B", image_format="png"
+    )
     assert f"{MERMAID_INK_BASE}/svg/" in urls_svg.image_url
     assert f"{MERMAID_INK_BASE}/png/" in urls_png.image_url
 

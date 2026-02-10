@@ -19,22 +19,22 @@ from mcp_core.core.config import MCP_SETTINGS  # noqa: E402
 def test_diagram_generation_with_fallback():
     """
     Test diagram generation with automatic fallback.
-    
+
     This example demonstrates:
     1. Normal operation using Kroki (when available)
     2. Automatic fallback to PlantUML server for UML diagrams
     3. Automatic fallback to Mermaid.ink for Mermaid diagrams
     """
-    
+
     # Create output directory
     output_dir = project_root / "output" / "fallback_test"
     output_dir.mkdir(parents=True, exist_ok=True)
-    
+
     print("=" * 70)
     print("Testing Diagram Generation with Fallback Mechanism")
     print("=" * 70)
     print()
-    
+
     # Test 1: PlantUML Class Diagram
     print("1. Testing PlantUML Class Diagram")
     print("-" * 70)
@@ -54,24 +54,24 @@ def test_diagram_generation_with_fallback():
     
     User "1" --> "*" Order : places
     """
-    
+
     result = generate_diagram(
         diagram_type="class",
         code=plantuml_code,
         output_format="svg",
         output_dir=str(output_dir),
     )
-    
+
     if "error" in result and result["error"]:
         print(f"  [ERROR] {result['error']}")
     else:
         print("  [SUCCESS]")
         print(f"  URL: {result['url']}")
         print(f"  Playground: {result.get('playground', 'N/A')}")
-        if result.get('local_path'):
+        if result.get("local_path"):
             print(f"  Saved to: {result['local_path']}")
     print()
-    
+
     # Test 2: Mermaid Diagram
     print("2. Testing Mermaid Diagram")
     print("-" * 70)
@@ -83,24 +83,24 @@ def test_diagram_generation_with_fallback():
         C --> E[End]
         D --> E
     """
-    
+
     result = generate_diagram(
         diagram_type="mermaid",
         code=mermaid_code,
         output_format="svg",
         output_dir=str(output_dir),
     )
-    
+
     if "error" in result and result["error"]:
         print(f"  [ERROR] {result['error']}")
     else:
         print("  [SUCCESS]")
         print(f"  URL: {result['url']}")
         print(f"  Playground: {result.get('playground', 'N/A')}")
-        if result.get('local_path'):
+        if result.get("local_path"):
             print(f"  Saved to: {result['local_path']}")
     print()
-    
+
     # Test 3: PlantUML Sequence Diagram
     print("3. Testing PlantUML Sequence Diagram")
     print("-" * 70)
@@ -113,24 +113,24 @@ def test_diagram_generation_with_fallback():
     Alice <-- Bob: another authentication Response
     @enduml
     """
-    
+
     result = generate_diagram(
         diagram_type="sequence",
         code=sequence_code,
         output_format="svg",
         output_dir=str(output_dir),
     )
-    
+
     if "error" in result and result["error"]:
         print(f"  [ERROR] {result['error']}")
     else:
         print("  [SUCCESS]")
         print(f"  URL: {result['url']}")
         print(f"  Playground: {result.get('playground', 'N/A')}")
-        if result.get('local_path'):
+        if result.get("local_path"):
             print(f"  Saved to: {result['local_path']}")
     print()
-    
+
     print("=" * 70)
     print("Configuration:")
     print(f"  Kroki Server: {MCP_SETTINGS.kroki_server}")
