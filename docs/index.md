@@ -20,40 +20,18 @@ UML-MCP enables you to generate various types of diagrams through the Model Cont
 ## Diagram Types
 
 - [UML Diagrams](diagrams/uml.md)
-- [Mermaid Diagrams](diagrams/mermaid.md)
-- [D2 Diagrams](diagrams/d2.md)
-- [Other Diagram Types](diagrams/other.md)
+- [TikZ](diagrams/tikz.md)
 
 ## Integrations
 
 - [Claude Desktop](integrations/claude_desktop.md)
 - [Cursor](integrations/cursor.md)
+- [Vercel & Smithery](integrations/vercel_smithery.md)
 
 ## API Reference
 
 - [MCP Tools](api/tools.md)
-- [MCP Resources](api/resources.md)
-- [MCP Prompts](api/prompts.md)
 
 ## Development
 
-- [Contributing](development/contributing.md)
-- [Architecture](development/architecture.md)
-- [Local Setup](development/local-setup.md)
-
-# Documentation
-
-This project now uses MkDocs for documentation. To build the documentation, ensure you have MkDocs installed and run:
-
-```bash
-mkdocs serve
-```
-
-## Features Added
-
-- Added `rich` for better terminal output.
-- Added `typer` for CLI building.
-- Added `uvloop` for improved event loop performance.
-- Added `poetry` for dependency management.
-
-Refer to the `mkdocs.yml` file for configuration details.
+- [Contributing](https://github.com/antoinebou12/uml-mcp/blob/main/CONTRIBUTING.md) — Setup, tests, and how to send pull requests.

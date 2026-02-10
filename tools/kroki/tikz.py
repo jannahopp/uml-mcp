@@ -15,7 +15,9 @@ from .kroki import Kroki, LANGUAGE_OUTPUT_SUPPORT
 logger = logging.getLogger(__name__)
 
 # TikZ supported output formats from Kroki
-TIKZ_FORMATS: List[str] = LANGUAGE_OUTPUT_SUPPORT.get("tikz", ["png", "svg", "jpeg", "pdf"])
+TIKZ_FORMATS: List[str] = LANGUAGE_OUTPUT_SUPPORT.get(
+    "tikz", ["png", "svg", "jpeg", "pdf"]
+)
 
 # Overleaf accepts base64-encoded LaTeX via data URI (optional edit URL)
 OVERLEAF_BASE = "https://www.overleaf.com/docs"
@@ -35,15 +37,26 @@ class TikZUrls:
 
 # Patterns that imply specific TikZ libraries (command/style -> library name)
 _LIBRARY_HINTS = [
-    (re.compile(r"\\node\s*\[[^\]]*?(?:circle|ellipse|diamond|regular polygon)"), "shapes"),
+    (
+        re.compile(r"\\node\s*\[[^\]]*?(?:circle|ellipse|diamond|regular polygon)"),
+        "shapes",
+    ),
     (re.compile(r"\\draw\s*\[[^\]]*?->"), "arrows"),
     (re.compile(r"\\draw\s*\[[^\]]*?<-"), "arrows"),
-    (re.compile(r"below\s+of=|above\s+of=|left\s+of=|right\s+of=|below\s+=\s*of|above\s+=\s*of"), "positioning"),
+    (
+        re.compile(
+            r"below\s*of\s*=|above\s*of\s*=|left\s*of\s*=|right\s*of\s*=|below\s*=\s*[^]]*\s+of\s+|above\s*=\s*[^]]*\s+of\s+"
+        ),
+        "positioning",
+    ),
     (re.compile(r"\\pgfmathparse|\\pgfmathsetlength|\\pgfmathresult"), "calc"),
     (re.compile(r"decorate|decoration\s*=\s*\{"), "decorations.pathreplacing"),
     (re.compile(r"pattern\s*=\s*"), "patterns"),
     (re.compile(r"fit\s*=\s*|\\fit"), "fit"),
-    (re.compile(r"\\begin\s*\{\s*scope\s*\}|\\begin\s*\{\s*axis\s*\}|\\addplot"), "pgfplots"),
+    (
+        re.compile(r"\\begin\s*\{\s*scope\s*\}|\\begin\s*\{\s*axis\s*\}|\\addplot"),
+        "pgfplots",
+    ),
     (re.compile(r"\\begin\s*\{\s*axis\s*\}|\\addplot|\\pgfplotsset"), "pgfplots"),
     (re.compile(r"mindmap|level\s+\d+\s+concept"), "mindmap"),
     (re.compile(r"\\node\s*\[[^\]]*?state|accepting|initial"), "automata"),
@@ -52,7 +65,12 @@ _LIBRARY_HINTS = [
     (re.compile(r"angle|pic\s*\{\s*angle"), "angles"),
     (re.compile(r'quotes|"\s*[^"]+\s*"'), "quotes"),
     (re.compile(r"backgrounds|scope.*background"), "backgrounds"),
-    (re.compile(r"circuit|\\draw\s*\([^)]*\)\s*(?:to\s*)?(?:resistor|capacitor|inductor)"), "circuits"),
+    (
+        re.compile(
+            r"circuit|\\draw\s*\([^)]*\)\s*(?:to\s*)?(?:resistor|capacitor|inductor)"
+        ),
+        "circuits",
+    ),
     (re.compile(r"3d|canvas\s*=\s*|z\s*=\s*"), "3d"),
 ]
 
@@ -81,7 +99,7 @@ def get_required_libraries(tikz_code: str) -> List[str]:
     # Explicit usetikzlibrary
     for m in _USETIKZLIBRARY_RE.finditer(tikz_code):
         for part in m.group(1).split(","):
-            lib = part.strip().strip('"\'')
+            lib = part.strip().strip("\"'")
             if lib and lib not in seen:
                 seen.add(lib)
                 libraries.append(lib)

@@ -53,6 +53,8 @@ pytest-asyncio = "^0.21.1"
 black = ">=23.0.0"
 flake8 = ">=7.0.0"
 isort = ">=5.12.0"
+mkdocs = ">=1.6.0"
+mkdocs-material = ">=9.5.0"
 
 [tool.poetry.scripts]
 # Official MCP server CLI (single entrypoint; server.py delegates here)
@@ -101,4 +103,6 @@ dev = [
     "flake8>=7.0.0",
     "isort>=5.12.0",
     "mypy>=1.19.1",
+    "mkdocs>=1.6.0",
+    "mkdocs-material>=9.5.0",
 ]

@@ -8,7 +8,7 @@ Generates a diagram and can save it to a directory if you pass one. If you omit 
 
 **Parameters:**
 
-- `diagram_type` (string): Supported type (class, sequence, mermaid, d2, bpmn, graphviz, etc.). See `uml://types`.
+- `diagram_type` (string): Supported type (class, sequence, mermaid, d2, tikz, bpmn, graphviz, etc.). See `uml://types`.
 - `code` (string): Diagram source in the syntax for that type.
 - `output_dir` (string, optional): Directory to write the image. Omit for URL/base64 only.
 - `output_format` (string, optional): svg, png, pdf, jpeg, txt, or base64 (default: svg). Allowed values depend on the diagram type; see `uml://formats`.
@@ -59,3 +59,21 @@ Returns the Kroki URL and optional base64 image. No file is written. Use it on r
 ```
 
 Use `generate_uml` when you might save to disk; use `generate_diagram_url` when you only need the URL or base64 and no file I/O.
+
+## TikZ support
+
+For `diagram_type: "tikz"`, `code` is TikZ/LaTeX source. You can pass a snippet (e.g. `\begin{tikzpicture}...\end{tikzpicture}`) or a full document; snippets are wrapped in a minimal standalone document. Supported output formats: **svg**, **pdf**, **png**, **jpeg**. Common TikZ libraries (e.g. shapes, arrows, positioning, pgfplots, automata) are inferred when possible. See [TikZ diagrams](../diagrams/tikz.md) for templates and examples.
+
+**Example (TikZ):**
+
+```json
+{
+  "type": "tool",
+  "name": "generate_diagram_url",
+  "args": {
+    "diagram_type": "tikz",
+    "code": "\\\\begin{tikzpicture}\\\\draw (0,0) circle (1cm);\\\\end{tikzpicture}",
+    "output_format": "svg"
+  }
+}
+```

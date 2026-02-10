@@ -13,17 +13,18 @@ UML-MCP is a diagram generation server that implements the Model Context Protoco
 
 ## Features
 
-- **Multiple diagram types**: UML (Class, Sequence, Activity, Use Case, State, Component, Deployment, Object), Mermaid, D2, Graphviz, ERD, BlockDiag, BPMN, C4 with PlantUML
+- **Multiple diagram types**: UML (Class, Sequence, Activity, Use Case, State, Component, Deployment, Object), Mermaid, D2, Graphviz, TikZ, ERD, BlockDiag, BPMN, C4 with PlantUML
 - **MCP integration**: Works with any client that supports MCP (Cursor, Claude Desktop, etc.)
 - **Output formats**: SVG, PNG, PDF, JPEG (where supported by type), plus txt/base64 for some backends; optional scale for SVG
 - **Configurable backends**: Local or remote PlantUML and Kroki
+- **Automatic fallback**: Always tries Kroki first; if unavailable, falls back to alternative rendering services (PlantUML server for UML diagrams, Mermaid.ink for Mermaid diagrams)
 
 ## Supported diagram types
 
 | Category | Diagram types |
 |----------|----------------|
 | UML      | Class, Sequence, Activity, Use Case, State, Component, Deployment, Object |
-| Other    | Mermaid, D2, Graphviz, ERD, BlockDiag, BPMN, C4 (PlantUML) |
+| Other    | Mermaid, D2, Graphviz, TikZ, ERD, BlockDiag, BPMN, C4 (PlantUML) |
 
 ## Getting started
 
@@ -176,6 +177,18 @@ python server.py
 
 - **MCP server**: `server.py` (entry point), `mcp_core/` (server, config, tools, resources, prompts)
 - **Diagram backends**: `plantuml/`, `kroki/`, `mermaid/`, `D2/`
+
+### Diagram Generation Strategy
+
+The system uses an intelligent fallback mechanism to ensure maximum reliability:
+
+1. **Primary method (Kroki)**: All diagram generation requests first attempt to use [Kroki.io](https://kroki.io) - a unified API that supports 30+ diagram types
+2. **Automatic fallback**: If Kroki is unavailable or fails (network issues, service downtime, etc.), the system automatically falls back to alternative rendering services:
+   - **PlantUML diagrams** (Class, Sequence, Activity, etc.) → Falls back to the configured PlantUML server (default: `http://plantuml-server:8080`)
+   - **Mermaid diagrams** → Falls back to [Mermaid.ink](https://mermaid.ink)
+   - **Other diagram types** → Returns an error with details from both attempts
+
+This ensures your diagrams are generated even if the primary service is temporarily unavailable. Configure fallback servers using the `PLANTUML_SERVER` environment variable.
 - **Tools**: Diagram generation tools are registered in `mcp_core/tools/` and exposed via MCP
 - **Resources**: Templates and examples under the `uml://` URI scheme
 
@@ -251,6 +264,13 @@ act push
 ```
 
 ## Documentation
+
+The documentation is built with [MkDocs](https://www.mkdocs.org/) and the [Material theme](https://squidfunk.github.io/mkdocs-material/).
+
+- **Online:** [https://antoinebou12.github.io/uml-mcp/](https://antoinebou12.github.io/uml-mcp/) (after enabling GitHub Pages)
+- **Local:** Run `uv run mkdocs serve` or `make docs-serve` (from project root), then open http://127.0.0.1:8000
+
+Key docs (also in the static site):
 
 - **[User Manual](docs/user-manual.md)** — Install, configure, and use (quick start, client setup, troubleshooting)
 - [Installation](docs/installation.md)

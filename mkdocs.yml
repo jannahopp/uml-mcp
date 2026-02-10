@@ -1,20 +1,50 @@
 site_name: UML-MCP Documentation
+site_url: https://antoinebou12.github.io/uml-mcp/
+repo_url: https://github.com/antoinebou12/uml-mcp
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  font:
+    text: Roboto
+    code: Roboto Mono
+
 nav:
   - Home: index.md
-  - API:
-      - Tools: api/tools.md
-  - Diagrams:
+  - User Manual: user-manual.md
+  - Getting started:
+      - Installation: installation.md
+      - Configuration: configuration.md
+      - Examples: examples.md
+      - Diagram Assistant: diagram-assistant.md
+  - Diagram types:
       - UML: diagrams/uml.md
+      - TikZ: diagrams/tikz.md
   - Integrations:
       - Claude Desktop: integrations/claude_desktop.md
       - Cursor: integrations/cursor.md
-  - Configuration: configuration.md
-  - Examples: examples.md
-  - Installation: installation.md
+      - Vercel & Smithery: integrations/vercel_smithery.md
+  - API:
+      - Tools: api/tools.md
+  - Fallback mechanism: fallback-mechanism.md
   - Testing: testing.md
 
 markdown_extensions:
-  - toc
+  - toc:
+      permalink: true
   - admonition
   - codehilite
   - pymdownx.superfences

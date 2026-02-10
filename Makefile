@@ -1,4 +1,4 @@
-.PHONY: help install install-dev clean test lint typecheck coverage ci docker-build docker-run docker-test docker-stop
+.PHONY: help install install-dev clean test lint typecheck coverage ci docs docs-serve docker-build docker-run docker-test docker-stop
 
 # Default target
 help:
@@ -13,6 +13,8 @@ help:
 	@echo "  make typecheck      Run type checker (ty)"
 	@echo "  make coverage       Run tests with coverage report"
 	@echo "  make ci             Run same steps as CI (lint + tests + coverage; use with 'act' or locally)"
+	@echo "  make docs            Build documentation (MkDocs)"
+	@echo "  make docs-serve      Build and serve documentation locally (MkDocs)"
 	@echo "  make docker-build   Build Docker images"
 	@echo "  make docker-run     Run services using Docker Compose"
 	@echo "  make docker-test    Run tests in Docker container"
@@ -54,6 +56,13 @@ ci: install-dev
 	uv run ruff check .
 	uv run ruff format --check .
 	uv run pytest --cov=mcp_core --cov=kroki --cov-report=term --cov-report=html
+
+# Documentation (MkDocs)
+docs: install-dev
+	uv run mkdocs build
+
+docs-serve: install-dev
+	uv run mkdocs serve
 
 # Docker commands
 docker-build:
