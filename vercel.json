@@ -11,9 +11,9 @@
   "rewrites": [
     { "source": "/.well-known/mcp/server-card.json", "destination": "/public/.well-known/mcp/server-card.json" },
     { "source": "/.well-known/mcp/config-schema.json", "destination": "/public/.well-known/mcp/config-schema.json" },
-    { "source": "/mcp", "destination": "/app.py" },
-    { "source": "/mcp/(.*)", "destination": "/app.py" },
-    { "source": "/(.*)", "destination": "/app.py" }
+    { "source": "/mcp", "destination": "/api/app" },
+    { "source": "/mcp/(.*)", "destination": "/api/app" },
+    { "source": "/(.*)", "destination": "/api/app" }
   ],
   "env": {
     "KROKI_SERVER": "https://kroki.io",
