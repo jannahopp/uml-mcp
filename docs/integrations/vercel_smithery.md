@@ -32,9 +32,11 @@ Smithery can list your server so users can add it with one click. You can either
 
 ### Option A: URL (bring your own hosting)
 
-1. Go to [smithery.ai/new](https://smithery.ai/new.
-2. Sign in if needed.
-3. Choose **URL** (bring your own hosting.
+Publishing a URL-based server is done **only via the Smithery website**; the `@smithery/cli` npm package has no `deploy` or `publish` command for this.
+
+1. Go to [smithery.ai/new](https://smithery.ai/new).
+2. Sign in if needed (Google or GitHub).
+3. Choose **URL** (bring your own hosting).
 4. Fill in:
    - **Namespace**: your Smithery username (e.g. `antoinebou12`)
    - **Server ID**: short slug (e.g. `uml`)
@@ -42,7 +44,7 @@ Smithery can list your server so users can add it with one click. You can either
      Replace `<your-project>` with your actual Vercel project URL. Use the **root** deployment URL (e.g. `https://uml-xxx.vercel.app`), not a path; the MCP endpoint is at `/mcp`.
 5. Submit. Smithery will use your server’s Streamable HTTP transport and will fetch metadata from `https://<your-project>.vercel.app/.well-known/mcp/server-card.json` when automatic scanning is not possible.
 
-**Config schema (recommended):** To remove the “No config schema provided” warning and let users set options (output dir, Kroki URL, etc.) in Smithery’s UI, add a session config schema after creating the server (see below). The current [@smithery/cli](https://www.npmjs.com/package/@smithery/cli) has no `publish` or `deploy` for URL-based servers; use the web flow only.
+**Config schema (recommended):** To remove the “No config schema provided” warning and let users set options (output dir, Kroki URL, etc.) in Smithery’s UI, add a session config schema after creating the server (see below). The npm package `@smithery/cli` (v2.x) does not provide `publish` or `deploy` for URL-based servers; use the web flow only.
 
 After creating the server, open it on Smithery → **Settings** → **Session configuration** (or equivalent) and paste or upload the contents of `smithery-config-schema.json`. See [Smithery Session Configuration](https://smithery.ai/docs/build/session-config) for the JSON Schema format with `x-from` extension.
 
@@ -155,6 +157,15 @@ MCP Streamable HTTP keeps a **long-lived GET** connection open (Server-Sent Even
 
 3. **Long-lived or heavy use**  
    For sessions that must stay open indefinitely (or to avoid timeouts entirely), use **Smithery-hosted** deployment (Docker) or self-host the server (e.g. Docker, a long-running process) instead of Vercel serverless.
+
+### Smithery CLI: "ReferenceError: File is not defined"
+
+If `npx -y @smithery/cli deploy ...` fails with `ReferenceError: File is not defined` (in `undici`), the CLI is running on **Node.js 18**. The `File` global is only available in **Node.js 20+**.
+
+**Fix (pick one):**
+
+1. **Use Node 20+** when running the CLI (e.g. install Node 20 or use [nvm](https://github.com/nvm-sh/nvm): `nvm use 20` then run the `deploy` command again).
+2. **Use the Smithery website instead:** Create the URL-based server at [smithery.ai/new](https://smithery.ai/new) (choose URL, set MCP Server URL to `https://<your-project>.vercel.app/mcp`). Then in **Settings → Session configuration**, paste the contents of `smithery-config-schema.json`. No CLI required.
 
 ### Other issues
 
