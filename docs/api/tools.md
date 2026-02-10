@@ -1,27 +1,24 @@
 # MCP Tools Reference
 
-UML-MCP exposes a single MCP tool for diagram generation. Use the `uml://types` resource to see valid diagram types.
+Two diagram tools are available. Both call [Kroki](https://kroki.io/) and support the diagram types listed under `uml://types`. Which output formats a type supports is in `uml://formats`.
 
 ## `generate_uml`
 
-Generates a diagram of any supported type. Pass `diagram_type` (e.g. class, sequence, activity, mermaid, d2, bpmn) and the corresponding `code` in that syntax.
+Generates a diagram and can save it to a directory if you pass one. If you omit `output_dir`, you still get `url`, `playground`, and `content_base64` (no file is written).
 
 **Parameters:**
-- `diagram_type` (string): Type of diagram (class, sequence, activity, use case, state, component, deployment, object, mermaid, d2, graphviz, erd, blockdiag, bpmn, c4plantuml). Use `uml://types` for the full list.
-- `code` (string): The diagram code in the syntax for the chosen type (e.g. PlantUML, Mermaid, D2).
-- `output_dir` (string, optional): Directory where to save the generated image.
-- `output_format` (string, optional): svg, png, or pdf (default: svg). See `uml://formats` for supported formats per type.
-- `theme` (string, optional): PlantUML theme for UML diagram types (e.g. cerulean).
 
-**Returns:**
-JSON containing:
-- `code`: Original diagram code
-- `url`: URL to the generated diagram
-- `playground`: URL to an online playground (if available)
-- `local_path`: Path to the saved image file (if `output_dir` was provided)
-- `error`: Present only if validation or generation failed
+- `diagram_type` (string): Supported type (class, sequence, mermaid, d2, bpmn, graphviz, etc.). See `uml://types`.
+- `code` (string): Diagram source in the syntax for that type.
+- `output_dir` (string, optional): Directory to write the image. Omit for URL/base64 only.
+- `output_format` (string, optional): svg, png, pdf, jpeg, txt, or base64 (default: svg). Allowed values depend on the diagram type; see `uml://formats`.
+- `theme` (string, optional): PlantUML theme (e.g. cerulean) for PlantUML-based types.
+- `scale` (number, optional): Scale factor for SVG only (default: 1.0, min: 0.1). Ignored for png, pdf, jpeg, etc.
+
+**Returns:** JSON with `code`, `url`, `playground`; `local_path` when `output_dir` was set; `content_base64` when not saving; or `error` on failure.
 
 **Example:**
+
 ```json
 {
   "type": "tool",
@@ -34,4 +31,31 @@ JSON containing:
 }
 ```
 
-For class diagrams use `diagram_type`: `"class"`; for sequence use `"sequence"`; for Mermaid use `"mermaid"`; for D2 use `"d2"`; and so on.
+## `generate_diagram_url`
+
+Returns the Kroki URL and optional base64 image. No file is written. Use it on read-only filesystems or when the client only needs a link or in-memory image.
+
+**Parameters:**
+
+- `diagram_type` (string): Same as for `generate_uml`; see `uml://types`.
+- `code` (string): Diagram source in the syntax for that type.
+- `output_format` (string, optional): svg, png, pdf, jpeg, etc. (default: svg). See `uml://formats` per type.
+- `theme` (string, optional): PlantUML theme for PlantUML-based types.
+- `scale` (number, optional): Scale factor for SVG only (default: 1.0, min: 0.1).
+
+**Returns:** JSON with `code`, `url`, `playground`, and `content_base64` on success; or `error` on failure.
+
+**Example:**
+
+```json
+{
+  "type": "tool",
+  "name": "generate_diagram_url",
+  "args": {
+    "diagram_type": "mermaid",
+    "code": "graph TD; A-->B;"
+  }
+}
+```
+
+Use `generate_uml` when you might save to disk; use `generate_diagram_url` when you only need the URL or base64 and no file I/O.

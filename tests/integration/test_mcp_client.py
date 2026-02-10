@@ -53,7 +53,9 @@ def mock_diagram_generator():
     """Inject a fake diagram generator so call_tool('generate_uml') does not hit Kroki."""
     from mcp_core.core.utils import set_diagram_generator
 
-    def fake_gen(diagram_type, code, output_format, output_dir=None, theme=None):
+    def fake_gen(
+        diagram_type, code, output_format, output_dir=None, theme=None, scale=1.0
+    ):
         return {
             "code": code,
             "url": "https://example.com/fake.svg",

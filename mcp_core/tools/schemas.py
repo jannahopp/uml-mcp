@@ -4,7 +4,7 @@ Pydantic schemas for MCP tool inputs and outputs.
 
 from typing import Optional
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 class GenerateDiagramInput(BaseModel):
@@ -27,7 +27,7 @@ class GenerateDiagramInput(BaseModel):
     )
     output_format: str = Field(
         default="svg",
-        description="Output format: svg, png, or pdf (depending on diagram type)",
+        description="Output format: svg, png, pdf, jpeg, txt, or base64 (per diagram type; see uml://formats)",
     )
     theme: Optional[str] = Field(
         default=None,
@@ -45,8 +45,9 @@ class GenerateDiagramInput(BaseModel):
     @classmethod
     def validate_output_format(cls, v: str) -> str:
         v = v.lower().strip()
-        if v not in ("svg", "png", "pdf"):
-            raise ValueError("output_format must be one of: svg, png, pdf")
+        allowed = ("svg", "png", "pdf", "jpeg", "txt", "base64")
+        if v not in allowed:
+            raise ValueError(f"output_format must be one of: {', '.join(allowed)}")
         return v
 
 
@@ -75,11 +76,16 @@ class GenerateUMLInput(BaseModel):
     )
     output_format: str = Field(
         default="svg",
-        description="Output format: svg, png, or pdf",
+        description="Output format: svg, png, pdf, jpeg, txt, or base64 (per diagram type; see uml://formats)",
     )
     theme: Optional[str] = Field(
         default=None,
         description="PlantUML theme (only for PlantUML diagram types)",
+    )
+    scale: float = Field(
+        default=1.0,
+        ge=0.1,
+        description="Scale factor for SVG output (e.g. 2.0 doubles size). Only applied when output_format is svg.",
     )
 
     @field_validator("code")
@@ -93,9 +99,26 @@ class GenerateUMLInput(BaseModel):
     @classmethod
     def validate_output_format(cls, v: str) -> str:
         v = v.lower().strip()
-        if v not in ("svg", "png", "pdf"):
-            raise ValueError("output_format must be one of: svg, png, pdf")
+        allowed = ("svg", "png", "pdf", "jpeg", "txt", "base64")
+        if v not in allowed:
+            raise ValueError(f"output_format must be one of: {', '.join(allowed)}")
         return v
+
+    @model_validator(mode="after")
+    def validate_output_format_for_diagram_type(self) -> "GenerateUMLInput":
+        from ..core.config import MCP_SETTINGS
+
+        diagram_type = getattr(self, "diagram_type", "").lower()
+        output_format = (getattr(self, "output_format", "") or "svg").lower().strip()
+        types_map = getattr(MCP_SETTINGS, "diagram_types", {})
+        if diagram_type in types_map:
+            allowed = types_map[diagram_type].formats
+            if output_format not in allowed:
+                raise ValueError(
+                    f"output_format '{output_format}' not supported for diagram type "
+                    f"'{diagram_type}'. Use uml://formats or choose one of: {', '.join(allowed)}"
+                )
+        return self
 
 
 class DiagramResult(BaseModel):
@@ -105,4 +128,7 @@ class DiagramResult(BaseModel):
     url: Optional[str] = None
     playground: Optional[str] = None
     local_path: Optional[str] = None
+    content_base64: Optional[str] = (
+        None  # Image bytes when not writing to file (memory-only)
+    )
     error: Optional[str] = None

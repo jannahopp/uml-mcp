@@ -5,7 +5,7 @@ This is the recommended approach: use the Kroki client for encoding and URL
 generation. It supports all diagram types and output formats, with validation.
 """
 
-from kroki.kroki import Kroki
+from tools.kroki.kroki import Kroki
 
 # Example: Banking App class diagram (from banking-class.puml)
 CODE = """@startuml

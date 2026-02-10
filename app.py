@@ -99,7 +99,7 @@ app.add_middleware(_MCPAcceptHeaderMiddleware)
 
 # Import local modules
 try:
-    from kroki.kroki import LANGUAGE_OUTPUT_SUPPORT
+    from tools.kroki.kroki import LANGUAGE_OUTPUT_SUPPORT
     from mcp_core.core.utils import generate_diagram
 
     HAS_MODULES = True
@@ -233,7 +233,7 @@ class KrokiEncodeRequest(BaseModel):
 async def kroki_encode_endpoint(request: KrokiEncodeRequest):
     """Return the Kroki-encoded URL for a diagram (no file write). Use when running on a read-only filesystem (e.g. serverless)."""
     try:
-        from kroki.kroki import Kroki
+        from tools.kroki.kroki import Kroki
         from mcp_core.core.config import MCP_SETTINGS
     except ImportError as e:
         logger.warning("kroki_encode dependencies unavailable: %s", e)

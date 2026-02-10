@@ -24,7 +24,7 @@ def get_kroki_client():
     """Return the Kroki client singleton. Lazy-initialized for testability."""
     global _kroki_client
     if _kroki_client is None:
-        from kroki.kroki import Kroki
+        from tools.kroki.kroki import Kroki
 
         _kroki_client = Kroki(base_url=MCP_SETTINGS.kroki_server)
     return _kroki_client
@@ -32,13 +32,19 @@ def get_kroki_client():
 
 # Optional override for tests: if set, generate_diagram calls this instead of real I/O
 _diagram_generator: Optional[
-    Callable[[str, str, str, Optional[str], Optional[str]], Dict[str, Any]]
+    Callable[
+        [str, str, str, Optional[str], Optional[str], float],
+        Dict[str, Any],
+    ]
 ] = None
 
 
 def set_diagram_generator(
     fn: Optional[
-        Callable[[str, str, str, Optional[str], Optional[str]], Dict[str, Any]]
+        Callable[
+            [str, str, str, Optional[str], Optional[str], float],
+            Dict[str, Any],
+        ]
     ],
 ) -> None:
     """Set an optional diagram generator (e.g. for tests). Pass None to use default."""
@@ -49,7 +55,7 @@ def set_diagram_generator(
 def _handle_diagram_error(e: Exception, code: str) -> str:
     """Return actionable error message for diagram generation failures."""
     try:
-        from kroki.kroki import KrokiConnectionError, KrokiHTTPError
+        from tools.kroki.kroki import KrokiConnectionError, KrokiHTTPError
     except ImportError:
         return f"Unexpected error generating diagram: {type(e).__name__}: {str(e)}"
 
@@ -87,9 +93,15 @@ def generate_diagram(
     output_format: str = "png",
     output_dir: Optional[str] = None,
     theme: Optional[str] = None,
+    scale: float = 1.0,
 ) -> Dict[str, Any]:
     """
-    Generate a diagram using the appropriate service (Kroki, PlantUML, etc.)
+    Generate a diagram using Kroki first, with fallback to alternative services.
+
+    Strategy: Always try Kroki first. If Kroki fails, fall back to:
+    - PlantUML diagrams -> local PlantUML server
+    - Mermaid diagrams -> mermaid.ink
+    - Other diagrams -> return error (no fallback available)
 
     Args:
         diagram_type: Type of diagram (class, sequence, mermaid, d2, etc.)
@@ -97,14 +109,17 @@ def generate_diagram(
         output_format: Output format (png, svg, etc.)
         output_dir: Directory to save the generated image (optional). When None, no file is written (memory-only).
         theme: PlantUML theme (e.g. cerulean) - only for PlantUML backends
+        scale: Scale factor for SVG (only when output_format is svg); default 1.0, min 0.1.
 
     Returns:
         Dict containing code, url, playground, local_path, and optional error; when not writing to file, content_base64 is included.
     """
     if _diagram_generator is not None:
-        return _diagram_generator(diagram_type, code, output_format, output_dir, theme)
+        return _diagram_generator(
+            diagram_type, code, output_format, output_dir, theme, scale
+        )
 
-    logger.info(f"Generating {diagram_type} diagram")
+    logger.info(f"Generating {diagram_type} diagram (Kroki first, fallback if needed)")
 
     # When output_dir is None, do not write to disk (memory-only); only explicit path triggers file I/O.
     # Ensure output directory exists when path was explicitly provided; on read-only FS skip write
@@ -114,7 +129,7 @@ def generate_diagram(
             logger.debug(f"Using output directory: {output_dir}")
         except OSError as e:
             logger.warning(
-                "Could not create output directory %s (%s); returning Kroki URL only.",
+                "Could not create output directory %s (%s); returning URL only.",
                 output_dir,
                 e,
             )
@@ -136,8 +151,6 @@ def generate_diagram(
             "error": error_msg,
         }
 
-    # Single connector: Kroki is used for all diagram types (plantuml, mermaid, d2, etc.);
-    # no file or alternate server is used for rendering.
     backend_type = diagram_config.backend
 
     # Prepare code based on backend type. PlantUML gets @startuml/@enduml wrap; Mermaid/D2 sent as-is.
@@ -152,22 +165,35 @@ def generate_diagram(
                 "@startuml", f"@startuml\n!theme {theme}"
             )
 
+    # STEP 1: Try Kroki first (primary method)
     kroki_client = get_kroki_client()
+    kroki_error = None
     try:
         filename_prefix = (
             f"{diagram_type}_{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}"
         )
 
+        logger.info(f"Attempting Kroki for {diagram_type} diagram")
         result = kroki_client.generate_diagram(
             backend_type, prepared_code, output_format
         )
+        content = result["content"]
+        if (
+            output_format.lower() == "svg"
+            and scale is not None
+            and abs(scale - 1.0) >= 1e-9
+            and scale >= 0.1
+        ):
+            from tools.kroki.kroki import scale_svg
+
+            content = scale_svg(content, scale)
 
         local_path = None
         if output_dir:
             local_path = os.path.join(output_dir, f"{filename_prefix}.{output_format}")
             try:
                 with open(local_path, "wb") as f:
-                    f.write(result["content"])
+                    f.write(content)
                 logger.info(f"Diagram saved to {local_path}")
             except OSError as e:
                 # Read-only filesystem (e.g. Vercel serverless): skip save, still return Kroki URL
@@ -185,13 +211,39 @@ def generate_diagram(
             "local_path": local_path,
         }
         # When not writing to file, include image in memory as base64 so clients can display without fetching URL.
-        if local_path is None and result.get("content"):
-            out["content_base64"] = base64.b64encode(result["content"]).decode("ascii")
+        if local_path is None and content:
+            out["content_base64"] = base64.b64encode(content).decode("ascii")
+        
+        logger.info(f"Successfully generated {diagram_type} diagram via Kroki")
         return out
 
     except Exception as e:
-        logger.error(f"Error generating diagram: {str(e)}")
-        error_msg = _handle_diagram_error(e, prepared_code)
+        kroki_error = e
+        logger.warning(f"Kroki failed for {diagram_type}: {str(e)}. Attempting fallback...")
+
+    # STEP 2: Kroki failed - try fallback methods based on backend type
+    try:
+        if backend_type == "plantuml":
+            logger.info(f"Falling back to PlantUML server for {diagram_type}")
+            return _generate_diagram_plantuml_fallback(
+                diagram_type, prepared_code, output_format, output_dir, scale
+            )
+        elif backend_type == "mermaid":
+            logger.info(f"Falling back to Mermaid.ink for {diagram_type}")
+            return _generate_diagram_mermaid_fallback(
+                diagram_type, prepared_code, output_format, output_dir
+            )
+        else:
+            # No fallback available for this backend type
+            logger.error(f"No fallback available for {backend_type} backend")
+            raise kroki_error
+
+    except Exception as fallback_error:
+        logger.error(f"Fallback also failed for {diagram_type}: {str(fallback_error)}")
+        error_msg = (
+            f"Primary (Kroki) failed: {_handle_diagram_error(kroki_error, prepared_code)}. "
+            f"Fallback also failed: {str(fallback_error)}"
+        )
         return {
             "code": prepared_code,
             "url": None,

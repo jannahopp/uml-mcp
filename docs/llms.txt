@@ -18,8 +18,8 @@ UML-MCP is a diagram generation server that implements the Model Context Protoco
 ## What it does
 
 - Generates diagrams from code/descriptions using PlantUML, Kroki, Mermaid, D2, Graphviz backends.
-- Exposes the MCP tool generate_uml (diagram_type, code, output_dir, …) and resources (uml://types, uml://templates, uml://examples, uml://formats, uml://server-info, uml://workflow).
-- Output formats: SVG, PNG, PDF (and others depending on diagram type).
+- Exposes MCP tools generate_uml and generate_diagram_url, plus resources (uml://types, uml://templates, uml://examples, uml://formats, uml://server-info, uml://workflow).
+- Output formats: SVG, PNG, PDF, JPEG (and others per diagram type; see uml://formats).
 
 ## Diagram types
 
@@ -28,9 +28,10 @@ UML-MCP is a diagram generation server that implements the Model Context Protoco
 
 ## MCP tools (summary)
 
-- generate_uml — single tool for all diagram types. Pass diagram_type (class, sequence, mermaid, d2, etc.), code, output_dir, output_format, theme. Use uml://types for valid types.
+- generate_uml — Generate a diagram; optionally save to output_dir. Params: diagram_type, code, output_dir, output_format, theme, scale. Use uml://types for valid types.
+- generate_diagram_url — Return diagram URL and base64 image only (no file). Params: diagram_type, code, output_format, theme, scale.
 
-Full tool list and parameters: docs/api/tools.md
+Full list and parameters: docs/api/tools.md
 
 ## MCP resources
 

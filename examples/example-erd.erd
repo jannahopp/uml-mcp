@@ -1,0 +1,9 @@
+[Person]
+*name
+height
+weight
+--
+[Order]
+*id
+date
+Person *-- Order

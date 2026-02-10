@@ -2,6 +2,7 @@
 Tests for the core utilities of UML-MCP.
 """
 
+import base64
 import errno
 import os
 from unittest.mock import MagicMock, patch
@@ -124,3 +125,65 @@ def test_generate_diagram_readonly_filesystem_returns_url_without_local_path(
     assert result["playground"] == "https://playground.example.com"
     assert result["local_path"] is None
     assert "code" in result
+
+
+def test_generate_diagram_output_dir_none_memory_only(mock_kroki_client, tmp_path):
+    """When output_dir is None, no file is created; url, playground, and content_base64 are returned (memory-only)."""
+    result = generate_diagram(
+        diagram_type="class",
+        code="@startuml\nclass Test\n@enduml",
+        output_format="svg",
+        output_dir=None,
+    )
+
+    assert "error" not in result
+    assert result["url"] == "https://kroki.io/plantuml/svg/test_url"
+    assert result["playground"] == "https://playground.example.com"
+    assert result["local_path"] is None
+    assert "code" in result
+    assert "content_base64" in result
+    # No file should have been created (we never passed a path; tmp_path should be empty of new diagram files)
+    assert not any(
+        f.startswith("class_") and f.endswith(".svg") for f in os.listdir(tmp_path)
+    )
+
+
+def test_generate_diagram_scale_ignored_for_png(mock_kroki_client):
+    """Scale is only applied for SVG; for PNG, scale is ignored and content is unchanged."""
+    mock_kroki_client.generate_diagram.return_value = {
+        "url": "https://kroki.io/plantuml/png/test",
+        "content": b"\x89PNG\r\n\x1a\n",
+        "playground": "https://playground.example.com",
+    }
+    result = generate_diagram(
+        diagram_type="class",
+        code="@startuml\nclass Test\n@enduml",
+        output_format="png",
+        output_dir=None,
+        scale=2.0,
+    )
+    assert "error" not in result
+    assert result["content_base64"] == base64.b64encode(b"\x89PNG\r\n\x1a\n").decode(
+        "ascii"
+    )
+
+
+def test_generate_diagram_scale_applied_for_svg(mock_kroki_client):
+    """When output_format is svg and scale != 1.0, returned content_base64 is scaled SVG."""
+    raw_svg = b'<svg xmlns="http://www.w3.org/2000/svg" width="100" height="200"></svg>'
+    mock_kroki_client.generate_diagram.return_value = {
+        "url": "https://kroki.io/plantuml/svg/test",
+        "content": raw_svg,
+        "playground": "https://playground.example.com",
+    }
+    result = generate_diagram(
+        diagram_type="class",
+        code="@startuml\nclass Test\n@enduml",
+        output_format="svg",
+        output_dir=None,
+        scale=2.0,
+    )
+    assert "error" not in result
+    assert "content_base64" in result
+    decoded = base64.b64decode(result["content_base64"])
+    assert b'width="200' in decoded and b'height="400' in decoded

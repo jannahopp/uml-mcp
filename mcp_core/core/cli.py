@@ -233,10 +233,10 @@ def run():
 
     required_modules = {
         "mcp.server": "MCP Server",
-        "kroki.kroki": "Kroki",
-        "plantuml": "PlantUML",
-        "mermaid.mermaid": "Mermaid",
-        "D2.run_d2": "D2",
+        "tools.kroki.kroki": "Kroki",
+        "tools.kroki.plantuml": "PlantUML",
+        "tools.kroki.mermaid": "Mermaid",
+        "tools.kroki.d2": "D2",
     }
     missing_modules = []
     for module_name, display_name in required_modules.items():

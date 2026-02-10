@@ -5,7 +5,7 @@ Use this file to guide AI agents (Cursor, etc.) when working in this repository.
 ## Project overview
 
 - **UML-MCP** is a diagram generation server that implements the Model Context Protocol (MCP).
-- It exposes tools so AI assistants and MCP clients can create diagrams (UML, Mermaid, D2, PlantUML, etc.) and get SVG/PNG/PDF output.
+- It exposes tools so AI assistants and MCP clients can create diagrams (UML, Mermaid, D2, PlantUML, and all [Kroki](https://kroki.io/) types) and get SVG/PNG/PDF (and optionally jpeg, txt, base64) output. Use resource `uml://types` for supported `diagram_type` values.
 - Main entry points: `server.py`, `mcp_core.core.server`, `app.py` (FastAPI).
 
 ## Tech stack

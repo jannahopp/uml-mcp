@@ -8,6 +8,8 @@ from typing import Dict, List
 
 from pydantic import BaseModel
 
+from tools.kroki.kroki import LANGUAGE_OUTPUT_SUPPORT
+
 
 def _default_output_dir() -> str:
     """Default diagram output directory (current working directory / output)."""
@@ -59,58 +61,185 @@ class MCPSettings(BaseModel):
         return Path(self.output_dir)
 
 
-# Define supported diagram types with their backends
+# Define supported diagram types with their backends. Formats from https://kroki.io/
 DIAGRAM_TYPES = {
     # UML diagram types (PlantUML)
     "class": DiagramType(
         backend="plantuml",
         description="Shows classes, attributes, methods and relationships between classes",
+        formats=LANGUAGE_OUTPUT_SUPPORT["plantuml"],
     ),
     "sequence": DiagramType(
         backend="plantuml",
         description="Shows object interactions arranged in time sequence",
+        formats=LANGUAGE_OUTPUT_SUPPORT["plantuml"],
     ),
     "activity": DiagramType(
-        backend="plantuml", description="Shows workflows or business processes"
+        backend="plantuml",
+        description="Shows workflows or business processes",
+        formats=LANGUAGE_OUTPUT_SUPPORT["plantuml"],
     ),
     "usecase": DiagramType(
         backend="plantuml",
         description="Shows system functionality and actors who interact with it",
+        formats=LANGUAGE_OUTPUT_SUPPORT["plantuml"],
     ),
     "state": DiagramType(
-        backend="plantuml", description="Shows states of an object during its lifecycle"
+        backend="plantuml",
+        description="Shows states of an object during its lifecycle",
+        formats=LANGUAGE_OUTPUT_SUPPORT["plantuml"],
     ),
     "component": DiagramType(
-        backend="plantuml", description="Shows components and dependencies"
+        backend="plantuml",
+        description="Shows components and dependencies",
+        formats=LANGUAGE_OUTPUT_SUPPORT["plantuml"],
     ),
     "deployment": DiagramType(
-        backend="plantuml", description="Shows physical architecture of a system"
+        backend="plantuml",
+        description="Shows physical architecture of a system",
+        formats=LANGUAGE_OUTPUT_SUPPORT["plantuml"],
     ),
     "object": DiagramType(
         backend="plantuml",
         description="Shows instances of classes and their relationships",
+        formats=LANGUAGE_OUTPUT_SUPPORT["plantuml"],
     ),
     # Other diagram types
     "mermaid": DiagramType(
         backend="mermaid",
         description="A JavaScript based diagramming and charting tool",
+        formats=LANGUAGE_OUTPUT_SUPPORT["mermaid"],
     ),
-    "d2": DiagramType(backend="d2", description="A modern diagram scripting language"),
+    "d2": DiagramType(
+        backend="d2",
+        description="A modern diagram scripting language",
+        formats=LANGUAGE_OUTPUT_SUPPORT["d2"],
+    ),
     "graphviz": DiagramType(
-        backend="graphviz", description="Graph visualization software"
+        backend="graphviz",
+        description="Graph visualization software",
+        formats=LANGUAGE_OUTPUT_SUPPORT["graphviz"],
     ),
-    "erd": DiagramType(backend="erd", description="Entity-relationship diagrams"),
+    "erd": DiagramType(
+        backend="erd",
+        description="Entity-relationship diagrams",
+        formats=LANGUAGE_OUTPUT_SUPPORT["erd"],
+    ),
     "blockdiag": DiagramType(
-        backend="blockdiag", description="Simple block diagram images"
+        backend="blockdiag",
+        description="Simple block diagram images",
+        formats=LANGUAGE_OUTPUT_SUPPORT["blockdiag"],
     ),
     "packetdiag": DiagramType(
-        backend="packetdiag", description="Network packet layout diagrams"
+        backend="packetdiag",
+        description="Network packet layout diagrams",
+        formats=LANGUAGE_OUTPUT_SUPPORT["packetdiag"],
     ),
     "bpmn": DiagramType(
-        backend="bpmn", description="Business Process Model and Notation"
+        backend="bpmn",
+        description="Business Process Model and Notation",
+        formats=LANGUAGE_OUTPUT_SUPPORT["bpmn"],
     ),
     "c4plantuml": DiagramType(
-        backend="c4plantuml", description="C4 model diagrams using PlantUML"
+        backend="c4plantuml",
+        description="C4 model diagrams using PlantUML",
+        formats=LANGUAGE_OUTPUT_SUPPORT["c4plantuml"],
+    ),
+    # Kroki backend types (https://kroki.io/)
+    "actdiag": DiagramType(
+        backend="actdiag",
+        description="Activity and workflow diagrams (blockdiag family)",
+        formats=LANGUAGE_OUTPUT_SUPPORT["actdiag"],
+    ),
+    "bytefield": DiagramType(
+        backend="bytefield",
+        description="Binary protocol and byte layout diagrams",
+        formats=LANGUAGE_OUTPUT_SUPPORT["bytefield"],
+    ),
+    "seqdiag": DiagramType(
+        backend="seqdiag",
+        description="Sequence diagrams (blockdiag family)",
+        formats=LANGUAGE_OUTPUT_SUPPORT["seqdiag"],
+    ),
+    "nwdiag": DiagramType(
+        backend="nwdiag",
+        description="Network diagrams (blockdiag family)",
+        formats=LANGUAGE_OUTPUT_SUPPORT["nwdiag"],
+    ),
+    "rackdiag": DiagramType(
+        backend="rackdiag",
+        description="Rack and server layout diagrams (blockdiag family)",
+        formats=LANGUAGE_OUTPUT_SUPPORT["rackdiag"],
+    ),
+    "dbml": DiagramType(
+        backend="dbml",
+        description="Database Markup Language schema diagrams",
+        formats=LANGUAGE_OUTPUT_SUPPORT["dbml"],
+    ),
+    "ditaa": DiagramType(
+        backend="ditaa",
+        description="Diagrams Through ASCII Art",
+        formats=LANGUAGE_OUTPUT_SUPPORT["ditaa"],
+    ),
+    "excalidraw": DiagramType(
+        backend="excalidraw",
+        description="Excalidraw whiteboard-style diagrams",
+        formats=LANGUAGE_OUTPUT_SUPPORT["excalidraw"],
+    ),
+    "nomnoml": DiagramType(
+        backend="nomnoml",
+        description="UML-style diagrams from shorthand syntax",
+        formats=LANGUAGE_OUTPUT_SUPPORT["nomnoml"],
+    ),
+    "pikchr": DiagramType(
+        backend="pikchr",
+        description="Pikchr diagram scripting language",
+        formats=LANGUAGE_OUTPUT_SUPPORT["pikchr"],
+    ),
+    "plantuml": DiagramType(
+        backend="plantuml",
+        description="PlantUML raw diagram source (all diagram kinds)",
+        formats=LANGUAGE_OUTPUT_SUPPORT["plantuml"],
+    ),
+    "structurizr": DiagramType(
+        backend="structurizr",
+        description="Structurizr C4 and architecture DSL",
+        formats=LANGUAGE_OUTPUT_SUPPORT["structurizr"],
+    ),
+    "svgbob": DiagramType(
+        backend="svgbob",
+        description="ASCII art to SVG diagrams",
+        formats=LANGUAGE_OUTPUT_SUPPORT["svgbob"],
+    ),
+    "symbolator": DiagramType(
+        backend="symbolator",
+        description="Digital logic and schematic symbols",
+        formats=LANGUAGE_OUTPUT_SUPPORT["symbolator"],
+    ),
+    "tikz": DiagramType(
+        backend="tikz",
+        description="TikZ/PGF graphics (LaTeX)",
+        formats=LANGUAGE_OUTPUT_SUPPORT["tikz"],
+    ),
+    "vega": DiagramType(
+        backend="vega",
+        description="Vega visualization grammar",
+        formats=LANGUAGE_OUTPUT_SUPPORT["vega"],
+    ),
+    "vegalite": DiagramType(
+        backend="vegalite",
+        description="Vega-Lite visualization grammar",
+        formats=LANGUAGE_OUTPUT_SUPPORT["vegalite"],
+    ),
+    "wavedrom": DiagramType(
+        backend="wavedrom",
+        description="Waveform and digital timing diagrams",
+        formats=LANGUAGE_OUTPUT_SUPPORT["wavedrom"],
+    ),
+    "wireviz": DiagramType(
+        backend="wireviz",
+        description="Cable and wiring diagrams",
+        formats=LANGUAGE_OUTPUT_SUPPORT["wireviz"],
     ),
 }
 

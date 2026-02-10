@@ -5,7 +5,7 @@ MCP resources for diagram information
 import logging
 from typing import Any, Callable, Dict, List, Optional, TypeVar, cast
 
-from kroki.kroki_templates import DiagramExamples, DiagramTemplates
+from tools.kroki.kroki_templates import DiagramExamples, DiagramTemplates
 from mcp_core.server.fastmcp_wrapper import FastMCP
 
 from ..core.config import MCP_SETTINGS

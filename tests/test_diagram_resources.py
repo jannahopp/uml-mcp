@@ -4,6 +4,7 @@ Unit tests for MCP diagram resources.
 
 from unittest.mock import MagicMock
 
+from tools.kroki.kroki_templates import DiagramExamples, DiagramTemplates
 from mcp_core.resources.diagram_resources import (
     get_diagram_examples,
     get_diagram_templates,
@@ -67,6 +68,21 @@ class TestGetDiagramExamples:
         result = get_diagram_examples()
         for name, example in result.items():
             assert isinstance(example, str)
+
+    def test_every_diagram_type_has_template_and_example(self):
+        """Every diagram type from get_diagram_types has non-default template and example."""
+        types_result = get_diagram_types()
+        templates_result = get_diagram_templates()
+        examples_result = get_diagram_examples()
+        for diagram_type in types_result:
+            assert diagram_type in templates_result, f"Missing template for {diagram_type}"
+            assert diagram_type in examples_result, f"Missing example for {diagram_type}"
+            t = templates_result[diagram_type]
+            e = examples_result[diagram_type]
+            assert isinstance(t, str) and len(t) > 0, f"Empty template for {diagram_type}"
+            assert isinstance(e, str) and len(e) > 0, f"Empty example for {diagram_type}"
+            assert "No specific template" not in t, f"Default template for {diagram_type}"
+            assert "No specific example" not in e, f"Default example for {diagram_type}"
 
 
 class TestGetOutputFormats:

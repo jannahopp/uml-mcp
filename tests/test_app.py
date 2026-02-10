@@ -193,10 +193,14 @@ def test_mcp_get_fallback_returns_503():
 def test_kroki_encode_success():
     """POST /kroki_encode with valid body returns 200 with url and playground (mocked Kroki)."""
     mock_kroki_instance = MagicMock()
-    mock_kroki_instance.get_url.return_value = "https://kroki.io/plantuml/svg/encoded123"
-    mock_kroki_instance.get_playground_url.return_value = "https://www.plantuml.com/plantuml/uml/..."
+    mock_kroki_instance.get_url.return_value = (
+        "https://kroki.io/plantuml/svg/encoded123"
+    )
+    mock_kroki_instance.get_playground_url.return_value = (
+        "https://www.plantuml.com/plantuml/uml/..."
+    )
 
-    with patch("kroki.kroki.Kroki", return_value=mock_kroki_instance):
+    with patch("tools.kroki.kroki.Kroki", return_value=mock_kroki_instance):
         response = client.post(
             "/kroki_encode",
             json={
@@ -225,20 +229,22 @@ def test_kroki_encode_unsupported_type():
     assert response.status_code == 400
     data = response.json()
     assert "detail" in data
-    assert "Unsupported diagram type" in data["detail"] or "invalid_type" in data["detail"]
+    assert (
+        "Unsupported diagram type" in data["detail"] or "invalid_type" in data["detail"]
+    )
 
 
 def test_kroki_encode_unsupported_format():
     """POST /kroki_encode with output_format not supported for the type returns 400."""
+    # mermaid only supports svg, png; pdf is unsupported
     response = client.post(
         "/kroki_encode",
         json={
-            "type": "class",
-            "code": "@startuml\nclass A\n@enduml",
+            "type": "mermaid",
+            "code": "graph TD; A-->B;",
             "output_format": "pdf",
         },
     )
-    # DiagramType for "class" has formats ["png", "svg"] by default; "pdf" may be unsupported
     assert response.status_code == 400
     data = response.json()
     assert "detail" in data

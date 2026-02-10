@@ -9,13 +9,14 @@ from unittest.mock import MagicMock, patch
 import httpx
 import pytest
 
-from kroki.kroki import (
+from tools.kroki.kroki import (
     Kroki,
     KrokiConnectionError,
     KrokiHTTPError,
     LANGUAGE_OUTPUT_SUPPORT,
+    scale_svg,
 )
-from kroki.kroki_templates import DiagramExamples, DiagramTemplates
+from tools.kroki.kroki_templates import DiagramExamples, DiagramTemplates
 
 
 @pytest.fixture
@@ -254,6 +255,30 @@ def test_deflate_and_encode_base64_decodable():
     assert decompressed.decode("utf-8") == text
 
 
+def test_scale_svg_doubles_width_height():
+    """scale_svg multiplies root width/height by scale factor."""
+    svg = b'<svg xmlns="http://www.w3.org/2000/svg" width="100" height="200"><rect /></svg>'
+    out = scale_svg(svg, 2.0)
+    assert b'width="200' in out and b'height="400' in out
+
+    out_half = scale_svg(svg, 0.5)
+    assert b'width="50' in out_half and b'height="100' in out_half
+
+
+def test_scale_svg_returns_unchanged_when_scale_one():
+    """scale_svg returns same bytes when scale is 1.0."""
+    svg = b'<svg width="100" height="200"></svg>'
+    assert scale_svg(svg, 1.0) == svg
+
+
+def test_scale_svg_invalid_scale_raises():
+    """scale_svg raises ValueError when scale <= 0."""
+    with pytest.raises(ValueError, match="greater than 0"):
+        scale_svg(b"<svg></svg>", 0)
+    with pytest.raises(ValueError, match="greater than 0"):
+        scale_svg(b"<svg></svg>", -1.0)
+
+
 def test_language_output_support_smoke():
     """LANGUAGE_OUTPUT_SUPPORT has expected diagram types with list of formats."""
     assert "plantuml" in LANGUAGE_OUTPUT_SUPPORT
@@ -267,7 +292,23 @@ def test_language_output_support_smoke():
 
 @pytest.mark.parametrize(
     "diagram_type",
-    ["plantuml", "mermaid", "blockdiag", "seqdiag", "actdiag", "nwdiag", "c4plantuml"],
+    [
+        "plantuml",
+        "mermaid",
+        "class",
+        "sequence",
+        "activity",
+        "usecase",
+        "state",
+        "component",
+        "deployment",
+        "object",
+        "blockdiag",
+        "seqdiag",
+        "actdiag",
+        "nwdiag",
+        "c4plantuml",
+    ],
 )
 def test_diagram_examples_get_example(diagram_type):
     """DiagramExamples.get_example returns non-empty string for known types."""
@@ -285,7 +326,22 @@ def test_diagram_examples_get_example_unknown():
 
 def test_diagram_templates_get_template_known():
     """DiagramTemplates.get_template returns non-empty string for known types."""
-    for diagram_type in ["plantuml", "mermaid", "d2", "graphviz", "blockdiag"]:
+    known_types = [
+        "plantuml",
+        "mermaid",
+        "class",
+        "sequence",
+        "activity",
+        "usecase",
+        "state",
+        "component",
+        "deployment",
+        "object",
+        "d2",
+        "graphviz",
+        "blockdiag",
+    ]
+    for diagram_type in known_types:
         result = DiagramTemplates.get_template(diagram_type)
         assert isinstance(result, str), diagram_type
         assert len(result) > 0, diagram_type
@@ -296,3 +352,25 @@ def test_diagram_templates_get_template_unknown():
     result = DiagramTemplates.get_template("unknown_type")
     assert isinstance(result, str)
     assert "documentation" in result.lower() or "template" in result.lower()
+
+
+# All Kroki types that must have template/example (umlet not in default UI select)
+_KROKI_TYPES_WITH_TEMPLATES = [k for k in LANGUAGE_OUTPUT_SUPPORT if k != "umlet"]
+
+
+@pytest.mark.parametrize("diagram_type", _KROKI_TYPES_WITH_TEMPLATES)
+def test_every_kroki_type_has_template(diagram_type):
+    """Every Kroki type (except umlet) has a non-default DiagramTemplates entry."""
+    result = DiagramTemplates.get_template(diagram_type)
+    assert isinstance(result, str)
+    assert len(result) > 0
+    assert "No specific template" not in result
+
+
+@pytest.mark.parametrize("diagram_type", _KROKI_TYPES_WITH_TEMPLATES)
+def test_every_kroki_type_has_example(diagram_type):
+    """Every Kroki type (except umlet) has a non-default DiagramExamples entry."""
+    result = DiagramExamples.get_example(diagram_type)
+    assert isinstance(result, str)
+    assert len(result) > 0
+    assert "No specific example" not in result

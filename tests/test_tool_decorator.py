@@ -19,10 +19,11 @@ class TestGetToolRegistry:
     """Tests for get_tool_registry after diagram_tools is loaded."""
 
     def test_registry_contains_expected_tools(self):
-        """Registry includes only generate_uml (single diagram tool)."""
+        """Registry includes generate_uml and generate_diagram_url."""
         registry = get_tool_registry()
         assert "generate_uml" in registry
-        assert len(registry) == 1
+        assert "generate_diagram_url" in registry
+        assert len(registry) == 2
 
     def test_registry_tool_has_metadata(self):
         """Each registry entry has function, name, description, category, parameters."""
@@ -46,11 +47,12 @@ class TestGetToolCategories:
         assert "uml" in categories
 
     def test_uml_category_contains_generate_uml(self):
-        """UML category contains generate_uml."""
+        """UML category contains generate_uml and generate_diagram_url."""
         categories = get_tool_categories()
         uml_tools = categories.get("uml", [])
         assert "generate_uml" in uml_tools
-        assert len(uml_tools) == 1
+        assert "generate_diagram_url" in uml_tools
+        assert len(uml_tools) == 2
 
 
 class TestMcpToolParameterExtraction:
@@ -123,7 +125,9 @@ class TestRegisterToolsWithServer:
         result = register_tools_with_server(server)
 
         assert isinstance(result, list)
-        assert result == ["generate_uml"]
+        assert "generate_uml" in result
+        assert "generate_diagram_url" in result
+        assert len(result) == 2
 
 
 class TestClearToolRegistry:

@@ -64,7 +64,7 @@ The server supports a diagram-assistant workflow for common requests. Use these 
 
 **Resources**
 
-- `uml://types` — Supported diagram types (including `mermaid`, `bpmn`, `packetdiag`).
+- `uml://types` — All supported diagram types (all [Kroki](https://kroki.io/) backends: plantuml, mermaid, d2, graphviz, blockdiag, seqdiag, bpmn, vega, vegalite, wavedrom, wireviz, etc.).
 - `uml://templates` — Starter templates per diagram type.
 - `uml://examples` — Full examples per diagram type.
 - `uml://mermaid-examples` — Mermaid API sequence and Gantt examples.

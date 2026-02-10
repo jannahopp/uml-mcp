@@ -15,7 +15,7 @@ UML-MCP is a diagram generation server that implements the Model Context Protoco
 
 - **Multiple diagram types**: UML (Class, Sequence, Activity, Use Case, State, Component, Deployment, Object), Mermaid, D2, Graphviz, ERD, BlockDiag, BPMN, C4 with PlantUML
 - **MCP integration**: Works with any client that supports MCP (Cursor, Claude Desktop, etc.)
-- **Output formats**: SVG, PNG, PDF, and others depending on diagram type
+- **Output formats**: SVG, PNG, PDF, JPEG (where supported by type), plus txt/base64 for some backends; optional scale for SVG
 - **Configurable backends**: Local or remote PlantUML and Kroki
 
 ## Supported diagram types
@@ -186,9 +186,10 @@ Provide diagram types, templates, examples, formats, server info, and the recomm
 
 **Tools:**
 
-- `generate_uml` — single tool for any diagram type (params: `diagram_type`, `code`, `output_dir`, `output_format`, `theme`). Use `diagram_type` for class, sequence, mermaid, d2, etc. See `uml://types` for valid types.
+- `generate_uml` — Generate a diagram and optionally save it (params: `diagram_type`, `code`, `output_dir`, `output_format`, `theme`, `scale`). Omit `output_dir` to get URL and base64 only.
+- `generate_diagram_url` — Return the diagram URL and base64 image without writing a file. Same diagram types; no `output_dir`.
 
-See [docs/api/tools.md](docs/api/tools.md) for parameters.
+See [docs/api/tools.md](docs/api/tools.md) for full parameters.
 
 ### Better results for complex diagrams
 

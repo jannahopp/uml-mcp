@@ -13,6 +13,8 @@ Generate a single, correct Mermaid or PlantUML code block from a user's descript
 - User specifies or implies Mermaid or PlantUML (or "diagram code")
 - Task is to produce diagram script for documentation, design, or for the `generate_uml` MCP tool
 
+The `generate_uml` tool supports all Kroki diagram types via `diagram_type` (e.g. `mermaid`, `plantuml`, `d2`, `graphviz`, `blockdiag`, `bpmn`, `vegalite`, `wavedrom`, etc.). Use resource `uml://types` for the full list and `uml://templates` for starter code. For non-Mermaid/PlantUML types (D2, BlockDiag, BPMN, Bytefield, Vega, WaveDrom, etc.), see [references/DIAGRAM-TYPES.md](references/DIAGRAM-TYPES.md).
+
 ## Output Rules
 
 - Emit **only one** code block; no explanatory text outside the block.

@@ -28,6 +28,13 @@ ANNOTATIONS_DIAGRAM = {
     "openWorldHint": True,  # Calls external Kroki service for rendering
 }
 
+ANNOTATIONS_URL_ONLY = {
+    "readOnlyHint": True,  # No file I/O; returns URL and optional base64
+    "destructiveHint": False,
+    "idempotentHint": True,
+    "openWorldHint": True,
+}
+
 
 def _validate_and_generate(
     diagram_type: str,
@@ -35,6 +42,7 @@ def _validate_and_generate(
     output_dir: Optional[str] = None,
     output_format: str = "svg",
     theme: Optional[str] = None,
+    scale: float = 1.0,
 ) -> Dict[str, Any]:
     """Validate inputs and generate diagram. Returns result dict with optional error."""
     try:
@@ -44,9 +52,15 @@ def _validate_and_generate(
             output_dir=output_dir,
             output_format=output_format,
             theme=theme,
+            scale=scale,
         )
     except ValidationError as e:
-        err_msg = "; ".join(f"{err['loc'][0]}: {err['msg']}" for err in e.errors())
+        parts = []
+        for err in e.errors():
+            loc = err.get("loc", ())
+            name = loc[0] if loc else "input"
+            parts.append(f"{name}: {err['msg']}")
+        err_msg = "; ".join(parts)
         return {
             "code": code,
             "url": None,
@@ -73,7 +87,7 @@ def _validate_and_generate(
             "error": error_msg,
         }
 
-    return generate_diagram(diagram_type, code, output_format, output_dir, theme)
+    return generate_diagram(diagram_type, code, output_format, output_dir, theme, scale)
 
 
 # Main UML generation tool
@@ -89,27 +103,65 @@ def generate_uml(
     output_dir: Optional[str] = None,
     output_format: str = "svg",
     theme: Optional[str] = None,
+    scale: float = 1.0,
 ) -> Dict[str, Any]:
     """Generate a diagram using the specified diagram type.
 
-    Use when: You need to create a diagram of any supported type. For complex
-    diagrams, the default prompt guides planning first (type, elements, relationships),
-    then you call this tool with the final code.
+    Use when you need a diagram of any supported type. For complex diagrams the
+    default prompt guides planning first (type, elements, relationships), then
+    you call this tool with the final code.
 
     Args:
         diagram_type: Type of diagram (class, sequence, activity, mermaid, d2, etc.)
-        code: The diagram code in the syntax for the chosen type
-        output_dir: Directory where to save the generated image (optional). When omitted, no file is written; only url, playground, and optionally content_base64 are returned (memory-only).
-        output_format: Output format svg, png, or pdf (default: svg)
+        code: Diagram code in the syntax for the chosen type
+        output_dir: Directory to save the image (optional). Omit for url/playground/content_base64 only.
+        output_format: svg, png, pdf, jpeg, txt, or base64 (default: svg). See uml://formats per type.
         theme: PlantUML theme for UML diagrams (e.g. cerulean)
+        scale: Scale factor for SVG only (default 1.0, min 0.1). Ignored for other formats.
 
     Returns:
-        Dict with code, url, playground, local_path, and optional error; when output_dir is omitted, content_base64 is included for in-memory display.
+        Dict with code, url, playground; local_path when output_dir set; content_base64 when not saving; or error.
     """
     logger.info(
         f"Called generate_uml tool: type={diagram_type}, code length={len(code)}"
     )
-    return _validate_and_generate(diagram_type, code, output_dir, output_format, theme)
+    return _validate_and_generate(
+        diagram_type, code, output_dir, output_format, theme, scale
+    )
+
+
+@mcp_tool(
+    description="Get the Kroki URL (and optional base64 image) for a diagram without saving to disk.",
+    category="uml",
+    example="generate_diagram_url('mermaid', 'graph TD; A-->B;')",
+    annotations=ANNOTATIONS_URL_ONLY,
+)
+def generate_diagram_url(
+    diagram_type: str,
+    code: str,
+    output_format: str = "svg",
+    theme: Optional[str] = None,
+    scale: float = 1.0,
+) -> Dict[str, Any]:
+    """Return the diagram URL and optional base64 image; no file is written.
+
+    Use when you only need a link or in-memory image (e.g. serverless, read-only FS).
+    To save to disk, use generate_uml with output_dir.
+
+    Args:
+        diagram_type: Type of diagram (class, sequence, mermaid, d2, etc.)
+        code: Diagram code in the syntax for the chosen type
+        output_format: svg, png, pdf, jpeg, etc. (default: svg). See uml://formats per type.
+        theme: PlantUML theme for PlantUML diagram types (e.g. cerulean)
+        scale: Scale factor for SVG only (default 1.0, min 0.1). Ignored for other formats.
+
+    Returns:
+        Dict with code, url, playground, content_base64 on success; or error.
+    """
+    logger.info(
+        f"Called generate_diagram_url tool: type={diagram_type}, code length={len(code)}"
+    )
+    return _validate_and_generate(diagram_type, code, None, output_format, theme, scale)
 
 
 def register_diagram_tools(server: FastMCP) -> List[str]:

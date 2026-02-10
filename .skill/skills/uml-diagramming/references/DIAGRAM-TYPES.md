@@ -71,6 +71,40 @@ Use stereotypes to clarify roles when helpful:
 - Use clear, short subgraph IDs and labels: e.g. `subgraph client [Client]`, `subgraph api [API]`, `subgraph db [Database]`.
 - Avoid spaces in the ID; use the label in brackets for display.
 
+## Kroki diagram types
+
+The `generate_uml` tool accepts any Kroki backend as `diagram_type`. Use resource `uml://types` for the full list and supported output formats. Summary:
+
+| diagram_type   | Use case / description |
+|---------------|-------------------------|
+| class, sequence, activity, usecase, state, component, deployment, object | UML via PlantUML (use these or raw `plantuml`) |
+| plantuml      | Raw PlantUML (all diagram kinds) |
+| mermaid       | Mermaid (sequence, flowchart, classDiagram, gantt, etc.) |
+| d2            | D2 diagram scripting language |
+| graphviz      | Graphviz (DOT) |
+| blockdiag     | Block diagrams (blockdiag family) |
+| seqdiag       | Sequence diagrams (blockdiag family) |
+| actdiag       | Activity / workflow (blockdiag family) |
+| nwdiag        | Network diagrams (blockdiag family) |
+| packetdiag    | Packet layout diagrams |
+| rackdiag      | Rack / server layout |
+| bpmn          | BPMN (Business Process Model and Notation), XML |
+| c4plantuml    | C4 model (PlantUML C4) |
+| bytefield     | Binary protocol / byte layout |
+| dbml          | Database Markup Language schema |
+| ditaa         | Diagrams through ASCII art |
+| erd            | Entity-relationship diagrams |
+| excalidraw    | Excalidraw whiteboard (JSON) |
+| nomnoml       | UML-style from shorthand |
+| pikchr        | Pikchr diagram scripting |
+| structurizr   | Structurizr C4 / architecture DSL |
+| svgbob        | ASCII art to SVG |
+| symbolator    | Digital logic / schematic symbols |
+| tikz          | TikZ/PGF (LaTeX) |
+| vega, vegalite| Vega / Vega-Lite visualization (JSON) |
+| wavedrom      | Waveform / digital timing |
+| wireviz       | Cable / wiring diagrams (YAML) |
+
 ## Other Mermaid / Kroki types (reference)
 
 - **User Journey** — Mermaid: represent as flowchart or sequence with user/step nodes.

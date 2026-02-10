@@ -112,3 +112,16 @@ class TestMCPModuleLevel:
         assert "class" in MCP_SETTINGS.diagram_types
         assert MCP_SETTINGS.diagram_types["class"].backend == "plantuml"
         assert MCP_SETTINGS.diagram_types["mermaid"].backend == "mermaid"
+
+    def test_config_backends_and_formats_match_kroki(self):
+        """Every config diagram type has backend in Kroki and formats match LANGUAGE_OUTPUT_SUPPORT."""
+        from tools.kroki.kroki import LANGUAGE_OUTPUT_SUPPORT
+
+        for name, config in DIAGRAM_TYPES.items():
+            assert config.backend in LANGUAGE_OUTPUT_SUPPORT, (
+                f"diagram_type {name} has backend {config.backend} not in LANGUAGE_OUTPUT_SUPPORT"
+            )
+            expected = LANGUAGE_OUTPUT_SUPPORT[config.backend]
+            assert config.formats == expected, (
+                f"diagram_type {name} formats {config.formats} != {expected}"
+            )

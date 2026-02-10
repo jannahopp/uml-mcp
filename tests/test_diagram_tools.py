@@ -7,6 +7,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from mcp_core.tools.diagram_tools import (
+    generate_diagram_url,
     generate_uml,
     register_diagram_tools,
 )
@@ -23,10 +24,10 @@ class TestDiagramTools:
         return server
 
     def test_register_diagram_tools(self, mock_mcp_server):
-        """Test that diagram tools are registered correctly (only generate_uml)."""
+        """Test that diagram tools are registered correctly (generate_uml and generate_diagram_url)."""
         register_diagram_tools(mock_mcp_server)
 
-        expected_tools = ["generate_uml"]
+        expected_tools = ["generate_uml", "generate_diagram_url"]
 
         for tool_name in expected_tools:
             matching_calls = [
@@ -58,7 +59,7 @@ class TestDiagramTools:
         assert result.get("playground") is not None
         assert result.get("local_path") is not None
         mock_generate_diagram.assert_called_once_with(
-            "class", "@startuml\nclass Test\n@enduml", "svg", "/tmp/out", None
+            "class", "@startuml\nclass Test\n@enduml", "svg", "/tmp/out", None, 1.0
         )
 
     @patch("mcp_core.tools.diagram_tools.generate_diagram")
@@ -94,3 +95,65 @@ class TestDiagramTools:
             assert result["code"] == "sample"
             call_args = mock_generate_diagram.call_args[0]
             assert call_args[0] == diagram_type
+
+    @patch("mcp_core.tools.diagram_tools.generate_diagram")
+    def test_generate_diagram_url_returns_url_and_base64_no_file(
+        self, mock_generate_diagram
+    ):
+        """generate_diagram_url returns url, playground, content_base64; no local_path."""
+        mock_generate_diagram.return_value = {
+            "code": "graph TD; A-->B;",
+            "url": "https://kroki.io/mermaid/svg/abc",
+            "playground": "https://mermaid.live/edit#...",
+            "local_path": None,
+            "content_base64": "PHN2Zz48L3N2Zz4=",
+        }
+        result = generate_diagram_url(
+            diagram_type="mermaid",
+            code="graph TD; A-->B;",
+        )
+        assert "error" not in result
+        assert result["url"] == "https://kroki.io/mermaid/svg/abc"
+        assert result["playground"] == "https://mermaid.live/edit#..."
+        assert result.get("local_path") is None
+        assert "content_base64" in result
+        mock_generate_diagram.assert_called_once()
+        args = mock_generate_diagram.call_args[0]
+        assert args[0] == "mermaid"
+        assert args[2] == "svg"  # output_format
+        assert args[3] is None  # output_dir
+
+    @patch("mcp_core.tools.diagram_tools.generate_diagram")
+    def test_generate_diagram_url_validation_error_unsupported_format(
+        self, mock_generate_diagram
+    ):
+        """generate_diagram_url with format not supported by type returns validation error."""
+        result = generate_diagram_url(
+            diagram_type="mermaid",
+            code="graph TD; A-->B;",
+            output_format="pdf",
+        )
+        assert "error" in result
+        assert "output_format" in result["error"].lower() or "validation" in result["error"].lower()
+        mock_generate_diagram.assert_not_called()
+
+    @patch("mcp_core.tools.diagram_tools.generate_diagram")
+    def test_generate_uml_accepts_jpeg_for_graphviz(self, mock_generate_diagram):
+        """generate_uml accepts output_format jpeg for diagram types that support it (e.g. graphviz)."""
+        mock_generate_diagram.return_value = {
+            "code": "digraph { A -> B; }",
+            "url": "https://kroki.io/graphviz/jpeg/abc",
+            "playground": None,
+            "local_path": None,
+            "content_base64": "/9j/4AAQ=",
+        }
+        result = generate_uml(
+            diagram_type="graphviz",
+            code="digraph { A -> B; }",
+            output_format="jpeg",
+        )
+        assert "error" not in result
+        mock_generate_diagram.assert_called_once()
+        args = mock_generate_diagram.call_args[0]
+        assert args[0] == "graphviz"
+        assert args[2] == "jpeg"
