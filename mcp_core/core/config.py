@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 from typing import Dict, List
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from tools.kroki.kroki import LANGUAGE_OUTPUT_SUPPORT
 
@@ -44,6 +44,10 @@ class MCPSettings(BaseModel):
     description: str = "Generate UML and other diagrams through MCP"
     config_schema_url: str = (
         ""  # Optional URL for session config schema (improves Configuration UX score)
+    )
+    read_only: bool = Field(
+        default_factory=lambda: os.environ.get("MCP_READ_ONLY", "false").lower()
+        in ("true", "1", "yes")
     )
     output_dir: str = _get_output_dir()
     tools: List[str] = []
