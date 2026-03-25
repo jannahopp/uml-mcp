@@ -126,11 +126,15 @@ class DiagramRequest(BaseModel):
     @field_validator("code")
     @classmethod
     def validate_code_length(cls, v: str) -> str:
-        from mcp_core.core.config import MCP_SETTINGS
+        try:
+            from mcp_core.core.config import MCP_SETTINGS
+            max_len = MCP_SETTINGS.max_code_length
+        except ImportError:
+            max_len = int(os.environ.get("MCP_MAX_CODE_LENGTH", "500000"))
 
-        if len(v) > MCP_SETTINGS.max_code_length:
+        if len(v) > max_len:
             raise ValueError(
-                f"Diagram code exceeds maximum length of {MCP_SETTINGS.max_code_length} characters"
+                f"Diagram code exceeds maximum length of {max_len} characters"
             )
         return v
 
