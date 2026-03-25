@@ -3,7 +3,6 @@ Core MCP server implementation
 """
 
 import logging
-import os
 
 # Get logger
 logger = logging.getLogger(__name__)
@@ -25,16 +24,11 @@ def create_mcp_server():
     from ..tools.diagram_tools import register_diagram_tools
     from .config import MCP_SETTINGS
 
-    # Stateless HTTP: recommended for multi-worker or horizontally scaled deployments
-    stateless_http = os.environ.get("FASTMCP_STATELESS_HTTP", "").lower() in (
-        "1",
-        "true",
-        "yes",
-    )
-
     # Initialize MCP server
+    # Note: stateless_http is configured via the FASTMCP_STATELESS_HTTP env var
+    # (passed to run_http_async/http_app, not the constructor)
     logger.info(f"Creating MCP server: {MCP_SETTINGS.server_name}")
-    server = FastMCP(MCP_SETTINGS.server_name, stateless_http=stateless_http)
+    server = FastMCP(MCP_SETTINGS.server_name)
 
     # Register all tools, resources, and prompts
     tool_names = register_diagram_tools(server)
