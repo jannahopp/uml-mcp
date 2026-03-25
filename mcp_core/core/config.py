@@ -49,6 +49,9 @@ class MCPSettings(BaseModel):
         default_factory=lambda: os.environ.get("MCP_READ_ONLY", "false").lower()
         in ("true", "1", "yes")
     )
+    max_code_length: int = Field(
+        default_factory=lambda: int(os.environ.get("MCP_MAX_CODE_LENGTH", "500000"))
+    )
     output_dir: str = _get_output_dir()
     tools: List[str] = []
     prompts: List[str] = []
