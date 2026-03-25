@@ -116,7 +116,7 @@ class DiagramRequest(BaseModel):
         description="The language of the diagram like plantuml, mermaid, etc."
     )
     type: str = Field(description="The type of the diagram like class, sequence, etc.")
-    code: str = Field(description="The code of the diagram.")
+    code: str = Field(description="The code of the diagram.", min_length=1, max_length=500_000)
     theme: str = Field(default="", description="Optional theme for the diagram.")
     output_format: Optional[str] = Field(
         default="svg", description="Output format for the diagram (svg, png, etc.)"
