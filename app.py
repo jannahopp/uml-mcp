@@ -12,7 +12,7 @@ from typing import Optional
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, Response
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 # Suppress deprecation warnings from Vercel's vendored websockets/uvicorn (not from this app).
 warnings.filterwarnings(
@@ -117,11 +117,22 @@ class DiagramRequest(BaseModel):
         description="The language of the diagram like plantuml, mermaid, etc."
     )
     type: str = Field(description="The type of the diagram like class, sequence, etc.")
-    code: str = Field(description="The code of the diagram.", min_length=1, max_length=500_000)
+    code: str = Field(description="The code of the diagram.", min_length=1)
     theme: str = Field(default="", description="Optional theme for the diagram.")
     output_format: Optional[str] = Field(
         default="svg", description="Output format for the diagram (svg, png, etc.)"
     )
+
+    @field_validator("code")
+    @classmethod
+    def validate_code_length(cls, v: str) -> str:
+        from mcp_core.core.config import MCP_SETTINGS
+
+        if len(v) > MCP_SETTINGS.max_code_length:
+            raise ValueError(
+                f"Diagram code exceeds maximum length of {MCP_SETTINGS.max_code_length} characters"
+            )
+        return v
 
 
 class DiagramResponse(BaseModel):
