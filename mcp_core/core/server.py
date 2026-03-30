@@ -26,7 +26,7 @@ def create_mcp_server():
 
     # Initialize MCP server
     # Note: stateless_http is configured via the FASTMCP_STATELESS_HTTP env var
-    # (passed to run_http_async/http_app, not the constructor)
+    # (read by run_http_async/http_app at runtime, not the constructor)
     logger.info(f"Creating MCP server: {MCP_SETTINGS.server_name}")
     server = FastMCP(MCP_SETTINGS.server_name)
 
