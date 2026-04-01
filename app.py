@@ -12,7 +12,7 @@ from typing import Optional
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, Response
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 # Suppress deprecation warnings from Vercel's vendored websockets/uvicorn (not from this app).
 warnings.filterwarnings(
@@ -100,6 +100,7 @@ app.add_middleware(_MCPAcceptHeaderMiddleware)
 # Import local modules
 try:
     from tools.kroki.kroki import LANGUAGE_OUTPUT_SUPPORT
+    from mcp_core.core.config import MCP_SETTINGS
     from mcp_core.core.utils import generate_diagram
 
     HAS_MODULES = True
@@ -116,11 +117,26 @@ class DiagramRequest(BaseModel):
         description="The language of the diagram like plantuml, mermaid, etc."
     )
     type: str = Field(description="The type of the diagram like class, sequence, etc.")
-    code: str = Field(description="The code of the diagram.")
+    code: str = Field(description="The code of the diagram.", min_length=1)
     theme: str = Field(default="", description="Optional theme for the diagram.")
     output_format: Optional[str] = Field(
         default="svg", description="Output format for the diagram (svg, png, etc.)"
     )
+
+    @field_validator("code")
+    @classmethod
+    def validate_code_length(cls, v: str) -> str:
+        try:
+            from mcp_core.core.config import MCP_SETTINGS
+            max_len = MCP_SETTINGS.max_code_length
+        except ImportError:
+            max_len = int(os.environ.get("MCP_MAX_CODE_LENGTH", "500000"))
+
+        if len(v) > max_len:
+            raise ValueError(
+                f"Diagram code exceeds maximum length of {max_len} characters"
+            )
+        return v
 
 
 class DiagramResponse(BaseModel):
@@ -182,8 +198,11 @@ async def generate_diagram_endpoint(request: DiagramRequest):
                 code = code.replace("@startuml", f"@startuml\n!theme {request.theme}")
 
         # Create output directory if it doesn't exist
-        output_dir = os.environ.get("VERCEL_OUTPUT_DIR", "/tmp/diagrams")
-        os.makedirs(output_dir, exist_ok=True)
+        if MCP_SETTINGS.read_only:
+            output_dir = None
+        else:
+            output_dir = os.environ.get("VERCEL_OUTPUT_DIR", "/tmp/diagrams")
+            os.makedirs(output_dir, exist_ok=True)
 
         # Generate the diagram
         result = generate_diagram(

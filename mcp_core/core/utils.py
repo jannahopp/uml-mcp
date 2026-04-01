@@ -237,6 +237,10 @@ def generate_diagram(
     Returns:
         Dict containing code, url, playground, local_path, and optional error; when not writing to file, content_base64 is included.
     """
+    # Defense-in-depth: force no file writes when read-only mode is active
+    if MCP_SETTINGS.read_only:
+        output_dir = None
+
     if _diagram_generator is not None:
         return _diagram_generator(
             diagram_type, code, output_format, output_dir, theme, scale

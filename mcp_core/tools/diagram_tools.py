@@ -176,6 +176,12 @@ def register_diagram_tools(server: FastMCP) -> List[str]:
     """
     logger.info("Registering diagram tools")
 
+    if MCP_SETTINGS.read_only:
+        from .tool_decorator import _registered_tools
+
+        _registered_tools.pop("generate_uml", None)
+        logger.info("MCP_READ_ONLY enabled: generate_uml tool removed from registry")
+
     # Register all tools that were decorated with @mcp_tool
     registered_tools = register_tools_with_server(server)
 
