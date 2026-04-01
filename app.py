@@ -100,6 +100,7 @@ app.add_middleware(_MCPAcceptHeaderMiddleware)
 # Import local modules
 try:
     from tools.kroki.kroki import LANGUAGE_OUTPUT_SUPPORT
+    from mcp_core.core.config import MCP_SETTINGS
     from mcp_core.core.utils import generate_diagram
 
     HAS_MODULES = True
@@ -197,8 +198,11 @@ async def generate_diagram_endpoint(request: DiagramRequest):
                 code = code.replace("@startuml", f"@startuml\n!theme {request.theme}")
 
         # Create output directory if it doesn't exist
-        output_dir = os.environ.get("VERCEL_OUTPUT_DIR", "/tmp/diagrams")
-        os.makedirs(output_dir, exist_ok=True)
+        if MCP_SETTINGS.read_only:
+            output_dir = None
+        else:
+            output_dir = os.environ.get("VERCEL_OUTPUT_DIR", "/tmp/diagrams")
+            os.makedirs(output_dir, exist_ok=True)
 
         # Generate the diagram
         result = generate_diagram(
