@@ -36,9 +36,15 @@ class GenerateDiagramInput(BaseModel):
 
     @field_validator("code")
     @classmethod
-    def validate_code_not_empty(cls, v: str) -> str:
+    def validate_code(cls, v: str) -> str:
         if not v or not v.strip():
             raise ValueError("Diagram code cannot be empty")
+        from ..core.config import MCP_SETTINGS
+
+        if len(v) > MCP_SETTINGS.max_code_length:
+            raise ValueError(
+                f"Diagram code exceeds maximum length of {MCP_SETTINGS.max_code_length} characters"
+            )
         return v.strip()
 
     @field_validator("output_format")
@@ -90,9 +96,15 @@ class GenerateUMLInput(BaseModel):
 
     @field_validator("code")
     @classmethod
-    def validate_code_not_empty(cls, v: str) -> str:
+    def validate_code(cls, v: str) -> str:
         if not v or not v.strip():
             raise ValueError("Diagram code cannot be empty")
+        from ..core.config import MCP_SETTINGS
+
+        if len(v) > MCP_SETTINGS.max_code_length:
+            raise ValueError(
+                f"Diagram code exceeds maximum length of {MCP_SETTINGS.max_code_length} characters"
+            )
         return v.strip()
 
     @field_validator("output_format")

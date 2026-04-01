@@ -45,9 +45,8 @@ class MCPSettings(BaseModel):
     config_schema_url: str = (
         ""  # Optional URL for session config schema (improves Configuration UX score)
     )
-    read_only: bool = Field(
-        default_factory=lambda: os.environ.get("MCP_READ_ONLY", "false").lower()
-        in ("true", "1", "yes")
+    max_code_length: int = Field(
+        default_factory=lambda: int(os.environ.get("MCP_MAX_CODE_LENGTH", "500000"))
     )
     output_dir: str = _get_output_dir()
     tools: List[str] = []
